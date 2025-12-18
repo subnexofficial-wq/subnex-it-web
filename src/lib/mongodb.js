@@ -15,7 +15,7 @@ if (!cached) {
 
 export default async function getDB() {
   const client = await cached;
-  const db = client.db("amd_invest-webapp");
+  const db = client.db("sub_nex_web");
   return { client, db };
 }
 
