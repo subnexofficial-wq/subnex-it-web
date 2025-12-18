@@ -6,42 +6,64 @@ import Link from "next/link";
 export default function ForgotPasswordPage() {
   const handleForgotPassword = (e) => {
     e.preventDefault();
+    const identifier = e.target.identifier.value.trim();
 
-    const identifier = e.target.identifier.value;
+    if (!identifier) {
+      alert("Please enter email or phone number");
+      return;
+    }
+
     console.log(identifier);
+    // 👉 API call later
   };
 
   return (
-    <div className="auth-page">
-      <div className="auth-box">
+    <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="w-full max-w-sm p-8 rounded-xl shadow-md">
+        {/* Logo */}
         <Image
           src="/logo.png"
-          alt="Fanflix"
+          alt="Subnex"
           width={100}
           height={30}
-          className="auth-logo"
+          className="mx-auto mb-4"
         />
 
-        <h2 className="auth-title">Forgot password</h2>
-        <p className="auth-subtitle">
+        {/* Title */}
+        <h2 className="text-xl font-semibold text-center">
+          Forgot password
+        </h2>
+        <p className="text-sm text-gray-500 text-center mb-6">
           Enter your email or phone number
         </p>
 
-        <form onSubmit={handleForgotPassword}>
+        {/* Form */}
+        <form onSubmit={handleForgotPassword} className="space-y-3">
           <input
             type="text"
             name="identifier"
             placeholder="Email or phone number"
-            className="auth-input"
+            className="w-full border rounded-lg px-3 py-2 text-sm
+                       focus:outline-none focus:ring-2 focus:ring-indigo-500"
             required
           />
 
-          <button className="auth-btn">Continue</button>
+          <button
+            type="submit"
+            className="w-full bg-indigo-600 text-white py-2
+                       rounded-lg text-sm hover:bg-indigo-700"
+          >
+            Continue
+          </button>
         </form>
 
-        <div className="auth-footer">
-          Back to <Link href="/login">Sign in</Link>
-        </div>
+        {/* Footer */}
+        <p className="text-sm text-center mt-4">
+          Back to{" "}
+          <Link href="/login" className="text-indigo-600 font-medium">
+            Sign in
+          </Link>
+        </p>
       </div>
     </div>
   );
