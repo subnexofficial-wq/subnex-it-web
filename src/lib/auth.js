@@ -1,9 +1,12 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { cookies } from "next/headers";
 
 const SALT_ROUNDS = parseInt(process.env.BCRYPT_SALT_ROUNDS || "12");
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES = process.env.JWT_EXPIRES_IN || "7d";
+
+/* ================= USER ================= */
 
 // Hash password
 export async function hashPassword(password) {
@@ -19,7 +22,7 @@ export function signToken(payload) {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES });
 }
 
-// JWT verify
+// JWT verify (manual token)
 export function verifyToken(token) {
   try {
     return jwt.verify(token, JWT_SECRET);
@@ -28,27 +31,31 @@ export function verifyToken(token) {
   }
 }
 
-
-// Hash password
-export async function hashAdminPassword(password) {
-  return bcrypt.hash(password, SALT_ROUNDS);
-}
-
-// Compare password
-export async function compareAdminPassword(password, hash) {
-  return bcrypt.compare(password, hash);
-}
+/* ================= ADMIN ================= */
 
 // Create Admin JWT
 export function signAdminToken(payload) {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES });
+  return jwt.sign(payload, JWT_SECRET, {
+    expiresIn: JWT_EXPIRES,
+  });
 }
 
-// Verify Admin JWT
-export function verifyAdminToken(token) {
+// ✅ FIXED: Async cookie-based verify
+export async function verifyAdminToken() {
   try {
-    return jwt.verify(token, JWT_SECRET);
-  } catch {
+    const cookieStore = await cookies(); 
+    const token = cookieStore.get("adminToken")?.value;
+
+    if (!token) return null;
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    if (decoded.role !== "admin") return null;
+    if (decoded.aud !== "admin-panel") return null;
+
+    return decoded;
+  } catch (err) {
+    console.error("Admin token verify failed:", err.message);
     return null;
   }
 }

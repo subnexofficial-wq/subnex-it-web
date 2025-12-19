@@ -94,7 +94,7 @@ const Navbar = () => {
       {/* =========================================
           TOP NAVBAR
       ========================================= */}
-      <nav className="w-full bg-white border-b py-1 border-gray-200 sticky top-0 z-40 shadow-sm font-sans">
+      <nav className="w-full bg-white border-b py-0 border-gray-200 sticky top-0 z-40 shadow-sm font-sans">
 
         <div className=" px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16  ">
@@ -116,9 +116,9 @@ const Navbar = () => {
             <div className=" lg:pl-42 flex items-center justify-center">
               <Link href="/" className="group flex items-center gap-0.5">
                 {/* Logo Image */}
-                <div className="relative w-8 h-8 md:w-10 md:h-10 transition-transform duration-300 ease-in-out group-hover:rotate-12">
+                <div className="relative w-30 h-10 md:w-30 md:h-16  transition-transform duration-300 ease-in-out group-hover:rotate-12">
                   <Image
-                    src="/header/header.jpg"
+                    src="/logo2.png"
                     alt="S Logo"
                     fill
                     className="object-contain"
@@ -126,15 +126,6 @@ const Navbar = () => {
                   />
                 </div>
                 {/* Text: UBNEX */}
-                <span
-                  className="text-3xl md:text-4xl font-bold -ml-1.5  pt-1.5 tracking-wide
-                  font-[var(--font-lobster)] 
-                  transition-all duration-300 ease-in-out
-                text-cyan-500 
-                  group-hover:scale-105"
-                >
-                  UBNEX
-                </span>
               </Link>
             </div>
 
@@ -211,9 +202,9 @@ const Navbar = () => {
               </div>
 
               {/* User & Cart Icons */}
-              <button className="text-gray-700 hover:text-black hover:scale-110 transition p-1">
+              <Link href="/login"className="text-gray-700 hover:text-black hover:scale-110 transition p-1">
                 <FiUser size={24} />
-              </button>
+              </Link>
               <button className="text-gray-700 hover:text-black hover:scale-110 transition p-1">
                 <FiShoppingBag size={24} />
               </button>

@@ -1,7 +1,7 @@
 // src/app/layout.js
 import { Geist, Geist_Mono, Lobster, Noto_Serif_Bengali } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/Components/Navbar";
+
 
 
 const geistSans = Geist({
@@ -39,7 +39,6 @@ export default function RootLayout({ children }) {
         className={`
           ${geistSans.variable} ${geistMono.variable} ${lobster.variable} ${notoSerifBn.variable} antialiased`}
       >
-        <Navbar />
         <main>{children}</main>
       </body>
     </html>

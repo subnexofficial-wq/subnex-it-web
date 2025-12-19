@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import getDB from "@/lib/mongodb";
-import { compareAdminPassword, signAdminToken } from "@/lib/auth";
+import {  comparePassword, signAdminToken } from "@/lib/auth";
 
 const MAX_ATTEMPTS = 5;
 const LOCK_TIME = 15 * 60 * 1000; // 15 minutes
@@ -37,7 +37,7 @@ export async function POST(req) {
       );
     }
 
-    const valid = await compareAdminPassword(password, admin.password);
+    const valid = await comparePassword(password, admin.password);
 
     if (!valid) {
       const attempts = (admin.loginAttempts || 0) + 1;
@@ -85,7 +85,7 @@ export async function POST(req) {
       httpOnly: true,
       secure,
       sameSite: "strict",
-      path: "/admin",
+      path: "/",
       maxAge: 60 * 15, // ⏱️ 15 minutes
     });
 

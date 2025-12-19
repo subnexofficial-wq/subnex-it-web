@@ -49,7 +49,7 @@ export default function FAQSection() {
   };
 
   return (
-    <section className="max-w-7xl  mx-auto px-4 py-12">
+    <section className="max-w-7xl  mx-auto px-6 py-12">
       {/* Heading */}
       <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">
         Frequently Asked Questions

@@ -1,3 +1,4 @@
+
 // src/components/home/ProductDetails.jsx
 "use client";
 
@@ -5,7 +6,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { FiHeart, FiHelpCircle, FiShare2, FiEye, FiMinus, FiPlus } from "react-icons/fi";
 
-const ProductDetails = () => {
+const BuyView = () => {
   // স্টেট ম্যানেজমেন্ট (Quantity এবং Duration এর জন্য)
   const [quantity, setQuantity] = useState(1);
   const [duration, setDuration] = useState("1 Month");
@@ -17,39 +18,31 @@ const ProductDetails = () => {
   };
 
   return (
-    <div className="w-full bg-black text-white py-10 md:py-16 font-sans">
-      <div className=" px-4 sm:px-6 lg:px-8">
+    <div className="w-full bg-[#121212] text-white  font-sans">
+      <div className=" container mx-auto pt-6 2xl:pt-0 px-4 sm:px-6 lg:px-8">
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16 items-start">
-          
-          {/* =======================
-              বাম পাশ: প্রোডাক্ট ইমেজ
-             ======================= */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
+        
           <div className="relative w-full">
             {/* মেইন ইমেজ */}
-            <div className="relative w-full aspect-square md:aspect-[4/5] overflow-hidden rounded-lg bg-gray-900 border border-gray-800">
+            <div className="relative w-full h-[80vh] aspect-square md:aspect-[4/5] overflow-hidden rounded-lg bg-gray-900 border border-gray-800">
               {/* আপনার দেওয়া ইমেজটি এখানে বসাবেন */}
               <Image
-                src="/products/netflix-vip.jpg" // public ফোল্ডারে এই নামে ইমেজ রাখুন
+                src="/Vip-2.jpeg" // public ফোল্ডারে এই নামে ইমেজ রাখুন
                 alt="Netflix VIP Plan"
                 fill
-                className="object-cover"
+                className=""
                 priority
               />
             </div>
             
-            {/* নিচে স্লাইডার ডট (ডামি) */}
-            <div className="flex justify-center gap-2 mt-4">
-              <span className="w-2.5 h-2.5 bg-white rounded-full cursor-pointer"></span>
-              <span className="w-2.5 h-2.5 bg-gray-600 rounded-full cursor-pointer hover:bg-gray-400"></span>
-            </div>
           </div>
 
 
           {/* =======================
               ডান পাশ: ডিটেইলস
              ======================= */}
-          <div className="flex flex-col h-full">
+          <div className="flex py-10 flex-col h-full">
             
             {/* ছোট টাইটেল */}
             <p className="text-[10px] md:text-xs font-bold tracking-[0.2em] text-gray-400 uppercase mb-2">
@@ -142,8 +135,8 @@ const ProductDetails = () => {
               <button className="flex items-center gap-2 hover:text-white transition">
                 <FiShare2 /> Share
               </button>
-              <button className="flex items-center gap-2 hover:text-white transition">
-                View <FiEye />
+              <button className="flex items-center gap-2 underline  hover:text-white transition">
+                View details  <FiEye />
               </button>
             </div>
 
@@ -154,4 +147,4 @@ const ProductDetails = () => {
   );
 };
 
-export default ProductDetails;
+export default BuyView;

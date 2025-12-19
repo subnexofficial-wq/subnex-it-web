@@ -12,14 +12,23 @@ import VpnProduct from "@/Components/homeSection/VpnProduct";
 import DatingProduct from "@/Components/homeSection/DatingProduct";
 import FAQSection from "@/Components/FAQSection";
 import SocialGallery from "@/Components/homeSection/SocialGellary";
+import BuyView from "@/Components/homeSection/BuyView";
+import FeaturedPromo from "@/Components/homeSection/FeaturedPromo";
 
 export default function Home() {
   return (
     <div>
        <HeroSlider />
-  <div className="container mx-auto">
-   
+  <div >
+    <div className="container mx-auto px-2">
+
     <TopPicUp />
+    </div>
+
+    <BuyView />
+
+    <div className="container mx-auto px-2">
+      
     <StreamProduct/>
     <AiToolsProduct />
     <MusicAudioProduct />
@@ -28,8 +37,17 @@ export default function Home() {
     <UtilityAndSocialTool />
     <VpnProduct />
     <DatingProduct />
+    </div>
+
+    <div className="">
+    <FeaturedPromo />
+    </div>
+
+    <div className="container mx-auto px-2">
     <SocialGallery />
     <FAQSection />
+    </div>
+
   </div>
   </div>
 

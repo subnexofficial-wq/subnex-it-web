@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import getDB from "@/lib/mongodb";
-import { hashAdminPassword, signAdminToken } from "@/lib/auth";
+import {  hashPassword, signAdminToken } from "@/lib/auth";
 
 export async function POST(req) {
   try {
@@ -32,7 +32,7 @@ export async function POST(req) {
       );
     }
 
-    const hashed = await hashAdminPassword(password);
+    const hashed = await hashPassword(password);
 
     const result = await admins.insertOne({
       username,
@@ -56,13 +56,14 @@ export async function POST(req) {
       httpOnly: true,
       secure,
       sameSite: "strict",
-      path: "/admin",
+      path: "/",
       maxAge: 60 * 15,
     });
 
     return res;
 
   } catch (err) {
+    console.error("ADMIN REGISTER ERROR:", err);
     return NextResponse.json(
       { error: "Server error" },
       { status: 500 }
