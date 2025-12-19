@@ -7,11 +7,18 @@ import Navbar from "../components/Navbar"; // 2. Navbar কম্পোনেন
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const notoSerifBn = Noto_Serif_Bengali({
+  variable: "--font-bn-serif",
+  subsets: ["bengali", "latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 // Geist Mono ফন্ট কনফিগারেশন
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+  variable: "--font-mono",
   subsets: ["latin"],
 });
 
