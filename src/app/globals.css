@@ -1,28 +1,31 @@
 @import "tailwindcss";
 
 :root {
-  --font-en: var(--font-en-serif);
-  --font-bn: var(--font-bn-serif);
-  --font-mono: var(--font-mono);
+  --background: #ffffff;
+  --foreground: #000000;
+  color-scheme: light !important;
 }
 
-body {
-  font-family: var(--font-en), var(--font-bn), serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* সব কন্ডিশনে ব্যাকগ্রাউন্ড সাদা রাখার জন্য */
+html, body {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  min-height: 100vh;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
+/* সিস্টেম ডার্ক মোড থাকলেও যেন সাদা থাকে */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #ffffff !important;
+    --foreground: #000000 !important;
+  }
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
   }
 }
 
+/* ফন্ট সেটআপ */
+body {
+  font-family: var(--font-geist-sans), var(--font-bn-serif), serif;
+}

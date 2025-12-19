@@ -46,7 +46,7 @@ const defaultOptions = {
 
 const FeaturedPromo = () => {
   return (
-    <div className="w-full bg-black py-20 border-t border-gray-900">
+    <div className="w-full  py-20 border-t border-gray-900">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         
         <div className="flex flex-col gap-16 md:gap-24">

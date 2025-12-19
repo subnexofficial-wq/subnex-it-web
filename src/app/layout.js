@@ -1,7 +1,8 @@
 // src/app/layout.js
 import { Geist, Geist_Mono, Lobster, Noto_Serif_Bengali } from "next/font/google";
 import "./globals.css";
-import Navbar from "../components/Navbar";
+import Navbar from "@/Components/Navbar";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,9 +34,10 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" data-theme="light" style={{ colorScheme: 'light' }} >
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${lobster.variable} ${notoSerifBn.variable} antialiased`}
+        className={`
+          ${geistSans.variable} ${geistMono.variable} ${lobster.variable} ${notoSerifBn.variable} antialiased`}
       >
         <Navbar />
         <main>{children}</main>

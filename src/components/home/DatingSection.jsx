@@ -14,7 +14,7 @@ const datingItems = [
 
 const DatingSection = () => {
   return (
-    <div className="w-full bg-black py-10 border-t border-gray-900">
+    <div className="w-full  py-10 border-t border-gray-900">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
         
         {/* সেকশন টাইটেল */}
