@@ -14,11 +14,11 @@ const datingItems = [
 
 const DatingSection = () => {
   return (
-    <div className="w-full bg-black py-10 border-t border-gray-900">
+    <div className="w-full bg-white py-10 border-t border-gray-900">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
         
         {/* সেকশন টাইটেল */}
-        <h2 className="text-white text-xl md:text-2xl font-bold mb-8 uppercase tracking-wide">
+        <h2 className="text-black text-xl md:text-2xl font-bold mb-8 uppercase tracking-wide">
           DATING & LIFESTYLE
         </h2>
 
