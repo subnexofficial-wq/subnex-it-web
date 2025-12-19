@@ -15,7 +15,7 @@ import SocialGallery from "./SocialGallery";
 
 const HomeLayout = () => {
     return (
-        <div className="w-full min-h-screen bg-black pb-20">
+        <div className="w-full min-h-screen bg-white pb-20">
 
             <header className="w-full">
                 <HeroSlider />

@@ -152,7 +152,7 @@ const SocialGallery = () => {
   const [selectedPost, setSelectedPost] = useState(null);
 
   return (
-    <div className="w-full bg-black py-16 border-t border-gray-900">
+    <div className="w-full bg-white py-16 border-t border-gray-900">
       <div className="w-full px-4">
         
         {/* === ১. অটোমেটিক স্লাইডার === */}
