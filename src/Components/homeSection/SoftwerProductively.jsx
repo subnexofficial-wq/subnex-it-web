@@ -1,3 +1,4 @@
+
 "use client"
 
 // src/components/home/ProductivitySection.jsx
@@ -62,7 +63,7 @@ const productivityItems = [
   }
 ];
 
-const ProductivitySection = () => {
+const SoftwerProductively = () => {
   return (
     <div className="w-full bg-white py-10 border-t border-gray-900">
       <div className=" px-4 sm:px-6">
@@ -150,4 +151,4 @@ const ProductivitySection = () => {
   );
 };
 
-export default ProductivitySection;
+export default SoftwerProductively;

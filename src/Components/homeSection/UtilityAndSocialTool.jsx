@@ -1,89 +1,63 @@
 
-"use client"
-// src/components/home/GamingSection.jsx
-import Image from "next/image";
 
-// ৭টি গেমিং প্রোডাক্টের ডাটা
-const gamingProducts = [
+"use client"
+
+// src/components/home/UtilitySection.jsx
+import Image from "next/image";
+import { FaStar } from "react-icons/fa";
+
+// ৩টি ইউটিলিটি টুলসের ডাটা
+const utilityItems = [
   { 
     id: 1, 
-    title: "PUBG Mobile UC", 
-    image: "/games/pubg.jpg", 
-    price: "Tk 0.00 BDT", 
+    title: "Youtube Premium Subscription", 
+    image: "/utility/youtube.jpg", 
+    rating: 5, reviews: 2, 
+    price: "Tk 2,600.00 BDT", 
     buttonText: "Sold out",
-    soldOut: true // সোল্ড আউট লজিক
+    soldOut: true // সোল্ড আউট
   },
   { 
     id: 2, 
-    title: "PlayStation (PSN) Gift Cards", 
-    image: "/games/psn.jpg", 
-    price: "From Tk 650.00 BDT", 
+    title: "Capcut Pro Subscription", 
+    image: "/utility/capcut.jpg", 
+    rating: 0, reviews: 0, 
+    price: "From Tk 250.00 BDT", 
     buttonText: "Choose options",
     soldOut: false
   },
   { 
     id: 3, 
-    title: "Steam Wallet Giftcard", 
-    image: "/games/steam.jpg", 
+    title: "Telegram Premium", 
+    image: "/utility/telegram.jpg", 
+    rating: 0, reviews: 0, 
     price: "From Tk 800.00 BDT", 
-    buttonText: "Choose options",
-    soldOut: false
-  },
-  { 
-    id: 4, 
-    title: "Valorant Points (VP)", 
-    image: "/games/valorant.jpg", 
-    price: "Tk 0.00 BDT", 
-    buttonText: "Sold out",
-    soldOut: true
-  },
-  { 
-    id: 5, 
-    title: "Free Fire Diamonds", 
-    image: "/games/freefire.jpg", 
-    price: "From Tk 85.00 BDT", 
-    buttonText: "Choose options",
-    soldOut: false
-  },
-  { 
-    id: 6, 
-    title: "Roblox Giftcard", 
-    image: "/games/roblox.jpg", 
-    price: "Tk 0.00 BDT", 
-    buttonText: "Sold out",
-    soldOut: true
-  },
-  { 
-    id: 7, 
-    title: "Google Play Gift Card", 
-    image: "/games/googleplay.jpg", 
-    price: "From Tk 500.00 BDT", 
     buttonText: "Choose options",
     soldOut: false
   }
 ];
 
-const GamingSection = () => {
+const UtilityAndSocialTool = () => {
   return (
     <div className="w-full bg-white py-10 border-t border-gray-900">
       <div className=" px-4 sm:px-6">
         
         {/* সেকশন টাইটেল */}
         <h2 className="text-black text-xl md:text-2xl font-bold mb-8 uppercase tracking-wide">
-          GAMES & TOP-UP
+          UTILITY & SOCIAL TOOLS
         </h2>
 
-        {/* গ্রিড লেআউট */}
+        {/* ৫ কলামের গ্রিড (৩টি আইটেম হওয়ায় বাম পাশে থাকবে) */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           
-          {gamingProducts.map((item) => (
+          {utilityItems.map((item) => (
             <div 
               key={item.id} 
               className="group flex flex-col items-center bg-[#111] border border-gray-800 rounded-xl overflow-hidden hover:border-gray-500 transition-colors duration-300"
             >
               
               {/* ইমেজ কন্টেইনার */}
-              <div className="relative w-full aspect-[3/4] bg-gray-900">
+              <div className="relative w-full aspect-square bg-gray-900">
                 <Image
                   src={item.image}
                   alt={item.title}
@@ -91,9 +65,9 @@ const GamingSection = () => {
                   className={`object-cover transition-transform duration-500 group-hover:scale-105 ${item.soldOut ? 'opacity-60' : ''}`}
                 />
                 
-                {/* Sold out ব্যাজ (যদি soldOut সত্য হয়) */}
+                {/* Sold out ব্যাজ */}
                 {item.soldOut && (
-                  <span className="absolute top-2 left-2 bg-black/80 text-white text-[10px] px-2 py-1 rounded font-bold uppercase tracking-wider">
+                  <span className="absolute bottom-2 left-2 bg-black/90 text-white text-[10px] px-2 py-1 rounded font-bold uppercase tracking-wider">
                     Sold out
                   </span>
                 )}
@@ -103,9 +77,25 @@ const GamingSection = () => {
               <div className="w-full p-4 flex flex-col items-center text-center flex-grow">
                 
                 {/* টাইটেল */}
-                <h3 className="text-white text-sm font-bold leading-snug min-h-[40px] mb-3 hover:text-green-400 transition-colors cursor-pointer">
+                <h3 className="text-white text-sm font-bold leading-snug min-h-[40px] mb-2 hover:text-green-400 transition-colors cursor-pointer">
                   {item.title}
                 </h3>
+
+                {/* রেটিং (যদি থাকে) */}
+                <div className="h-5 mb-1 flex items-center gap-1 justify-center w-full">
+                  {item.rating > 0 && (
+                    <>
+                      {[...Array(5)].map((_, i) => (
+                        <FaStar
+                          key={i}
+                          size={10}
+                          className={i < item.rating ? "text-white" : "text-gray-700"}
+                        />
+                      ))}
+                      <span className="text-gray-400 text-[10px] ml-1">({item.reviews})</span>
+                    </>
+                  )}
+                </div>
 
                 {/* দাম */}
                 <p className="text-white font-medium text-sm mb-4">
@@ -114,11 +104,11 @@ const GamingSection = () => {
 
                 {/* বাটন */}
                 <button 
-                  disabled={item.soldOut} // সোল্ড আউট হলে বাটন কাজ করবে না
+                  disabled={item.soldOut}
                   className={`mt-auto w-full border text-white py-2.5 rounded text-xs font-semibold transition-all duration-300 uppercase tracking-wider
                     ${item.soldOut 
-                      ? "border-gray-700 text-gray-500 cursor-not-allowed" // সোল্ড আউট স্টাইল
-                      : "border-gray-500 hover:bg-white hover:text-black hover:border-white" // একটিভ স্টাইল
+                      ? "border-gray-700 text-gray-500 cursor-not-allowed bg-transparent" // সোল্ড আউট স্টাইল
+                      : "border-gray-500 hover:bg-white hover:text-black hover:border-white"
                     }
                   `}
                 >
@@ -135,4 +125,4 @@ const GamingSection = () => {
   );
 };
 
-export default GamingSection;
+export default UtilityAndSocialTool;

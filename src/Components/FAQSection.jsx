@@ -49,7 +49,7 @@ export default function FAQSection() {
   };
 
   return (
-    <section className="max-w-5xl mx-auto px-4 py-12">
+    <section className="max-w-7xl  mx-auto px-4 py-12">
       {/* Heading */}
       <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">
         Frequently Asked Questions
@@ -82,7 +82,7 @@ export default function FAQSection() {
 
             {/* Answer (NO background, page background only) */}
             {openIndex === index && (
-              <div className="px-5 pt-3 text-gray-700 text-sm leading-relaxed">
+              <div className="px-5 pt-3 bg-bl text-gray-900 text-bese leading-relaxed">
                 {faq.answer}
               </div>
             )}

@@ -1,4 +1,5 @@
 
+
 "use client"
 
 // src/components/home/ProductGrid.jsx
@@ -22,11 +23,15 @@ const products = [
   { id: 14, title: "Hoichoi Subscription", image: "/products/p14.jpg", rating: 5, reviews: 12, price: "From Tk 300.00 BDT", buttonText: "Choose options" },
 ];
 
-const ProductGrid = () => {
+const TopPicUp = () => {
   return (
     <div className="w-full py-10">
       <div className="  px-4 sm:px-6">
-        <h1 className="text-black py-5 font-bold text-5xl"> Top Picks Products For you </h1>
+        {/* সেকশন টাইটেল */}
+        <h2 className="text-black text-xl md:text-2xl font-bold mb-8 uppercase tracking-wide">
+          Top Picks Products For you
+        </h2>
+
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
           
           {products.map((product) => (
@@ -87,4 +92,4 @@ const ProductGrid = () => {
   );
 };
 
-export default ProductGrid;
+export default TopPicUp;

@@ -1,3 +1,6 @@
+
+"use client"
+
 // src/components/home/UtilitySection.jsx
 import Image from "next/image";
 import { FaStar } from "react-icons/fa";
@@ -36,7 +39,7 @@ const utilityItems = [
 const UtilitySection = () => {
   return (
     <div className="w-full bg-white py-10 border-t border-gray-900">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
+      <div className=" px-4 sm:px-6">
         
         {/* সেকশন টাইটেল */}
         <h2 className="text-black text-xl md:text-2xl font-bold mb-8 uppercase tracking-wide">

@@ -94,9 +94,10 @@ const Navbar = () => {
       {/* =========================================
           TOP NAVBAR
       ========================================= */}
-      <nav className="w-full bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm font-sans">
+      <nav className="w-full bg-white border-b py-1 border-gray-200 sticky top-0 z-40 shadow-sm font-sans">
+
         <div className=" px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center h-16  ">
             {/* --- বাম পাশ: মেনু ট্রিগার ও সার্চ আইকন --- */}
             <div className="flex items-center gap-4 md:gap-6">
               <button
@@ -112,7 +113,7 @@ const Navbar = () => {
             </div>
 
             {/* --- মাঝখান: লোগো (Image + Text) --- */}
-            <div className="flex-shrink-0 flex items-center justify-center">
+            <div className=" lg:pl-42 flex items-center justify-center">
               <Link href="/" className="group flex items-center gap-0.5">
                 {/* Logo Image */}
                 <div className="relative w-8 h-8 md:w-10 md:h-10 transition-transform duration-300 ease-in-out group-hover:rotate-12">
@@ -137,10 +138,12 @@ const Navbar = () => {
               </Link>
             </div>
 
+
             {/* --- ডান পাশ: কান্ট্রি সিলেক্টর, ইউজার, কার্ট --- */}
             <div className="flex items-center gap-4 md:gap-6">
+
               {/* Country Selector (Desktop Only) */}
-              <div className="relative hidden md:block" ref={dropdownRef}>
+              <div className="relative hidden lg:block" ref={dropdownRef}>
                 <div
                   onClick={() => setIsOpen(!isOpen)}
                   className="flex items-center gap-1 cursor-pointer hover:opacity-70 transition-opacity text-sm font-semibold text-gray-800 select-none"
@@ -215,8 +218,12 @@ const Navbar = () => {
                 <FiShoppingBag size={24} />
               </button>
             </div>
+
+
           </div>
         </div>
+
+
       </nav>
 
       {/* =========================================
@@ -300,6 +307,7 @@ const Navbar = () => {
             </div>
           </div>
         </div>
+
       </div>
     </>
   );

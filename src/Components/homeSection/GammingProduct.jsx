@@ -63,7 +63,7 @@ const gamingProducts = [
   }
 ];
 
-const GamingSection = () => {
+const GammingProduct = () => {
   return (
     <div className="w-full bg-white py-10 border-t border-gray-900">
       <div className=" px-4 sm:px-6">
@@ -135,4 +135,4 @@ const GamingSection = () => {
   );
 };
 
-export default GamingSection;
+export default GammingProduct;

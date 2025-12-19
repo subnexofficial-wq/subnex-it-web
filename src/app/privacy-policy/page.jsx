@@ -1,3 +1,6 @@
+
+"use client"
+
 export const metadata = {
   title: "Privacy Policy | Subnex",
   description: "Privacy Policy of Subnex – Learn how we collect, use, and protect user information.",

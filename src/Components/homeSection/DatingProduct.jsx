@@ -1,37 +1,36 @@
 
+
+
 "use client"
 
-// src/components/home/VpnSection.jsx
+// src/components/home/DatingSection.jsx
 import Image from "next/image";
-import { FaStar } from "react-icons/fa";
 
-// ১টি ভিপিএন আইটেমের ডাটা
-const vpnItems = [
+// ১টি ডেটিং আইটেমের ডাটা
+const datingItems = [
   { 
     id: 1, 
-    title: "SurfShark VPN", 
-    image: "/vpn/surfshark.jpg", 
-    rating: 0, reviews: 0, 
-    price: "From Tk 400.00 BDT", 
-    buttonText: "Choose options",
-    soldOut: false
+    title: "Tinder Gold Subscription", 
+    image: "/lifestyle/tinder.jpg", 
+    price: "From Tk 890.00 BDT", 
+    buttonText: "Choose options"
   }
 ];
 
-const VpnSection = () => {
+const DatingProduct = () => {
   return (
     <div className="w-full bg-white py-10 border-t border-gray-900">
-      <div className=" px-4 sm:px-6">
+      <div className="px-4 sm:px-6">
         
         {/* সেকশন টাইটেল */}
         <h2 className="text-black text-xl md:text-2xl font-bold mb-8 uppercase tracking-wide">
-          VPN & SECURITY
+          DATING & LIFESTYLE
         </h2>
 
         {/* ৫ কলামের গ্রিড (১টি আইটেম হওয়ায় বাম পাশে থাকবে) */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           
-          {vpnItems.map((item) => (
+          {datingItems.map((item) => (
             <div 
               key={item.id} 
               className="group flex flex-col items-center bg-[#111] border border-gray-800 rounded-xl overflow-hidden hover:border-gray-500 transition-colors duration-300"
@@ -55,11 +54,6 @@ const VpnSection = () => {
                   {item.title}
                 </h3>
 
-                {/* রেটিং (এই কার্ডে নেই, তবে স্ট্রাকচার ঠিক রাখার জন্য রাখা হলো) */}
-                <div className="h-5 mb-1 flex items-center gap-1 justify-center w-full">
-                  {/* রেটিং থাকলে এখানে দেখাবে */}
-                </div>
-
                 {/* দাম */}
                 <p className="text-white font-medium text-sm mb-4">
                   {item.price}
@@ -82,4 +76,4 @@ const VpnSection = () => {
   );
 };
 
-export default VpnSection;
+export default DatingProduct;

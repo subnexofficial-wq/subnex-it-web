@@ -1,3 +1,6 @@
+
+"use client"
+
 // src/components/home/HomeLayout.jsx
 import HeroSlider from "./HeroSlider";
 import ProductGrid from "./ProductGrid";
@@ -21,7 +24,7 @@ const HomeLayout = () => {
                 <HeroSlider />
             </header>
 
-            <main className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+            <main className=" container mx-auto px-4 sm:px-6 lg:px-8 mt-10">
 
                 {/* প্রোডাক্ট গ্রিড */}
                 <section>
@@ -66,13 +69,13 @@ const HomeLayout = () => {
                     <DatingSection />
                 </section>
 
-                <section className="mt-16">
+                {/* <section className="mt-16">
                     <FeaturedPromo />
-                </section>
+                </section> */}
 
-                <section className="mt-16">
+                {/* <section className="mt-16">
                     <SocialGallery />
-                </section>
+                </section> */}
 
             </main>
         </div>

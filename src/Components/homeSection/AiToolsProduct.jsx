@@ -54,7 +54,7 @@ const aiTools = [
   }
 ];
 
-const AiToolsSection = () => {
+const AiToolsProduct = () => {
   return (
     <div className="w-full bg-white py-10 border-t border-gray-900">
       <div className=" px-4 sm:px-6">
@@ -128,4 +128,4 @@ const AiToolsSection = () => {
   );
 };
 
-export default AiToolsSection;
+export default AiToolsProduct;

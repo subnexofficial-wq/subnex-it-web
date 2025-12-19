@@ -1,4 +1,5 @@
 
+
 "use client"
 
 // src/components/home/VpnSection.jsx
@@ -18,7 +19,7 @@ const vpnItems = [
   }
 ];
 
-const VpnSection = () => {
+const VpnProduct = () => {
   return (
     <div className="w-full bg-white py-10 border-t border-gray-900">
       <div className=" px-4 sm:px-6">
@@ -82,4 +83,4 @@ const VpnSection = () => {
   );
 };
 
-export default VpnSection;
+export default VpnProduct;

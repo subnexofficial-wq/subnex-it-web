@@ -1,4 +1,5 @@
 
+
 "use client"
 
 // src/components/home/StreamingSection.jsx
@@ -19,7 +20,7 @@ const products = [
   { id: 10, title: "Discovery+ Premium", image: "/products2/s10.jpg", rating: 5, reviews: 3, price: "Tk 400.00 BDT", buttonText: "Choose options" },
 ];
 
-const StreamingSection = () => {
+const StreamProduct = () => {
   return (
     <div className="w-full bg-white py-10 border-t border-gray-900">
       <div className=" px-4 sm:px-6">
@@ -84,12 +85,12 @@ const StreamingSection = () => {
         {/* =========================================
              ব্যানার ইমেজ (কার্ডের নিচে)
            ========================================= */}
-        <div className="w-full relative aspect-[2/1] md:aspect-[3/1] lg:aspect-[3.5/1] rounded-xl overflow-hidden border border-gray-800">
+        <div className="w-full lg:h-[55vh] md:h-[300px] relative aspect-[2/1] md:aspect-[3/1] lg:aspect-[3.5/1] rounded-xl overflow-hidden ">
           <Image
-            src="/products2/bottom-banner.jpg" // আপনার ব্যানারের পাথ দিন
+            src="/hero1.webp" // আপনার ব্যানারের পাথ দিন
             alt="Promotional Banner"
             fill
-            className="object-cover hover:scale-105 transition-transform duration-700"
+            className=" hover:scale-105 transition-transform duration-700"
           />
         </div>
 
@@ -98,4 +99,4 @@ const StreamingSection = () => {
   );
 };
 
-export default StreamingSection;
+export default StreamProduct;
