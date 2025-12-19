@@ -1,9 +1,8 @@
 // src/app/layout.js
-import { Geist, Geist_Mono, Lobster } from "next/font/google"; // 1. Lobster ফন্ট ইম্পোর্ট
+import { Geist, Geist_Mono, Lobster, Noto_Serif_Bengali } from "next/font/google";
 import "./globals.css";
-import Navbar from "../components/Navbar"; // 2. Navbar কম্পোনেন্ট ইম্পোর্ট
+import Navbar from "../components/Navbar";
 
-// Geist Sans ফন্ট কনফিগারেশন
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -16,17 +15,15 @@ const notoSerifBn = Noto_Serif_Bengali({
   weight: ["400", "500", "600", "700"],
 });
 
-// Geist Mono ফন্ট কনফিগারেশন
 const geistMono = Geist_Mono({
   variable: "--font-mono",
   subsets: ["latin"],
 });
 
-// 3. Lobster ফন্ট কনফিগারেশন (লোগোর জন্য)
 const lobster = Lobster({
-  weight: "400", // Lobster এর শুধু 400 weight থাকে
+  weight: "400",
   subsets: ["latin"],
-  variable: "--font-lobster", // এই ভেরিয়েবল নাম দিয়ে আমরা Navbar এ ফন্ট ডাকবো
+  variable: "--font-lobster",
 });
 
 export const metadata = {
@@ -38,12 +35,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${lobster.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${lobster.variable} ${notoSerifBn.variable} antialiased`}
       >
         <Navbar />
-        <main>
-          {children}
-        </main>
+        <main>{children}</main>
       </body>
     </html>
   );
