@@ -45,7 +45,7 @@ export default function ProductsPage() {
           href="/admin/dashboard/products/add"
           className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-md shadow-blue-100"
         >
-          <Plus size={20} /> Add New Product
+          <Plus size={20} /> Add Product
         </Link>
       </div>
 
@@ -82,8 +82,8 @@ export default function ProductsPage() {
                       <span className="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg text-xs font-bold capitalize border border-blue-100">{p.category}</span>
                     </td>
                     <td className="px-6 py-4 border-y">
-                      <div className="font-black text-gray-900 text-base">৳{p.discountPrice || p.regularPrice}</div>
-                      {p.discountPrice && <div className="text-xs text-gray-400 line-through font-medium">৳{p.regularPrice}</div>}
+                      <div className="font-black text-gray-900 text-base">BDT {p.discountPrice || p.regularPrice}</div>
+                      {p.discountPrice && <div className="text-xs text-gray-400 line-through font-medium">BDT {p.regularPrice}</div>}
                     </td>
                     <td className="px-6 py-4 border-y text-gray-600 font-bold ">{p.validity || "N/A"}</td>
                      <td className="px-6 py-4 border-y text-gray-600 font-bold">{p.quantity|| "Unlimited"}</td>

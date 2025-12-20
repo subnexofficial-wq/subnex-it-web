@@ -2,22 +2,49 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
-import { FiMenu, FiLogOut } from "react-icons/fi";
+import { usePathname, useRouter } from "next/navigation"; // useRouter যুক্ত করা হয়েছে
+import { FiMenu, FiLogOut, FiLoader } from "react-icons/fi"; // FiLoader যুক্ত করা হয়েছে
 import { useState } from "react";
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false); // লোডিং স্টেট
 
   const nav = [
-      { name: "Dashboard", href: "/admin/dashboard" },
-      { name: "Customers", href: "/admin/dashboard/users" },
+    { name: "Dashboard", href: "/admin/dashboard" },
+    { name: "Customers", href: "/admin/dashboard/users" },
     { name: "Products", href: "/admin/dashboard/products" },
     { name: "Orders", href: "/admin/dashboard/orders" },
     { name: "Payments", href: "/admin/dashboard/payments" },
     { name: "Settings", href: "/admin/dashboard/settings" },
   ];
+
+  // ================= Logout Function =================
+  const handleLogout = async () => {
+    if (!confirm("Are you sure you want to logout?")) return;
+
+    setIsLoggingOut(true);
+    try {
+      const res = await fetch("/api/admin/auth/logout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (res.ok) {
+        // সফল হলে লগইন পেজে পাঠিয়ে দিবে এবং হিস্ট্রি ক্লিয়ার করবে
+        window.location.replace("/admin");
+      } else {
+        alert("Logout failed. Please try again.");
+      }
+    } catch (err) {
+      console.error("Logout Error:", err);
+      alert("Something went wrong!");
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-200 flex font-sans">
@@ -47,14 +74,15 @@ export default function AdminLayout({ children }) {
           ))}
         </nav>
 
-        {/* Logout */}
+        {/* Logout Button (Desktop) */}
         <div className="p-4 border-t border-gray-800">
           <button
-            onClick={() => alert("Logout logic later")}
-            className="w-full flex items-center gap-2 px-4 py-2 text-sm rounded bg-red-600 transition"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm rounded bg-red-600 hover:bg-red-700 transition disabled:opacity-50"
           >
-            <FiLogOut />
-            Logout
+            {isLoggingOut ? <FiLoader className="animate-spin" /> : <FiLogOut />}
+            {isLoggingOut ? "Logging out..." : "Logout"}
           </button>
         </div>
       </aside>
@@ -95,9 +123,14 @@ export default function AdminLayout({ children }) {
           ))}
         </nav>
 
+        {/* Logout Button (Mobile) */}
         <div className="p-4 border-t border-gray-800">
-          <button className="w-full flex items-center gap-2 px-4 py-2 text-sm bg-red-600 rounded">
-            <FiLogOut />
+          <button 
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm bg-red-600 rounded active:scale-95 disabled:opacity-50"
+          >
+            {isLoggingOut ? <FiLoader className="animate-spin" /> : <FiLogOut />}
             Logout
           </button>
         </div>
@@ -119,7 +152,7 @@ export default function AdminLayout({ children }) {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
     </div>
   );

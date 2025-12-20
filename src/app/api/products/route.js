@@ -1,9 +1,12 @@
-
 import { NextResponse } from "next/server";
 import getDB from "@/lib/mongodb";
 
-export async function GET(req) {
+export async function GET(req, { params }) { // params এখানে একটি Promise
   try {
+    // ✅ সমাধান: params কে await করতে হবে
+    const resolvedParams = await params; 
+    const category = resolvedParams.category;
+
     const { searchParams } = new URL(req.url);
     const page = Number(searchParams.get("page") || 1);
     const limit = Number(searchParams.get("limit") || 12);
@@ -14,16 +17,14 @@ export async function GET(req) {
     const products = await db
       .collection("products")
       .find(
-        { active: true },
+        { category, active: true },
         {
           projection: {
             title: 1,
-            category: 1,
             regularPrice: 1,
             discountPrice: 1,
             thumbnail: 1,
             duration: 1,
-            featured: 1,
           },
         }
       )
@@ -34,7 +35,8 @@ export async function GET(req) {
 
     return NextResponse.json(products);
 
-  } catch {
+  } catch (error) {
+    console.error("API Error:", error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
