@@ -3,7 +3,7 @@ import getDB from "@/lib/mongodb";
 import {  comparePassword, signAdminToken } from "@/lib/auth";
 
 const MAX_ATTEMPTS = 5;
-const LOCK_TIME = 15 * 60 * 1000; // 15 minutes
+const LOCK_TIME = 15 * 60 * 1000; 
 
 export async function POST(req) {
   try {
@@ -86,7 +86,7 @@ export async function POST(req) {
       secure,
       sameSite: "strict",
       path: "/",
-      maxAge: 60 * 15, // ⏱️ 15 minutes
+      maxAge: 60 * 60, // ⏱️ 15 minutes
     });
 
     return res;

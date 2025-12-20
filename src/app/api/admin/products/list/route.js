@@ -1,11 +1,12 @@
 
 import { NextResponse } from "next/server";
 import getDB from "@/lib/mongodb";
-import { verifyAdmin } from "@/lib/verifyAdmin";
+import { verifyAdminToken } from "@/lib/auth";
 
-export async function GET(req) {
+
+export async function GET() {
   try {
-    const admin = await verifyAdmin(req);
+    const admin = await verifyAdminToken();
     if (!admin)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 

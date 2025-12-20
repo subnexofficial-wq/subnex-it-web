@@ -57,7 +57,7 @@ export async function POST(req) {
       secure,
       sameSite: "strict",
       path: "/",
-      maxAge: 60 * 15,
+      maxAge: 60 * 60,
     });
 
     return res;
