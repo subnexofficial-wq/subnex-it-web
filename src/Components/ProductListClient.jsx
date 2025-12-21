@@ -45,7 +45,7 @@ export default function ProductListClient({ initialProducts }) {
       </div>
 
       {/* প্রোডাক্ট গ্রিড - আপনার ডিজাইন অনুযায়ী */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         {filteredProducts.map(product => (
           <ProductCard key={product._id} product={product} />
         ))}

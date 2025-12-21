@@ -1,0 +1,85 @@
+"use client";
+import { priceCalculation } from "@/actions/priceAction";
+import { createContext, useContext, useState, useEffect } from "react";
+
+const CartContext = createContext();
+
+export const CartProvider = ({ children }) => {
+  const [cart, setCart] = useState([]);
+
+  useEffect(() => {
+    const savedCart = localStorage.getItem("cart");
+    if (savedCart) setCart(JSON.parse(savedCart));
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
+
+
+  const addToCart = async (product, mainPrice ,  quantity, variant) => {
+    const productId = product._id || product.id; 
+    const duration = variant?.duration || "N/A";
+    const uniqueId = `${productId}-${duration}`;
+
+    // সার্ভার থেকে (Unit Price * Quantity) নিয়ে আসা
+    const totalAmount = await priceCalculation( productId, duration, quantity);
+
+    setCart((prevCart) => {
+      const existingItem = prevCart.find((item) => item.uniqueId === uniqueId);
+      
+      if (existingItem) {
+      
+        return prevCart.map((item) => {
+           if(item.uniqueId === uniqueId) {
+              const newQty = item.quantity + Number(quantity);
+           
+              return { ...item, quantity: newQty };
+           }
+           return item;
+        });
+      }
+      
+      return [
+        ...prevCart,
+        {
+          id: productId,
+          uniqueId,
+          title: product.title,
+          image: product.thumbnail,
+          price: mainPrice,
+          totalPrice: totalAmount,       
+          duration: duration,
+          quantity: Number(quantity),
+        },
+      ];
+    });
+  };
+
+
+  const updateQuantity = async (uniqueId, amount, productId, duration, currentQty) => {
+    const newQty = Math.max(1, currentQty + amount);
+
+    const newTotalPrice = await priceCalculation(productId, duration, newQty);
+
+    setCart((prevCart) =>
+      prevCart.map((item) =>
+        item.uniqueId === uniqueId
+          ? { ...item, quantity: newQty, totalPrice: newTotalPrice }
+          : item
+      )
+    );
+  };
+
+  const removeFromCart = (uniqueId) => {
+    setCart((prevCart) => prevCart.filter((item) => item.uniqueId !== uniqueId));
+  };
+
+  return (
+    <CartContext.Provider value={{ cart, addToCart, updateQuantity, removeFromCart }}>
+      {children}
+    </CartContext.Provider>
+  );
+};
+
+export const useCart = () => useContext(CartContext);

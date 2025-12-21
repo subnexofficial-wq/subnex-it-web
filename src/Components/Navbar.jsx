@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 
-// আইকন ইম্পোর্ট (Feather Icons & FontAwesome 6)
+// আইকন ইম্পোর্ট
 import {
   FiMenu,
   FiSearch,
@@ -22,8 +22,8 @@ import {
   FaTiktok,
   FaYoutube,
 } from "react-icons/fa6";
+import { useCart } from "@/hooks/CartContext";
 
-// === ডাটা: দেশের তালিকা ===
 const countryList = [
   { name: "Bangladesh", currency: "BDT ৳" },
   { name: "India", currency: "INR ₹" },
@@ -46,7 +46,6 @@ const countryList = [
   { name: "Spain", currency: "EUR €" },
 ];
 
-// === ডাটা: সাইডবার মেনু আইটেম ===
 const menuItems = [
   { name: "All Products", href: "/products" },
   { name: "Streaming Services", href: "/streaming" },
@@ -56,15 +55,15 @@ const menuItems = [
 ];
 
 const Navbar = () => {
-  // === State Management ===
-  const [isOpen, setIsOpen] = useState(false); // কান্ট্রি ড্রপডাউন টগল
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // সাইডবার মেনু টগল
-  const [selected, setSelected] = useState(countryList[0]); // সিলেক্ট করা দেশ
-  const [searchTerm, setSearchTerm] = useState(""); // কান্ট্রি সার্চ টেক্সট
+  const { cart } = useCart(); // কার্ট স্টেট নিয়ে আসলাম
 
-  const dropdownRef = useRef(null); // ড্রপডাউন রেফারেস
+  const [isOpen, setIsOpen] = useState(false); 
+  const [isMenuOpen, setIsMenuOpen] = useState(false); 
+  const [selected, setSelected] = useState(countryList[0]); 
+  const [searchTerm, setSearchTerm] = useState(""); 
 
-  // 1. ড্রপডাউনের বাইরে ক্লিক করলে বন্ধ হবে
+  const dropdownRef = useRef(null); 
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -75,7 +74,6 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [dropdownRef]);
 
-  // 2. সাইডবার ওপেন থাকলে পেজের স্ক্রল বন্ধ রাখা
   useEffect(() => {
     if (isMenuOpen) {
       document.body.style.overflow = "hidden";
@@ -84,21 +82,16 @@ const Navbar = () => {
     }
   }, [isMenuOpen]);
 
-  // 3. কান্ট্রি ফিল্টার লজিক
   const filteredCountries = countryList.filter((country) =>
     country.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <>
-      {/* =========================================
-          TOP NAVBAR
-      ========================================= */}
       <nav className="w-full bg-white border-b py-0 border-gray-200 sticky top-0 z-40 shadow-sm font-sans">
-
-        <div className=" px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16  ">
-            {/* --- বাম পাশ: মেনু ট্রিগার ও সার্চ আইকন --- */}
+        <div className="px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* বাম পাশ */}
             <div className="flex items-center gap-4 md:gap-6">
               <button
                 onClick={() => setIsMenuOpen(true)}
@@ -112,193 +105,106 @@ const Navbar = () => {
               </button>
             </div>
 
-            {/* --- মাঝখান: লোগো (Image + Text) --- */}
-            <div className=" lg:pl-42 flex items-center justify-center">
+            {/* মাঝখান: লোগো */}
+            <div className="lg:pl-42 flex items-center justify-center">
               <Link href="/" className="group flex items-center gap-0.5">
-                {/* Logo Image */}
-                <div className="relative w-30 h-10 md:w-30 md:h-16  transition-transform duration-300 ease-in-out group-hover:rotate-12">
+                <div className="relative w-30 h-10 md:w-30 md:h-16 transition-transform duration-300 ease-in-out group-hover:rotate-12">
                   <Image
                     src="/logo2.png"
-                    alt="S Logo"
+                    alt="Logo"
                     fill
                     className="object-contain"
                     priority
                   />
                 </div>
-                {/* Text: UBNEX */}
               </Link>
             </div>
 
-
-            {/* --- ডান পাশ: কান্ট্রি সিলেক্টর, ইউজার, কার্ট --- */}
+            {/* ডান পাশ */}
             <div className="flex items-center gap-4 md:gap-6">
-
-              {/* Country Selector (Desktop Only) */}
+              {/* Country Selector */}
               <div className="relative hidden lg:block" ref={dropdownRef}>
                 <div
                   onClick={() => setIsOpen(!isOpen)}
                   className="flex items-center gap-1 cursor-pointer hover:opacity-70 transition-opacity text-sm font-semibold text-gray-800 select-none"
                 >
-                  <span>
-                    {selected.name} | {selected.currency}
-                  </span>
-                  {isOpen ? (
-                    <FiChevronUp className="mt-0.5" />
-                  ) : (
-                    <FiChevronDown className="mt-0.5" />
-                  )}
+                  <span>{selected.name} | {selected.currency}</span>
+                  {isOpen ? <FiChevronUp /> : <FiChevronDown />}
                 </div>
 
-                {/* Dropdown Body */}
                 {isOpen && (
                   <div className="absolute top-full right-0 mt-3 w-64 bg-white border border-gray-200 rounded-lg shadow-xl z-50 overflow-hidden">
-                    {/* Search Input */}
-                    <div
-                      className="p-3 border-b border-gray-100 bg-white sticky top-0"
-                      onClick={(e) => e.stopPropagation()}
-                    >
+                    <div className="p-3 border-b border-gray-100 bg-white sticky top-0" onClick={(e) => e.stopPropagation()}>
                       <input
                         type="text"
                         placeholder="Search..."
-                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm text-black focus:outline-none focus:border-black transition-colors"
+                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-black transition-colors"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                       />
                     </div>
-
-                    {/* Country List */}
-                    <div className="max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
-                      {filteredCountries.length > 0 ? (
-                        filteredCountries.map((country, index) => (
-                          <div
-                            key={index}
-                            className={`px-4 py-2.5 text-sm cursor-pointer hover:bg-gray-50 transition-colors flex justify-between items-center
-                              ${
-                                selected.name === country.name
-                                  ? "bg-gray-100 font-bold text-black"
-                                  : "text-gray-600"
-                              }
-                            `}
-                            onClick={() => {
-                              setSelected(country);
-                              setIsOpen(false);
-                              setSearchTerm("");
-                            }}
-                          >
-                            <span>{country.name}</span>
-                            <span className="text-xs text-gray-400">
-                              {country.currency}
-                            </span>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="px-4 py-3 text-sm text-gray-400 text-center">
-                          No result found
+                    <div className="max-h-60 overflow-y-auto scrollbar-thin">
+                      {filteredCountries.map((country, index) => (
+                        <div
+                          key={index}
+                          className={`px-4 py-2.5 text-sm cursor-pointer hover:bg-gray-50 flex justify-between items-center ${selected.name === country.name ? "bg-gray-100 font-bold" : ""}`}
+                          onClick={() => {
+                            setSelected(country);
+                            setIsOpen(false);
+                            setSearchTerm("");
+                          }}
+                        >
+                          <span>{country.name}</span>
+                          <span className="text-xs text-gray-400">{country.currency}</span>
                         </div>
-                      )}
+                      ))}
                     </div>
                   </div>
                 )}
               </div>
 
               {/* User & Cart Icons */}
-              <Link href="/login"className="text-gray-700 hover:text-black hover:scale-110 transition p-1">
+              <Link href="/login" className="text-gray-700 hover:text-black transition p-1">
                 <FiUser size={24} />
               </Link>
-              <button className="text-gray-700 hover:text-black hover:scale-110 transition p-1">
-                <FiShoppingBag size={24} />
-              </button>
+              
+              {/* আপডেটেড কার্ট আইকন ব্যাজ সহ */}
+              <Link href="/cart" className="text-gray-700 hover:text-black transition p-1 relative group">
+                <FiShoppingBag size={24} className="group-hover:scale-110 transition-transform" />
+                {cart.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center shadow-sm">
+                    {cart.length}
+                  </span>
+                )}
+              </Link>
             </div>
-
-
           </div>
         </div>
-
-
       </nav>
 
-      {/* =========================================
-          SIDEBAR MENU (DRAWER)
-      ========================================= */}
-
-      {/* 1. Black Overlay */}
+      {/* SIDEBAR MENU (Design Unchanged) */}
       <div
-        className={`fixed inset-0 bg-black/50 z-50 transition-opacity duration-300 
-        ${isMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"}`}
+        className={`fixed inset-0 bg-black/50 z-50 transition-opacity duration-300 ${isMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"}`}
         onClick={() => setIsMenuOpen(false)}
       />
-
-      {/* 2. White Sidebar Panel */}
       <div
-        className={`fixed top-0 left-0 h-full w-[300px] sm:w-[350px] bg-white z-[60] shadow-2xl 
-        transform transition-transform duration-300 ease-in-out 
-        ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
+        className={`fixed top-0 left-0 h-full w-[300px] sm:w-[350px] bg-white z-[60] shadow-2xl transform transition-transform duration-300 ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         <div className="flex flex-col h-full font-sans">
-          {/* Header: Close & Search Icon */}
           <div className="flex items-center gap-6 p-6 pt-8">
-            <button
-              onClick={() => setIsMenuOpen(false)}
-              className="text-black hover:rotate-90 transition-transform duration-300 p-1"
-            >
+            <button onClick={() => setIsMenuOpen(false)} className="text-black transition-transform duration-300 p-1">
               <FiX size={28} />
             </button>
-            <button className="text-black hover:scale-110 transition p-1">
-              <FiSearch size={26} />
-            </button>
+            <button className="text-black p-1"><FiSearch size={26} /></button>
           </div>
-
-          {/* Body: Navigation Links */}
           <div className="flex-1 px-6 py-4 flex flex-col gap-6 overflow-y-auto">
             {menuItems.map((item, index) => (
-              <Link
-                key={index}
-                href={item.href}
-                className="text-[17px] text-gray-900 font-medium hover:text-red-600 hover:translate-x-1 transition-all"
-                onClick={() => setIsMenuOpen(false)}
-              >
+              <Link key={index} href={item.href} className="text-[17px] text-gray-900 font-medium hover:text-red-600 transition-all" onClick={() => setIsMenuOpen(false)}>
                 {item.name}
               </Link>
             ))}
           </div>
-
-          {/* Footer: Social Icons */}
-          <div className="bg-gray-50 p-8 border-t border-gray-100">
-            <div className="flex items-center gap-6 text-black">
-              <a
-                href="#"
-                className="hover:text-gray-600 hover:-translate-y-1 transition-transform"
-              >
-                <FaXTwitter size={20} />
-              </a>
-              <a
-                href="#"
-                className="hover:text-blue-600 hover:-translate-y-1 transition-transform"
-              >
-                <FaFacebookF size={20} />
-              </a>
-              <a
-                href="#"
-                className="hover:text-pink-600 hover:-translate-y-1 transition-transform"
-              >
-                <FaInstagram size={22} />
-              </a>
-              <a
-                href="#"
-                className="hover:text-black hover:-translate-y-1 transition-transform"
-              >
-                <FaTiktok size={20} />
-              </a>
-              <a
-                href="#"
-                className="hover:text-red-600 hover:-translate-y-1 transition-transform"
-              >
-                <FaYoutube size={22} />
-              </a>
-            </div>
-          </div>
         </div>
-
       </div>
     </>
   );
