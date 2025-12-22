@@ -73,9 +73,9 @@ const DynamicProductSection = ({ products, sectionTitle }) => {
                   <div className="h-5 mb-1">
                     <div className="flex items-center gap-1">
                       {[...Array(5)].map((_, i) => (
-                        <FaStar key={i} size={10} className="text-white" />
+                        <FaStar key={i} size={13} className="text-white" />
                       ))}
-                      <span className="text-gray-400 text-[10px] ml-1">(Verified)</span>
+                      <span className="text-gray-400 text-[11px] ml-1">( {product.totalReviews} )</span>
                     </div>
                   </div>
 

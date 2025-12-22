@@ -1,45 +1,32 @@
 
-
-
-import getDB from "@/lib/mongodb";
 import DynamicProductSection from "@/Components/DynamicProductSection";
 import BuyView from "@/Components/BuyView";
 import FeaturedPromo from "@/Components/FeaturedPromo";
 import SocialGallery from "@/Components/SocialGellary";
 import FAQSection from "@/Components/FAQSection";
 import HeroSlider from "@/Components/HeroSlider";
+import { getAllProducts } from "@/actions/productActions";
 
 export default async function Home() {
-  // ১. ডাটাবেস থেকে সব একটিভ প্রোডাক্ট একবারে নিয়ে আসা
-  const { db } = await getDB();
-  const allProducts = await db
-    .collection("products")
-    .find({ active: true })
-    .sort({ createdAt: -1 })
-    .toArray();
 
-  // ২. ক্যাটাগরি অনুযায়ী ফিল্টার করার সহজ ফাংশন
+  const products = await getAllProducts();
+
+
   const getByCategory = (cat) => 
-    allProducts
-      .filter((p) => p.category === cat)
-      .map(p => ({ ...p, _id: p._id.toString() })) 
-      .slice(0, 10); 
- 
-  const featuredProducts = allProducts
+    products.filter((p) => p.category === cat).slice(0, 10);
+
+  const featuredProducts = products
     .filter((p) => p.featured === true)
-    .map(p => ({ ...p, _id: p._id.toString() }))
     .slice(0, 10);
-    
-    
+
   return (
     <main>
       <HeroSlider />
       
-      <div className="container mx-auto px-2">
-
+      <div className="container mx-auto px-4 space-y-12 my-10">
         <DynamicProductSection 
           products={featuredProducts} 
-          sectionTitle=" Top Picks Products For you" 
+          sectionTitle="Top Picks Products For you" 
         />
 
         <DynamicProductSection 
@@ -47,10 +34,14 @@ export default async function Home() {
           sectionTitle="Featured Offers" 
         />
 
-        {/* ডায়নামিক সেকশনগুলো */}
         <DynamicProductSection 
           products={getByCategory("tools")} 
           sectionTitle="AI & EDUCATION TOOLS" 
+        />
+
+        <DynamicProductSection 
+          products={getByCategory("google-drive")} 
+          sectionTitle="STORAGE SERVICES" 
         />
         
         <DynamicProductSection 
@@ -61,7 +52,7 @@ export default async function Home() {
 
       <BuyView />
 
-      <div className="container mx-auto px-2">
+      <div className="container mx-auto px-4 space-y-12 my-10">
         <DynamicProductSection 
           products={getByCategory("gaming")} 
           sectionTitle="GAMING SUBSCRIPTIONS" 
@@ -76,14 +67,13 @@ export default async function Home() {
         />
         <DynamicProductSection 
           products={getByCategory("social")} 
-          sectionTitle=" SOCIAL MEDIA SERVICES" 
+          sectionTitle="SOCIAL MEDIA SERVICES" 
         />
-        {/* এভাবেই অন্যান্য ক্যাটাগরিগুলো বসিয়ে দিন */}
       </div>
 
       <FeaturedPromo />
 
-      <div className="container mx-auto px-2">
+      <div className="container mx-auto px-4 my-10">
         <SocialGallery />
         <FAQSection />
       </div>

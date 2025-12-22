@@ -47,16 +47,16 @@ const countryList = [
 ];
 
 const menuItems = [
+  { name: "Home", href: "/" },
   { name: "All Products", href: "/products" },
   { name: "Streaming Services", href: "/streaming" },
   { name: "Educational Tools", href: "/education" },
-  { name: "Get Netflix Household Code", href: "/netflix-code" },
   { name: "Contact Information", href: "/contact" },
+  { name: "Privacy Policy", href: "/privacy-policy" },
 ];
 
 const Navbar = () => {
-  const { cart } = useCart(); // কার্ট স্টেট নিয়ে আসলাম
-
+  const { cart } = useCart(); 
   const [isOpen, setIsOpen] = useState(false); 
   const [isMenuOpen, setIsMenuOpen] = useState(false); 
   const [selected, setSelected] = useState(countryList[0]); 

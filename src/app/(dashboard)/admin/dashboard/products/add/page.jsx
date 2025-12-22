@@ -64,8 +64,8 @@ export default function AddProductPage() {
     formData.append("image", file);
 
     try {
-      const apiKey = "2a7b43ffea25ada6231fbb6c2fa5820b"; 
-      const res = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+       const imgbbApiKey = process.env.NEXT_PUBLIC_IMGBB_API_KEY;
+      const res = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbApiKey}`, {
         method: "POST",
         body: formData,
       });
