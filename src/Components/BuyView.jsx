@@ -25,7 +25,7 @@ const BuyView = () => {
         
           <div className="relative w-full">
             {/* মেইন ইমেজ */}
-            <div className="relative w-full h-[80vh] aspect-square md:aspect-[4/5] overflow-hidden rounded-lg bg-gray-900 border border-gray-800">
+            <div className="relative w-full  h-full  md:h-[80vh] aspect-square md:aspect-[4/5] overflow-hidden rounded-lg bg-gray-900 border border-gray-800">
               {/* আপনার দেওয়া ইমেজটি এখানে বসাবেন */}
               <Image
                 src="/Vip-2.jpeg" // public ফোল্ডারে এই নামে ইমেজ রাখুন
