@@ -94,7 +94,7 @@ const SingleProductClient = ({ product, relatedProducts }) => {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
         {/* ইমেজ সেকশন */}
-        <div className="w-full sticky top-24">
+        <div className="w-full   md:sticky md:top-24">
           <div className="relative lg:w-9/10 mx-auto aspect-square bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
             <Image
               src={product.thumbnail}
