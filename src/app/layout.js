@@ -1,8 +1,14 @@
 // src/app/layout.js
-import { Geist, Geist_Mono, Lobster, Noto_Serif_Bengali } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  Lobster,
+  Noto_Serif_Bengali,
+} from "next/font/google";
 import "./globals.css";
-
-
+import { AuthProvider } from "@/hooks/useAuth";
+import { CartProvider } from "@/hooks/CartContext";
+import { FaWhatsapp } from "react-icons/fa";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,12 +40,30 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" data-theme="light" style={{ colorScheme: 'light' }} >
+    <html lang="en" data-theme="light" style={{ colorScheme: "light" }}>
       <body
         className={`
           ${geistSans.variable} ${geistMono.variable} ${lobster.variable} ${notoSerifBn.variable} antialiased`}
       >
-        <main>{children}</main>
+        <main>
+          <AuthProvider>
+            <CartProvider>
+              {children}
+
+              <div>
+                {/* Floating WhatsApp Support */}
+                <a
+                  href="https://wa.me/YOUR_NUMBER"
+                  target="_blank"
+                  className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-[#25D366] text-white px-6 py-3.5 rounded-full shadow-2xl font-bold hover:scale-105 transition active:scale-95"
+                >
+                  <FaWhatsapp size={24} />
+                  <span>Need Help?</span>
+                </a>
+              </div>
+            </CartProvider>
+          </AuthProvider>
+        </main>
       </body>
     </html>
   );

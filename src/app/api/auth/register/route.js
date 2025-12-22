@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import getDB from "@/lib/mongodb";
 import { hashPassword, signToken } from "@/lib/auth";
+import getDB from "@/lib/mongodb";
 
 function isValidMobile(mobile) {
   return /^[0-9]{10,15}$/.test(mobile);
@@ -11,9 +11,9 @@ export async function POST(req) {
     const { mobile, password, email } = await req.json();
 
     // Validation
-    if (!email && !mobile|| !password) {
+    if (!email || !mobile || !password) {
       return NextResponse.json(
-        { error: "Mobile & password required" },
+        { error: "All fields are required" },
         { status: 400 }
       );
     }
@@ -25,43 +25,32 @@ export async function POST(req) {
       );
     }
 
-    if (password.length < 6) {
-      return NextResponse.json(
-        { error: "Password must be at least 6 characters" },
-        { status: 400 }
-      );
-    }
-
-    const { db } = await getDB();
+    // Connect to DB
+    const { db } = await getDB(); 
     const users = db.collection("users");
 
-    // Duplicate check
-    const exists = await users.findOne({ email }, { projection: { isActive: 1 } });
+    // Check for existing user
+    const exists = await users.findOne({ $or: [{ email }, { mobile }] });
     if (exists) {
       return NextResponse.json(
-        { error: "Mobile already registered" },
+        { error: "Email or Mobile already registered" },
         { status: 409 }
       );
     }
 
-    // Hash password (your auth.js)
     const hashedPassword = await hashPassword(password);
 
     const user = {
       mobile,
-      email: email,
+      email,
       password: hashedPassword,
-
       role: "user",
       isActive: true,
-
       createdAt: new Date(),
-      updatedAt: new Date(),
     };
 
     const result = await users.insertOne(user);
 
-    // JWT (your auth.js)
     const token = signToken({
       sub: result.insertedId.toString(),
       role: "user",
@@ -80,8 +69,10 @@ export async function POST(req) {
     return res;
 
   } catch (err) {
+    console.error("Auth Register Error:", err);
+    // This now works because NextResponse is imported at the top
     return NextResponse.json(
-      { error: "Server error" },
+      { error: "Server error", details: err.message },
       { status: 500 }
     );
   }

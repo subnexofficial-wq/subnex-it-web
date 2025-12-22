@@ -1,8 +1,6 @@
-
 import { NextResponse } from "next/server";
 import getDB from "@/lib/mongodb";
 import { verifyAdminToken } from "@/lib/auth";
-
 
 export async function POST(req) {
   try {
@@ -13,52 +11,58 @@ export async function POST(req) {
     const {
       title,
       category,
-      regularPrice,
-      discountPrice,
       quantity,
-      duration,
-      validity,
       thumbnail,
       highlights,
       fullDescription,
       active,
       featured,
+      variants,
+      storageSize,
     } = await req.json();
 
-    if (!title || !category || regularPrice == null || !thumbnail) {
+    if (
+      !title ||
+      !category ||
+      !thumbnail ||
+      !variants ||
+      variants.length === 0
+    ) {
       return NextResponse.json(
-        { error: "Required fields missing" },
+        { error: "Required fields missing or no pricing variants found" },
         { status: 400 }
       );
     }
 
     const { db } = await getDB();
 
+    // ডাটাবেসে ইনসার্ট করার আগে variants গুলোকে ফরম্যাট করা
+    const formattedVariants = variants.map((v) => ({
+      duration: v.duration || "N/A",
+      price: Number(v.price) || 0,
+    }));
+
     await db.collection("products").insertOne({
       title,
       category,
-
-      regularPrice: Number(regularPrice),
-      discountPrice: discountPrice ? Number(discountPrice) : null,
-
-      quantity: quantity ?? null,
-      duration: duration || "",
-      validity: validity || "",
-
       thumbnail,
-      highlights: Array.isArray(highlights) ? highlights : [],
       fullDescription: fullDescription || "",
+      highlights: Array.isArray(highlights) ? highlights : [],
 
+      variants: formattedVariants,
+      storageSize: storageSize || null,
+
+      quantity: quantity ? Number(quantity) : null,
       active: active ?? true,
       featured: featured ?? false,
-
+      totalReviews: 0,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
 
     return NextResponse.json({ ok: true });
-
   } catch (err) {
+    console.error("Product Creation Error:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
