@@ -18,7 +18,7 @@ export default function Footer() {
 
   return (
     <footer className="bg-gradient-to-b from-black to-neutral-900 text-gray-300">
-      <div className="container mx-auto px-6 py-16">
+      <div className="container mx-auto px-4 py-16">
         {/* Top Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {/* Brand Info */}
@@ -58,13 +58,12 @@ export default function Footer() {
               Our Policy
             </h3>
             <ul className="space-y-3 text-sm">
-              <li><Link href="/policies/refund-exchange-policy" className="hover:text-white">Refund & Exchange Policy</Link></li>
-              <li><Link href="/terms-of-service" className="hover:text-white">Terms & Conditions</Link></li>
+              <li><Link href="/" className="hover:text-white">Home</Link></li>
+              <li><Link href="/products" className="hover:text-white">All Products</Link></li>
+              <li><Link href="/streaming" className="hover:text-white">Streaming Services</Link></li>
+              <li><Link href="/education" className="hover:text-white">Educational Tools</Link></li>
+              <li><Link href="/contact" className="hover:text-white">Contact Information</Link></li>
               <li><Link href="/privacy-policy" className="hover:text-white">Privacy Policy</Link></li>
-              <li><Link href="/order-cancellation" className="hover:text-white">Order & Cancellation Policy</Link></li>
-              <li><Link href="/eula" className="hover:text-white">EULA</Link></li>
-              <li><Link href="/trademark" className="hover:text-white">Trademark</Link></li>
-              <li><Link href="/policies/ContactInformation" className="hover:text-white">Contact Information</Link></li>
             </ul>
           </div>
 
@@ -91,7 +90,7 @@ export default function Footer() {
         <div className="border-t border-gray-700 my-10" />
 
         {/* Bottom Section */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 text-sm">
+        <div className="flex flex-col md:flex-row items-center  md:justify-between gap-6 text-sm">
           {/* Country Selector */}
          <FooterCountrySelector></FooterCountrySelector>
 

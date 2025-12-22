@@ -23,7 +23,7 @@ export default async function Home() {
     <main>
       <HeroSlider />
       
-      <div className="container mx-auto px-4 space-y-12 my-10">
+      <div className="container mx-auto  space-y-12 my-10">
         <DynamicProductSection 
           products={featuredProducts} 
           sectionTitle="Top Picks Products For you" 
@@ -52,7 +52,7 @@ export default async function Home() {
 
       <BuyView />
 
-      <div className="container mx-auto px-4 space-y-12 my-10">
+      <div className="container mx-auto  space-y-12 my-10">
         <DynamicProductSection 
           products={getByCategory("gaming")} 
           sectionTitle="GAMING SUBSCRIPTIONS" 
@@ -73,7 +73,7 @@ export default async function Home() {
 
       <FeaturedPromo />
 
-      <div className="container mx-auto px-4 my-10">
+      <div className="container mx-auto  my-10">
         <SocialGallery />
         <FAQSection />
       </div>

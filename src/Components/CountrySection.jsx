@@ -49,7 +49,7 @@ export default function FooterCountrySelector() {
 
   return (
     <div className="relative text-sm" ref={ref}>
-      <p className="mb-2 text-gray-400">Country / region</p>
+      <p className="mb-2 text-gray-400 text-center md:text-start">Country / region</p>
 
       {/* Trigger */}
       <button
