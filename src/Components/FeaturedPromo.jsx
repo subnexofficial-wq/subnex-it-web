@@ -61,7 +61,7 @@ export default function FeaturedPromo() {
                     rotateY: -5,
                   }}
                   transition={{ type: "spring", stiffness: 200, damping: 18 }}
-                  className="relative w-full  lg:w-3/4 h-[60vh] aspect-[4/3] md:aspect-video
+                  className="relative w-full  lg:w-3/4 h-full md:h-[60vh] aspect-[4/3] md:aspect-video
                               overflow-hidden
                              hover:shadow-[0_0_60px_rgba(34,197,94,0.35)]"
                 >
