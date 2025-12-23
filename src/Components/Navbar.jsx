@@ -15,14 +15,8 @@ import {
   FiChevronUp,
   FiX,
 } from "react-icons/fi";
-import {
-  FaXTwitter,
-  FaFacebookF,
-  FaInstagram,
-  FaTiktok,
-  FaYoutube,
-} from "react-icons/fa6";
 import { useCart } from "@/hooks/CartContext";
+import { useAuth } from "@/hooks/useAuth";
 
 const countryList = [
   { name: "Bangladesh", currency: "BDT ৳" },
@@ -56,6 +50,7 @@ const menuItems = [
 ];
 
 const Navbar = () => {
+  const { user } = useAuth();
   const { cart } = useCart(); 
   const [isOpen, setIsOpen] = useState(false); 
   const [isMenuOpen, setIsMenuOpen] = useState(false); 
@@ -85,6 +80,7 @@ const Navbar = () => {
   const filteredCountries = countryList.filter((country) =>
     country.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
 
   return (
     <>
@@ -164,7 +160,9 @@ const Navbar = () => {
               </div>
 
               {/* User & Cart Icons */}
-              <Link href="/login" className="text-gray-700 hover:text-black transition p-1">
+              <Link
+               href={user ? "/user" : "/login"}
+               className="text-gray-700 hover:text-black transition p-1">
                 <FiUser size={24} />
               </Link>
               
