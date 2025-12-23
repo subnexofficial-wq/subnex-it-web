@@ -9,6 +9,7 @@ import "./globals.css";
 import { AuthProvider } from "@/hooks/useAuth";
 import { CartProvider } from "@/hooks/CartContext";
 import { FaWhatsapp } from "react-icons/fa";
+import WellcomePopUp from "@/Components/WellcomePopUp";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -61,6 +62,8 @@ export default function RootLayout({ children }) {
                   <span>Need Help?</span>
                 </a>
               </div>
+
+              <WellcomePopUp />
             </CartProvider>
           </AuthProvider>
         </main>

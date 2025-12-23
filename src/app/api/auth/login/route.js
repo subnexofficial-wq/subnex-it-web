@@ -18,7 +18,7 @@ export async function POST(req) {
     const users = db.collection("users");
 
     // Find user
-    const user = await users.findOne({ email } , { projection: { isActive: 1 } } );
+   const user = await users.findOne({ email });
     if (!user) {
       // generic error (security)
       return NextResponse.json(
