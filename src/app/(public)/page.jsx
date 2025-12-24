@@ -29,23 +29,24 @@ export default async function Home() {
         />
 
         <DynamicProductSection
-          products={getByCategory("offers")}
-          sectionTitle="Featured Offers"
+          products={getByCategory("digital-product")}
+          sectionTitle="DIGITAL PRODUCTS"
         />
 
         <DynamicProductSection
-          products={getByCategory("tools")}
-          sectionTitle="AI & EDUCATION TOOLS"
+          products={getByCategory("service")}
+          sectionTitle="SERVICES"
         />
 
         <DynamicProductSection
-          products={getByCategory("google-drive")}
-          sectionTitle="STORAGE SERVICES"
+          products={getByCategory("subscription")}
+          sectionTitle="SUBSCRIPTIONS"
         />
+      
 
         <DynamicProductSection
-          products={getByCategory("streaming")}
-          sectionTitle="PREMIUM STREAMING"
+          products={getByCategory("course")}
+          sectionTitle="COURSES"
         />
       </div>
 
@@ -53,17 +54,19 @@ export default async function Home() {
 
       <div className="container mx-auto  space-y-12 my-10">
         <DynamicProductSection
-          products={getByCategory("gaming")}
-          sectionTitle="GAMING SUBSCRIPTIONS"
+          products={getByCategory("automation")}
+          sectionTitle="AUTOMATIONS"
         />
         <DynamicProductSection
-          products={getByCategory("software")}
-          sectionTitle="SOFTWARE SUBSCRIPTIONS"
+          products={getByCategory("custom-solution")}
+          sectionTitle="CUSTOM SOLUTIONS"
         />
-        <DynamicProductSection
+
+        {/* <DynamicProductSection
           products={getByCategory("vpn")}
           sectionTitle="VPN SERVICES"
-        />
+        /> */}
+
         <DynamicProductSection
           products={getByCategory("social")}
           sectionTitle="SOCIAL MEDIA SERVICES"

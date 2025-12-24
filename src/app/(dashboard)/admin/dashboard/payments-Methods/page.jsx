@@ -144,7 +144,7 @@ export default function AdminPaymentSettings() {
                       : "bg-gray-900 text-white hover:bg-blue-600 shadow-gray-200"
                   }`}
                 >
-                  {updating === key ? "SAVING..." : "UPDATE NUMBER"}
+                  {updating === key ? "SAVING..." : "UPDATE"}
                 </button>
               </div>
             </div>

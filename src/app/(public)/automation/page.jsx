@@ -1,3 +1,4 @@
+
 import { getAllProducts } from "@/actions/productActions";
 import DynamicProductSection from "@/Components/DynamicProductSection";
 import React from "react";
@@ -9,9 +10,10 @@ const StreamingPage = async () => {
 
   return (
     <div>
+      
       <DynamicProductSection
-        products={getByCategory("streaming")}
-        sectionTitle="PREMIUM STREAMING"
+        products={getByCategory("automation")}
+        sectionTitle="AUTOMATION"
       />
     </div>
   );
