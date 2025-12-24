@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
@@ -8,10 +7,9 @@ import ContactSection from "@/Components/checkout/ContactSection";
 import DeliverySection from "@/Components/checkout/DeliverySection";
 import ShippingMethod from "@/Components/checkout/ShippingMethod";
 import BillingAddress from "@/Components/checkout/BillingAddress";
-import AddTip from "@/Components/checkout/TipSection"; 
+import AddTip from "@/Components/checkout/TipSection";
 import OrderSummary from "@/Components/checkout/OrderSummary";
 import { countries } from "../../../data/Country";
-
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -38,7 +36,6 @@ export default function CheckoutPage() {
       if (cart.length > 0) {
         setCheckoutItems(cart);
       } else {
-        
         router.push("/products");
       }
     }
@@ -53,71 +50,81 @@ export default function CheckoutPage() {
     address: "",
     city: "",
     postal: "",
-    phone: ""
+    phone: "",
   });
-  
-  const [shippingData, setShippingData] = useState({ price: 0, title: "Regular WhatsApp Delivery" });
+
+  const [shippingData, setShippingData] = useState({
+    price: 0,
+    title: "Regular WhatsApp Delivery",
+  });
   const [tipAmount, setTipAmount] = useState(0);
   const [discount, setDiscount] = useState(0);
 
   const subtotal = useMemo(() => {
-    return checkoutItems.reduce((acc, item) => acc + (item.totalPrice || (item.price * item.quantity)), 0);
+    return checkoutItems.reduce(
+      (acc, item) => acc + (item.totalPrice || item.price * item.quantity),
+      0
+    );
   }, [checkoutItems]);
 
   const total = subtotal + shippingData.price + tipAmount - discount;
 
-
-  
-
   const handleCompleteOrder = async () => {
-    // ফর্ম ভ্যালিডেশন
     if (!delivery.address || !contact.email || !contact.phone) {
-      alert("Please fill in all required contact and delivery information.");
+      alert("Please fill in all information.");
       return;
     }
 
- 
-    const pendingOrderData = {
-      orderItems: checkoutItems, 
+    const orderData = {
+      orderItems: checkoutItems,
       customer: { ...contact, ...delivery },
       pricing: {
         subtotal,
-        shippingFee: shippingData.price, 
-        shippingTitle: shippingData.title,
+        shippingFee: shippingData.price,
         tip: tipAmount,
-        discount: discount,
-        totalAmount: total
+        discount,
+        totalAmount: total, 
       },
-      isBuyNow: isBuyNow 
+      status: "pending",
+      paymentStatus: "unpaid",
     };
 
-   
-    sessionStorage.setItem("pendingOrder", JSON.stringify(pendingOrderData));
-    
-    sessionStorage.removeItem("directCheckout");
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderData),
+      });
 
-    router.push("/payment/verify");
+      const result = await res.json();
+
+      if (res.ok) {
+        // শুধু orderId নিয়ে পেমেন্ট পেজে যান
+        router.push(`/payment?orderId=${result.orderId}&amount=${total}`);
+      }
+    } catch (err) {
+      console.error("Order Creation Error", err);
+    }
   };
 
   return (
     <div className="min-h-screen bg-[#f7f7f7]">
       <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-10 items-start">
-          
           {/* LEFT SECTION */}
           <div className="space-y-8 pb-20">
             <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
               <ContactSection data={contact} setData={setContact} />
             </div>
-            
+
             <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
               <DeliverySection data={delivery} setData={setDelivery} />
             </div>
 
             <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-              <ShippingMethod 
-                address={delivery.address} 
-                onMethodChange={(data) => setShippingData(data)} 
+              <ShippingMethod
+                address={delivery.address}
+                onMethodChange={(data) => setShippingData(data)}
               />
             </div>
 
@@ -126,9 +133,9 @@ export default function CheckoutPage() {
             </div>
 
             <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-              <AddTip 
-                subtotal={subtotal} 
-                onTipChange={(amount) => setTipAmount(amount)} 
+              <AddTip
+                subtotal={subtotal}
+                onTipChange={(amount) => setTipAmount(amount)}
               />
             </div>
           </div>
@@ -144,7 +151,7 @@ export default function CheckoutPage() {
               setDiscount={setDiscount}
               total={total}
             />
-            
+
             <button
               onClick={handleCompleteOrder}
               disabled={checkoutItems.length === 0}
@@ -152,14 +159,14 @@ export default function CheckoutPage() {
             >
               Proceed to Payment • ৳{total.toLocaleString()}
             </button>
-            
+
             <p className="text-[10px] text-center text-gray-400">
               By clicking the button, you agree to our Terms of Service.
             </p>
-             {/* Security Badge */}
+            {/* Security Badge */}
             <div className="flex items-center justify-center gap-4  grayscale">
-               <img src="/bakash.webp" alt="bkash" className="h-6" /> Bkash
-               <img src="/nagad.webp" alt="nagad" className="h-6" /> Nagad
+              <img src="/bakash.webp" alt="bkash" className="h-6" /> Bkash
+              <img src="/nagad.webp" alt="nagad" className="h-6" /> Nagad
             </div>
           </aside>
         </div>

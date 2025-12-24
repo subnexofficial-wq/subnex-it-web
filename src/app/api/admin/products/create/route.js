@@ -36,7 +36,6 @@ export async function POST(req) {
 
     const { db } = await getDB();
 
-    // ডাটাবেসে ইনসার্ট করার আগে variants গুলোকে ফরম্যাট করা
     const formattedVariants = variants.map((v) => ({
       duration: v.duration || "N/A",
       price: Number(v.price) || 0,
@@ -48,10 +47,8 @@ export async function POST(req) {
       thumbnail,
       fullDescription: fullDescription || "",
       highlights: Array.isArray(highlights) ? highlights : [],
-
       variants: formattedVariants,
       storageSize: storageSize || null,
-
       quantity: quantity ? Number(quantity) : null,
       active: active ?? true,
       featured: featured ?? false,

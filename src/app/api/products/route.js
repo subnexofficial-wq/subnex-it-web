@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import getDB from "@/lib/mongodb";
 
-export async function GET(req, { params }) { // params এখানে একটি Promise
+export async function GET(req, { params }) { 
   try {
-    // ✅ সমাধান: params কে await করতে হবে
+
     const resolvedParams = await params; 
     const category = resolvedParams.category;
 
