@@ -10,10 +10,13 @@ import BillingAddress from "@/Components/checkout/BillingAddress";
 import AddTip from "@/Components/checkout/TipSection";
 import OrderSummary from "@/Components/checkout/OrderSummary";
 import { countries } from "../../../data/Country";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function CheckoutPage() {
+
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { user } = useAuth();
   const { cart } = useCart();
   const isBuyNow = searchParams.get("buyNow") === "true";
 
@@ -77,6 +80,7 @@ export default function CheckoutPage() {
 
     const orderData = {
       orderItems: checkoutItems,
+      userEmail: user?.email || "guest",
       customer: { ...contact, ...delivery },
       pricing: {
         subtotal,

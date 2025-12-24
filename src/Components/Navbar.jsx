@@ -40,11 +40,13 @@ const countryList = [
   { name: "Spain", currency: "EUR €" },
 ];
 
+
 const menuItems = [
   { name: "Home", href: "/" },
   { name: "All Products", href: "/products" },
-  { name: "Streaming Services", href: "/streaming" },
-  { name: "Educational Tools", href: "/education" },
+  { name: "Digital product", href: "/digital-product" },
+  { name: "Subscription", href: "/subscription" },
+  { name: "Automation", href: "/automation" },
   { name: "Contact Information", href: "/contact" },
   { name: "Privacy Policy", href: "/privacy-policy" },
 ];

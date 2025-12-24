@@ -251,10 +251,12 @@ export default function AddProductPage() {
               <label className={labelStyle}>Category *</label>
               <select required className={inputStyle} value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
                 <option value="">Select</option>
-                <option value="streaming">Streaming</option>
-                <option value="google-drive">Google Drive</option>
-                <option value="software">Software</option>
-                <option value="gaming">Gaming</option>
+                <option value="digital-product">Digital product</option>
+                <option value="service">Service</option>
+                <option value="subscription">Subscription</option>
+                <option value="course">Course</option>
+                <option value="automation">Automation</option>
+                <option value="custom-solution">Custom solution</option>
               </select>
             </div>
 

@@ -17,14 +17,14 @@ export async function POST(req) {
 
     const { db } = await getDB();
 
-    // ১. আলাদা 'transactions' কালেকশনে পেমেন্ট ডাটা সেভ করা
+ 
     const newTransaction = {
-      orderId: new ObjectId(orderId), // অর্ডারের সাথে লিংক করার জন্য
+      orderId: new ObjectId(orderId), 
       method: method,
       senderNumber: sender,
       trxId: transactionId,
       amountPaid: Number(amount),
-      status: "pending", // অ্যাডমিন ভেরিফাই করার জন্য ডিফল্ট পেন্ডিং
+      status: "pending", 
       submittedAt: new Date(),
     };
 
