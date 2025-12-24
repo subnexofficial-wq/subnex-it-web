@@ -100,7 +100,7 @@ export default function CheckoutPage() {
 
       if (res.ok) {
         // শুধু orderId নিয়ে পেমেন্ট পেজে যান
-        router.push(`/payment?orderId=${result.orderId}`);
+        router.push(`/payment?orderId=${result.orderId}&amount=${total}`);
       }
     } catch (err) {
       console.error("Order Creation Error", err);

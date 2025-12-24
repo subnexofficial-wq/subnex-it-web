@@ -49,7 +49,7 @@ export default function CustomersPage() {
           </div>
           <button
             onClick={downloadCSV}
-            className="flex items-center justify-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg transition-all shadow-sm font-medium text-sm"
+            className="flex items-center justify-center gap-2 bg-black  border border-gray-200  text-white px-4 py-2 rounded-lg transition-all shadow-sm font-medium text-sm"
           >
             <Download size={16} /> Export CSV
           </button>
@@ -62,7 +62,7 @@ export default function CustomersPage() {
         ) : (
           <>
             {/* --- MOBILE & MEDIUM DEVICE VIEW (Cards) --- */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:hidden gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 lg:hidden gap-4">
               {users.map((user) => (
                 <div key={user._id} className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm relative overflow-hidden">
                   <div className={`absolute top-0 left-0 w-1 h-full ${user.isActive ? 'bg-green-500' : 'bg-red-500'}`}></div>

@@ -89,9 +89,9 @@ export default function AdminOrderDashboard() {
     );
 
   return (
-    <div className="p-4 md:p-6 bg-[#f8fafc] min-h-screen">
+    <div className="px-2 py-6 container mx-auto min-h-screen">
       {/* Header */}
-      <div className="container mx-auto mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div className=" mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black italic uppercase tracking-tighter text-slate-900">
             Incoming <span className="text-indigo-600">Orders</span>

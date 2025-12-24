@@ -1,12 +1,18 @@
 "use client";
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation'; // নেভিগেশনের জন্য রাউটার ইমপোর্ট
+import React, { useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
-const PaymentPage = () => {
-    const router = useRouter(); // রাউটার ইনিশিয়ালাইজ করা
+const PaymentContent = () => {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    
+    // ডাইনামিক ডাটা রিসিভ করা
+    const orderId = searchParams.get('orderId') || "0";
+    const amount = searchParams.get('amount') || "0.00";
+
     const [activeTab, setActiveTab] = useState('MFS/WALLET');
-    const [selectedMethod, setSelectedMethod] = useState(''); // শুরুতে কোনো মেথড সিলেক্ট থাকবে না
+    const [selectedMethod, setSelectedMethod] = useState('');
     const [lang, setLang] = useState('en');
     const [isVisible, setIsVisible] = useState(true);
 
@@ -19,7 +25,7 @@ const PaymentPage = () => {
             card: 'CARD',
             mfs: 'WALLET',
             internetBank: 'INTERNET BANK',
-            pay: 'PAY BDT 50.00',
+            pay: `PAY BDT ${amount}`, // ডাইনামিক অ্যামাউন্ট
             terms: 'By clicking this pay button you agree our terms and conditions which is limited to facilitating your payment to the merchant mentioned above',
             tos: 'Terms of Service',
             verified: 'Verified by',
@@ -32,9 +38,9 @@ const PaymentPage = () => {
             offers: 'অফার সমূহ',
             login: 'লগইন',
             card: 'কার্ড',
-            mfs: 'ওয়ালেট',
+            mfs: 'ওয়ালেট',
             internetBank: 'ইন্টারনেট ব্যাংক',
-            pay: '৫০.০০ টাকা প্রদান করুন',
+            pay: `${amount} টাকা প্রদান করুন`, // ডাইনামিক অ্যামাউন্ট
             terms: 'এই পে বাটনে ক্লিক করার মাধ্যমে আপনি আমাদের শর্তাবলীতে সম্মত হচ্ছেন যা উপরে উল্লিখিত মার্চেন্টের কাছে আপনার পেমেন্ট সহজতর করার মধ্যে সীমাবদ্ধ',
             tos: 'পরিষেবার শর্তাবলী',
             verified: 'ভেরিফাইড বাই',
@@ -45,7 +51,6 @@ const PaymentPage = () => {
 
     const t = translations[lang];
 
-    // ১. কার্ড মেথডসমূহ
     const cardMethods = [
         { name: 'Visa', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/visa.png' },
         { name: 'MasterCard', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/master.png' },
@@ -56,7 +61,6 @@ const PaymentPage = () => {
         { name: 'Southeast', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/ok.png' },
     ];
 
-    // ২. মোবাইল ব্যাংকিং মেথড
     const mfsMethods = [
         { name: 'bKash', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/bkash.png' },
         { name: 'Nagad', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/naged.png' },
@@ -66,23 +70,20 @@ const PaymentPage = () => {
         { name: 'mCash', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/mck.png' },
     ];
 
-    // ৩. ইন্টারনেট ব্যাংকিং মেথড
     const bankMethods = [
         { name: 'Islami Bank', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/islim.png' },
         { name: 'City Touch', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/city.png' },
         { name: 'MTB', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/mta.webp' }
     ];
 
-    // পেমেন্ট বাটনে ক্লিক করলে নেভিগেশন হ্যান্ডলার
     const handlePay = () => {
         if (!selectedMethod) {
             alert(lang === 'bn' ? "দয়া করে একটি পেমেন্ট পদ্ধতি নির্বাচন করুন" : "Please select a payment method");
             return;
         }
-        // ইউজারকে পেমেন্ট পেজে নিয়ে যাবে (যেমন: /payment/nagad)
-        // স্পেস থাকলে তা সরিয়ে ছোট হাতের অক্ষরে কনভার্ট করবে
         const methodName = selectedMethod.toLowerCase().replace(/\s+/g, '');
-        router.push(`/payment/${methodName}`);
+        // মেথড পেজে যাওয়ার সময় orderId এবং amount পাস করা হচ্ছে
+        router.push(`/payment/${methodName}?orderId=${orderId}&amount=${amount}`);
     };
 
     if (!isVisible) {
@@ -115,10 +116,10 @@ const PaymentPage = () => {
 
                     <div className="flex items-center gap-3">
                         <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-inner">
-                            F
+                            S
                         </div>
                         <div>
-                            <h1 className="text-xl font-bold text-gray-800 leading-tight">FanFlix</h1>
+                            <h1 className="text-xl font-bold text-gray-800 leading-tight uppercase">SubNex</h1>
                             <p className="text-[10px] text-gray-400 font-medium">MID: EM255109371807F4D</p>
                         </div>
 
@@ -179,43 +180,7 @@ const PaymentPage = () => {
 
                 {/* Payment Options Grid */}
                 <div className="p-6 grid grid-cols-3 gap-4 min-h-[250px] bg-white content-start">
-
-                    {/* ১. CARD ট্যাব */}
-                    {activeTab === 'CARD' && cardMethods.map((method) => (
-                        <div
-                            key={method.name}
-                            onClick={() => setSelectedMethod(method.name)}
-                            className={`relative flex items-center justify-center p-2 h-16 border-2 rounded-lg cursor-pointer transition-all duration-200 ${selectedMethod === method.name ? 'border-[#006747] bg-emerald-50/30' : 'border-gray-100 hover:border-gray-200'
-                                }`}
-                        >
-                            {selectedMethod === method.name && (
-                                <div className="absolute -top-2 -right-2 bg-white rounded-full text-green-600 shadow-sm">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" /></svg>
-                                </div>
-                            )}
-                            <img src={method.logo} alt={method.name} className={`max-w-full max-h-full object-contain ${selectedMethod === method.name ? 'grayscale-0' : 'grayscale opacity-60'}`} />
-                        </div>
-                    ))}
-
-                    {/* ২. MFS/WALLET ট্যাব */}
-                    {activeTab === 'MFS/WALLET' && mfsMethods.map((method) => (
-                        <div
-                            key={method.name}
-                            onClick={() => setSelectedMethod(method.name)}
-                            className={`relative flex items-center justify-center p-2 h-16 border-2 rounded-lg cursor-pointer transition-all duration-200 ${selectedMethod === method.name ? 'border-[#006747] bg-emerald-50/30' : 'border-gray-100 hover:border-gray-200'
-                                }`}
-                        >
-                            {selectedMethod === method.name && (
-                                <div className="absolute -top-2 -right-2 bg-white rounded-full text-green-600 shadow-sm">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" /></svg>
-                                </div>
-                            )}
-                            <img src={method.logo} alt={method.name} className={`max-w-full max-h-full object-contain ${selectedMethod === method.name ? 'grayscale-0' : 'grayscale opacity-60'}`} />
-                        </div>
-                    ))}
-
-                    {/* ৩. INTERNET BANK ট্যাব */}
-                    {activeTab === 'INTERNET BANK' && bankMethods.map((method) => (
+                    {(activeTab === 'CARD' ? cardMethods : activeTab === 'MFS/WALLET' ? mfsMethods : bankMethods).map((method) => (
                         <div
                             key={method.name}
                             onClick={() => setSelectedMethod(method.name)}
@@ -238,7 +203,7 @@ const PaymentPage = () => {
                         onClick={handlePay}
                         className="w-full bg-[#006747] text-white py-3.5 rounded-md flex items-center justify-center gap-3 font-bold text-lg hover:bg-[#004d35] active:scale-[0.98] transition-all shadow-md"
                     >
-                        <span className="text-xl">👆</span> {t.pay}
+                         {t.pay}
                     </button>
                     <p className="text-[10px] text-gray-400 mt-4 text-center leading-relaxed font-medium">
                         {t.terms}
@@ -268,4 +233,11 @@ const PaymentPage = () => {
     );
 };
 
-export default PaymentPage;
+// Next.js useSearchParams এর জন্য Suspense ব্যবহার করা বেস্ট প্র্যাকটিস
+export default function PaymentPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+            <PaymentContent />
+        </Suspense>
+    );
+}
