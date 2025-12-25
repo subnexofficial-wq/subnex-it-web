@@ -57,7 +57,7 @@ export default function RootLayout({ children }) {
         )}
       </head>
       <body
-        className={`
+        className={` overflow-x-hidden w-full relative
           ${geistSans.variable} ${geistMono.variable} ${lobster.variable} ${notoSerifBn.variable} antialiased`}
       >
         {/* GTM Noscript (Fallback) */}
