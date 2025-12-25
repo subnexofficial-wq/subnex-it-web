@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react"; // ১. এখানে useEffect ইমপোর্ট করতে হবে (আগে মিসিং ছিল)
 import {
   FiMinus,
   FiPlus,
@@ -16,6 +16,7 @@ import ReviewSection from "./review/ReviewSection";
 import { FaStar } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { priceCalculation } from "@/actions/priceAction";
+import { pushToDataLayer } from "@/lib/gtm";
 
 const SingleProductClient = ({ product, relatedProducts }) => {
   const { addToCart } = useCart();
@@ -25,8 +26,19 @@ const SingleProductClient = ({ product, relatedProducts }) => {
   );
   const [quantity, setQuantity] = useState(1);
   const [showMoreDesc, setShowMoreDesc] = useState(false);
-
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+
+  // --- Tracking: ViewContent (পেজ লোড হলে) ---
+  useEffect(() => {
+    if (product) {
+      pushToDataLayer("ViewContent", {
+        item_id: product._id,
+        item_name: product.title,
+        price: product.discountPrice || product.regularPrice, // সঠিক প্রাইস ফিল্ড
+        currency: "BDT"
+      });
+    }
+  }, [product]);
 
   const mainPrice = selectedVariant
     ? selectedVariant.discountPrice > 0
@@ -42,35 +54,56 @@ const SingleProductClient = ({ product, relatedProducts }) => {
     ? product.regularPrice
     : null;
 
-
+  // --- Tracking: AddToCart ---
   const handleAddToCart = async () => {
     await addToCart(product, mainPrice, parseInt(quantity), selectedVariant);
     setIsPopupOpen(true);
-  };
-
-  const handleBuyNow = async() => {
-     
-   const totalPrice = await priceCalculation (
-      product._id,
-      selectedVariant ? selectedVariant.duration : null,
-      quantity
-    );
-
-    const buyNowData = {
-      productId: product._id,
-      title: product.title,
-      image:product.thumbnail,
-      price: mainPrice,
+    
+    pushToDataLayer("AddToCart", {
+      item_id: product._id,
+      item_name: product.title,
+      price: mainPrice, // ভেরিয়েন্ট অনুযায়ী সঠিক প্রাইস পাঠানো হচ্ছে
       quantity: parseInt(quantity),
-      duration: selectedVariant ? selectedVariant.duration : null,
-      totalPrice: totalPrice,
-      isBuyNow: true,
-    };
-
-    sessionStorage.setItem("directCheckout", JSON.stringify(buyNowData));
-    router.push("/checkouts?buyNow=true");
-
+      currency: "BDT"
+    });
   };
+
+// --- Tracking: InitiateCheckout (Buy Now বাটনের জন্য) ---
+  const handleBuyNow = async () => {
+    try {
+      const totalPrice = await priceCalculation(
+        product._id,
+        selectedVariant ? selectedVariant.duration : null,
+        quantity
+      );
+
+      const buyNowData = {
+        productId: product._id,
+        title: product.title,
+        image: product.thumbnail,
+        price: mainPrice,
+        quantity: parseInt(quantity),
+        duration: selectedVariant ? selectedVariant.duration : null,
+        totalPrice: totalPrice,
+        isBuyNow: true,
+      };
+
+      // ইভেন্ট ট্র্যাক করা হচ্ছে
+      pushToDataLayer("InitiateCheckout", {
+        item_id: product._id,
+        item_name: product.title,
+        value: totalPrice,
+        currency: "BDT"
+      });
+
+      sessionStorage.setItem("directCheckout", JSON.stringify(buyNowData));
+      router.push("/checkouts?buyNow=true");
+    } catch (error) {
+      console.error("Checkout Error:", error);
+      // এখানে আপনি একটি ছোট টোস্ট বা এলার্ট দিতে পারেন
+    }
+  };
+
   return (
     <div className="w-full min-h-screen bg-white pb-20 font-sans text-black">
       {/* Cart Popup Component */}

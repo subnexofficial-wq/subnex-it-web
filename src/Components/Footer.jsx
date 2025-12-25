@@ -44,11 +44,11 @@ export default function Footer() {
 
             {/* Social Icons */}
             <div className="flex gap-4 text-lg">
-              <a href="#" className="hover:text-white"><FaFacebookF /></a>
-              <a href="#" className="hover:text-white"><FaInstagram /></a>
-              <a href="#" className="hover:text-white"><FaYoutube /></a>
-              <a href="#" className="hover:text-white"><FaTiktok /></a>
-              <a href="#" className="hover:text-white"><FaXTwitter /></a>
+              <a href="https://www.facebook.com/subnexit" target="_blank" className="hover:text-white"><FaFacebookF /></a>
+              <a href="/" target="blank" className="hover:text-white"><FaInstagram /></a>
+              <a href="https://www.youtube.com/@subnexit" target="_blank" className="hover:text-white"><FaYoutube /></a>
+              <a href="/" target="blank" className="hover:text-white"><FaTiktok /></a>
+              <a href="/" target="blank" className="hover:text-white"><FaXTwitter /></a>
             </div>
           </div>
 

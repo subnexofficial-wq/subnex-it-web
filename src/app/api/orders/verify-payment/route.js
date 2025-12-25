@@ -5,7 +5,7 @@ import { ObjectId } from "mongodb";
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { orderId, method, sender, transactionId, amount } = body;
+    const { senderEmail, orderId, method, sender, transactionId, amount } = body;
 
     // ডাটা ভ্যালিডেশন
     if (!orderId || !transactionId || !sender) {
@@ -20,6 +20,7 @@ export async function POST(req) {
  
     const newTransaction = {
       orderId: new ObjectId(orderId), 
+      senderEmail: senderEmail || null,
       method: method,
       senderNumber: sender,
       trxId: transactionId,
@@ -36,7 +37,7 @@ export async function POST(req) {
       {
         $set: {
           paymentStatus: "pending_verification",
-          lastTransactionId: transactionResult.insertedId // ট্রানজেকশন আইডির রেফারেন্স রাখা
+          lastTransactionId: transactionResult.insertedId 
         },
       }
     );

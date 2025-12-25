@@ -2,20 +2,17 @@ import { NextResponse } from "next/server";
 import getDB from "@/lib/mongodb";
 import { verifyAdminToken } from "@/lib/auth";
 
-// ১. এডমিন নাম্বারগুলো ডাটাবেস থেকে পাওয়ার জন্য (GET)
+
 export async function GET() {
   try {
-    const admin = await verifyAdminToken();
-    if (!admin)
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     const { db } = await getDB();
 
-    // ডাটাবেসে 'settings' কালেকশনে পেমেন্ট মেথডগুলো খুঁজবো
+
     let settings = await db
       .collection("settings")
       .findOne({ type: "payment_methods" });
 
-    // যদি ডাটাবেসে কিছু না থাকে, তবে ডিফল্ট ডাটা রিটার্ন করবে
+
     if (!settings) {
       settings = {
         type: "payment_methods",

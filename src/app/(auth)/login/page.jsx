@@ -52,7 +52,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#FCF8F8]">
+    <div className="min-h-screen flex items-center justify-center ">
 
       <div className="w-full max-w-sm p-8 rounded-xl bg-white shadow-md">
 

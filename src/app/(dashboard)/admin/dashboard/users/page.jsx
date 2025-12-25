@@ -32,8 +32,9 @@ export default function CustomersPage() {
   }, [currentPage]);
 
   const downloadCSV = () => {
-    const headers = ["Email", "Mobile", "Role", "Active", "Created At"];
+    const headers = ["Name", "Email", "Mobile", "Role", "Active", "Created At"];
     const rows = users.map((u) => [
+      u.name,
       u.email,
       u.mobile,
       u.role,
@@ -82,6 +83,7 @@ export default function CustomersPage() {
                 <tr className="bg-gray-50/50 border-b border-gray-100 font-black italic uppercase text-[10px] tracking-widest text-gray-400">
                   <th className="px-6 py-5">Customer Info</th>
                   <th className="px-6 py-5">Mobile</th>
+                  <th className="px-6 py-5">Name</th>
                   <th className="px-6 py-5">Role</th>
                   <th className="px-6 py-5">Status</th>
                   <th className="px-6 py-5">Join Date</th>
@@ -98,7 +100,8 @@ export default function CustomersPage() {
                         <span className="font-bold text-gray-800">{user.email}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-600">{user.mobile || "—"}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-600">{user?.mobile || "—"}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-600">{user?.name || "—"}</td>
                     <td className="px-6 py-4">
                       <span className="px-3 py-1 bg-purple-50 text-purple-600 text-[10px] font-black uppercase rounded-lg border border-purple-100">
                         {user.role}
