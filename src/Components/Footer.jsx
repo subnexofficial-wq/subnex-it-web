@@ -55,13 +55,14 @@ export default function Footer() {
           {/* Policy Links */}
           <div>
             <h3 className="text-sm font-semibold text-white mb-4 uppercase">
-              Our Policy
+              Our Links 
             </h3>
             <ul className="space-y-3 text-sm">
               <li><Link href="/" className="hover:text-white">Home</Link></li>
               <li><Link href="/products" className="hover:text-white">All Products</Link></li>
-              <li><Link href="/streaming" className="hover:text-white">Streaming Services</Link></li>
-              <li><Link href="/education" className="hover:text-white">Educational Tools</Link></li>
+              <li><Link href="/digital-product" className="hover:text-white">Digital product</Link></li>
+              <li><Link href="/subscription" className="hover:text-white">Subscription</Link></li>
+              <li><Link href="/automation" className="hover:text-white">Automation</Link></li>
               <li><Link href="/contact" className="hover:text-white">Contact Information</Link></li>
               <li><Link href="/privacy-policy" className="hover:text-white">Privacy Policy</Link></li>
             </ul>
