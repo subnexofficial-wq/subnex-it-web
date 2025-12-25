@@ -19,6 +19,7 @@ export default function AdminLayout({ children }) {
     { name: "Orders", href: "/admin/dashboard/orders", icon: <FiShoppingCart /> },
     { name: "Transactions", href: "/admin/dashboard/transactions", icon: <FiCreditCard /> },
     { name: "Pay Methods", href: "/admin/dashboard/payments-Methods", icon: <FiSettings /> },
+    { name: " Add Sliders", href: "/admin/dashboard/sliders", icon: <FiSettings /> },
   ];
 
   const handleLogout = async () => {

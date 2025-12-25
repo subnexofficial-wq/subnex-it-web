@@ -11,6 +11,7 @@ import AddTip from "@/Components/checkout/TipSection";
 import OrderSummary from "@/Components/checkout/OrderSummary";
 import { countries } from "../../../data/Country";
 import { useAuth } from "@/hooks/useAuth";
+import { pushToDataLayer } from "@/lib/gtm";
 
 export default function CheckoutPage() {
 
@@ -21,6 +22,23 @@ export default function CheckoutPage() {
   const isBuyNow = searchParams.get("buyNow") === "true";
 
   const [checkoutItems, setCheckoutItems] = useState([]);
+
+
+  useEffect(() => {
+    if (checkoutItems.length > 0) {
+      pushToDataLayer("InitiateCheckout", {
+        currency: "BDT",
+        value: total,
+        items: checkoutItems.map(item => ({
+          item_id: item.productId || item._id,
+          item_name: item.title,
+          price: item.price,
+          quantity: item.quantity
+        }))
+      });
+    }
+  }, [checkoutItems.length]);
+
 
   useEffect(() => {
     if (isBuyNow) {

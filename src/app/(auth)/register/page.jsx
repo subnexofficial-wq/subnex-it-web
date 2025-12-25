@@ -12,7 +12,7 @@ export default function RegisterPage() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    const { email, phone, password } = e.target;
+    const { email, phone, password, name } = e.target;
 
     if (!/^\d+$/.test(phone.value)) {
       Swal.fire("Invalid phone", "Phone must be number only", "error");
@@ -39,6 +39,7 @@ export default function RegisterPage() {
           mobile: phone.value,
           password: password.value,
           email: email.value,
+          name: name.value,
         }),
       });
 
@@ -53,7 +54,7 @@ export default function RegisterPage() {
       await Swal.fire({
         icon: "success",
         title: "Account created",
-        text: "Welcome to Subnex 🎉",
+        text: "Welcome to Subnex it",
         timer: 1500,
         showConfirmButton: false,
       });
@@ -68,7 +69,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#FCF8F8]">
+    <div className="min-h-screen flex items-center justify-center ">
       <div className="bg-white w-full max-w-sm p-8 rounded-xl shadow-md">
 
         <Image src="/logo.png" alt="Subnex" width={100} height={30} className="mx-auto mb-4" />
@@ -80,6 +81,13 @@ export default function RegisterPage() {
 
         <form onSubmit={handleRegister} className="space-y-3">
 
+          <input
+            type="name"
+            name="name"
+            placeholder="Full Name"
+            required
+            className="w-full border rounded-lg px-3 py-2 text-sm"
+          />
           <input
             type="email"
             name="email"

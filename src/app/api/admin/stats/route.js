@@ -2,64 +2,99 @@ import { NextResponse } from "next/server";
 import getDB from "@/lib/mongodb";
 import { verifyAdminToken } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(req) {
   try {
     const admin = await verifyAdminToken();
     if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+    const { searchParams } = new URL(req.url);
+    const filterType = searchParams.get("filter") || "7days"; 
+    const specificDate = searchParams.get("date");
+
     const { db } = await getDB();
+    let startDate, endDate;
+    let chartDataArray = [];
 
-    // ১. গত ৭ দিনের ডেট রেঞ্জ তৈরি করা
-    const last7Days = Array.from({ length: 7 }, (_, i) => {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      d.setHours(0, 0, 0, 0);
-      return d;
-    }).reverse();
+    // --- Date Logic ---
+    if (specificDate) {
+      startDate = new Date(specificDate);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(specificDate);
+      endDate.setHours(23, 59, 59, 999);
+      for (let i = 0; i < 24; i += 3) {
+        const d = new Date(startDate);
+        d.setHours(i, 0, 0, 0);
+        chartDataArray.push(d);
+      }
+    } else if (filterType === "month") {
+      startDate = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+      const daysInMonth = new Date().getDate(); 
+      for (let i = 1; i <= daysInMonth; i++) {
+        const d = new Date(new Date().getFullYear(), new Date().getMonth(), i);
+        d.setHours(0, 0, 0, 0);
+        chartDataArray.push(d);
+      }
+    } else {
+      startDate = new Date();
+      startDate.setDate(startDate.getDate() - 6);
+      startDate.setHours(0, 0, 0, 0);
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(startDate);
+        d.setDate(startDate.getDate() + i);
+        chartDataArray.push(d);
+      }
+    }
 
-    // ২. সব ডাটা একসাথে ফেচ করা
-    // আপনার ডাটাবেসে ফিল্ডের নাম 'submittedAt' এবং গ্রাফের জন্য শুধুমাত্র 'approved' স্ট্যাটাস নেওয়া হচ্ছে
-    const [productsCount, usersCount, ordersCount, recentTransactions] = await Promise.all([
+    const dateQuery = { $gte: startDate, $lte: specificDate ? endDate : new Date() };
+
+    // Fetch data for the period
+    const [allProducts, allUsers, allOrders, transactions, totalProductsCount, totalUsersCount, totalOrdersCount] = await Promise.all([
+      db.collection("products").find({ createdAt: dateQuery }).toArray(),
+      db.collection("users").find({ createdAt: dateQuery }).toArray(),
+      db.collection("orders").find({ createdAt: dateQuery }).toArray(),
+      db.collection("transactions").find({ status: "approved", submittedAt: dateQuery }).toArray(),
       db.collection("products").countDocuments(),
       db.collection("users").countDocuments(),
       db.collection("orders").countDocuments(),
-      db.collection("transactions").find({ 
-        status: "approved",
-        submittedAt: { $gte: last7Days[0] } 
-      }).toArray(),
     ]);
 
-    // ৩. টোটাল রেভিনিউ ক্যালকুলেশন (সব approved ট্রানজাকশন থেকে)
-    // এখানে আপনার ডাটাবেস অনুযায়ী 'amountPaid' ফিল্ড ব্যবহার করা হয়েছে
-    const allApprovedTransactions = await db.collection("transactions").find({ status: "approved" }).toArray();
-    const totalRevenue = allApprovedTransactions.reduce((acc, curr) => {
-        return acc + (Number(curr.amountPaid) || 0);
-    }, 0);
+    const totalRevenue = transactions.reduce((acc, curr) => acc + (Number(curr.amountPaid) || 0), 0);
 
-    // ৪. গ্রাফের ডাটা ফরম্যাট করা
-    const chartData = last7Days.map(date => {
-      const dayName = date.toLocaleDateString("en-US", { weekday: "short" });
-      
-      const dayTotal = recentTransactions
-        .filter(t => {
-          // 'submittedAt' ফিল্ডকে ডেট অবজেক্টে রূপান্তর করে চেক করা হচ্ছে
-          const tDate = new Date(t.submittedAt);
-          return tDate.toDateString() === date.toDateString();
-        })
-        .reduce((acc, curr) => acc + (Number(curr.amountPaid) || 0), 0);
+    const chartData = chartDataArray.map(date => {
+      let label;
+      if (specificDate) {
+        label = date.getHours() + ":00";
+      } else if (filterType === "month") {
+        label = date.getDate().toString();
+      } else {
+        label = date.toLocaleDateString("en-US", { weekday: "short" });
+      }
 
-      return { name: dayName, amount: dayTotal };
+      const filterByTime = (item, dateField) => {
+        const itemDate = new Date(item[dateField]);
+        if (specificDate) {
+          return itemDate.getHours() >= date.getHours() && itemDate.getHours() < date.getHours() + 3;
+        }
+        return itemDate.toDateString() === date.toDateString();
+      };
+
+      return {
+        name: label,
+        income: transactions.filter(t => filterByTime(t, 'submittedAt')).reduce((acc, curr) => acc + (Number(curr.amountPaid) || 0), 0),
+        orders: allOrders.filter(o => filterByTime(o, 'createdAt')).length,
+        users: allUsers.filter(u => filterByTime(u, 'createdAt')).length,
+        products: allProducts.filter(p => filterByTime(p, 'createdAt')).length,
+      };
     });
 
     return NextResponse.json({
-      productsCount,
-      usersCount,
-      totalOrders: ordersCount, 
-      totalRevenue,
+      productsCount: totalProductsCount, 
+      usersCount: totalUsersCount, 
+      totalOrders: totalOrdersCount, 
+      totalRevenue, 
       chartData
     });
   } catch (err) {
-    console.error("Dashboard Stats Error:", err);
     return NextResponse.json({ error: "Server Error" }, { status: 500 });
   }
 }

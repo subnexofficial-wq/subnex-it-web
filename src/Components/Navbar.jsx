@@ -20,24 +20,6 @@ import { useAuth } from "@/hooks/useAuth";
 
 const countryList = [
   { name: "Bangladesh", currency: "BDT ৳" },
-  { name: "India", currency: "INR ₹" },
-  { name: "United States", currency: "USD $" },
-  { name: "United Kingdom", currency: "GBP £" },
-  { name: "Canada", currency: "CAD $" },
-  { name: "Australia", currency: "AUD $" },
-  { name: "Germany", currency: "EUR €" },
-  { name: "France", currency: "EUR €" },
-  { name: "Japan", currency: "JPY ¥" },
-  { name: "China", currency: "CNY ¥" },
-  { name: "Saudi Arabia", currency: "SAR ﷼" },
-  { name: "UAE", currency: "AED د.إ" },
-  { name: "Pakistan", currency: "PKR ₨" },
-  { name: "Nepal", currency: "NPR ₨" },
-  { name: "Sri Lanka", currency: "LKR ₨" },
-  { name: "Malaysia", currency: "MYR RM" },
-  { name: "Singapore", currency: "SGD $" },
-  { name: "Italy", currency: "EUR €" },
-  { name: "Spain", currency: "EUR €" },
 ];
 
 
@@ -127,38 +109,7 @@ const Navbar = () => {
                   className="flex items-center gap-1 cursor-pointer hover:opacity-70 transition-opacity text-sm font-semibold text-gray-800 select-none"
                 >
                   <span>{selected.name} | {selected.currency}</span>
-                  {isOpen ? <FiChevronUp /> : <FiChevronDown />}
                 </div>
-
-                {isOpen && (
-                  <div className="absolute top-full right-0 mt-3 w-64 bg-white border border-gray-200 rounded-lg shadow-xl z-50 overflow-hidden">
-                    <div className="p-3 border-b border-gray-100 bg-white sticky top-0" onClick={(e) => e.stopPropagation()}>
-                      <input
-                        type="text"
-                        placeholder="Search..."
-                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-black transition-colors"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                      />
-                    </div>
-                    <div className="max-h-60 overflow-y-auto scrollbar-thin">
-                      {filteredCountries.map((country, index) => (
-                        <div
-                          key={index}
-                          className={`px-4 py-2.5 text-sm cursor-pointer hover:bg-gray-50 flex justify-between items-center ${selected.name === country.name ? "bg-gray-100 font-bold" : ""}`}
-                          onClick={() => {
-                            setSelected(country);
-                            setIsOpen(false);
-                            setSearchTerm("");
-                          }}
-                        >
-                          <span>{country.name}</span>
-                          <span className="text-xs text-gray-400">{country.currency}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* User & Cart Icons */}

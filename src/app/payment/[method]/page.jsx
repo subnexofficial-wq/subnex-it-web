@@ -3,10 +3,16 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 
+import Swal from "sweetalert2"; // ১. SweetAlert2 ইমপোর্ট করুন
+import { pushToDataLayer } from '@/lib/gtm';
+import { useAuth } from '@/hooks/useAuth';
+
 const DetailsContent = () => {
     const params = useParams();
     const router = useRouter();
     const searchParams = useSearchParams();
+
+    const { user } = useAuth();
     
     const method = params.method ? params.method.toLowerCase() : ""; 
     const orderId = searchParams.get('orderId');
@@ -50,6 +56,7 @@ const DetailsContent = () => {
 
         const paymentData = {
             orderId,
+            senderEmail: user?.email || "Guest",
             method: currentMethod.name,
             sender: userNumber,
             transactionId: trxId,
@@ -64,14 +71,44 @@ const DetailsContent = () => {
             });
 
             if (res.ok) {
-                alert("Payment submitted! Admin will verify soon.");
-                router.push('/'); 
+                // Tracking: Purchase Event
+                pushToDataLayer("Purchase", {
+                    transaction_id: trxId,
+                    value: parseFloat(amount),
+                    currency: "BDT",
+                    payment_method: currentMethod.name,
+                    order_id: orderId
+                });
+
+                // ২. SweetAlert Success
+                Swal.fire({
+                    title: "Success!",
+                    text: "Payment submitted! Admin will verify soon.",
+                    icon: "success",
+                    confirmButtonColor: "#10b981", // Green color
+                    confirmButtonText: "Return Home"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        router.push('/'); 
+                    }
+                });
+            } else {
+                throw new Error("Failed");
             }
-        } catch (err) { alert("Submission failed!"); }
+        } catch (err) { 
+            // ৩. SweetAlert Error
+            Swal.fire({
+                title: "Error!",
+                text: "Submission failed! Please try again.",
+                icon: "error",
+                confirmButtonColor: "#ef4444" // Red color
+            });
+        }
         finally { setIsLoading(false); }
     };
 
     return (
+        // ... আপনার আগের রিটার্ন UI কোড সব একই থাকবে ...
         <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
             <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
                 {/* Header Section */}

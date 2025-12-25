@@ -113,7 +113,7 @@ const WellcomePopUp = () => {
           {/* ফুটার সিকিউরিটি */}
           <div className="flex items-center justify-between pt-4 border-t border-slate-100">
              <div className="flex items-center gap-2">
-                <div className="px-1.5 py-0.5 bg-slate-900 text-white text-[8px] md:text-[10px] font-black rounded italic">EPS</div>
+                <div className="px-1.5 py-0.5 bg-slate-900 text-white text-[8px] md:text-[10px] font-black rounded italic"></div>
                 <span className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase">Verified Merchant</span>
              </div>
              <div className="flex gap-1">

@@ -8,10 +8,10 @@ function isValidMobile(mobile) {
 
 export async function POST(req) {
   try {
-    const { mobile, password, email } = await req.json();
+    const { mobile, password, email, name } = await req.json();
 
     // Validation
-    if (!email || !mobile || !password) {
+    if (!email || !mobile || !password || !name) {
       return NextResponse.json(
         { error: "All fields are required" },
         { status: 400 }
@@ -43,6 +43,7 @@ export async function POST(req) {
     const user = {
       mobile,
       email,
+      name,
       password: hashedPassword,
       role: "user",
       isActive: true,
