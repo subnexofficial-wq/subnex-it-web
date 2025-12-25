@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Loader2, Save, Tag, Clock, AlignLeft, ListPlus, Plus, Trash2, Database, Percent } from "lucide-react";
+import { X, Loader2, Save, Tag, Clock, AlignLeft, ListPlus, Plus,  Database, Percent } from "lucide-react";
 
 export default function EditProductModal({ product, onClose, onUpdated }) {
   const [loading, setLoading] = useState(false);
@@ -119,10 +119,12 @@ export default function EditProductModal({ product, onClose, onUpdated }) {
             <div>
               <label className={labelClass}><ListPlus size={16}/> Category</label>
               <select name="category" value={form.category} onChange={handleChange} className={inputClass}>
-                <option value="streaming">Streaming</option>
-                <option value="google-drive">Google Drive</option>
-                <option value="software">Software</option>
-                <option value="gaming">Gaming</option>
+                 <option value="digital-product">Digital product</option>
+                <option value="service">Service</option>
+                <option value="subscription">Subscription</option>
+                <option value="course">Course</option>
+                <option value="automation">Automation</option>
+                <option value="custom-solution">Custom solution</option>
               </select>
             </div>
           </div>
