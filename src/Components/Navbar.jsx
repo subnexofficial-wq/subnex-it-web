@@ -87,7 +87,7 @@ const Navbar = () => {
   return (
     <>
       <nav className="w-full bg-white border-b py-0 border-gray-200 sticky top-0 z-40 shadow-sm font-sans">
-        <div className="px-4 sm:px-6 lg:px-8">
+        <div className=" max-w-[100vw] overflow-x-hidden px-2 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* বাম পাশ */}
             <div className="flex items-center gap-4 md:gap-6">

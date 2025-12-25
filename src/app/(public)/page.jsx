@@ -19,10 +19,10 @@ export default async function Home() {
     .slice(0, 10);
 
   return (
-    <main>
+    <main className="relative min-h-screen w-full overflow-x-hidden">
       <HeroSlider />
 
-      <div className="container mx-auto  space-y-12 my-10">
+      <div className="container mx-auto space-y-5 my-5">
         <DynamicProductSection
           products={featuredProducts}
           sectionTitle="Top Picks Products For you"
@@ -42,8 +42,7 @@ export default async function Home() {
           products={getByCategory("subscription")}
           sectionTitle="SUBSCRIPTIONS"
         />
-      
-
+        
         <DynamicProductSection
           products={getByCategory("course")}
           sectionTitle="COURSES"
@@ -52,7 +51,7 @@ export default async function Home() {
 
       <BuyView />
 
-      <div className="container mx-auto  space-y-12 my-10">
+      <div className="container space-y-5 my-5 mx-auto">
         <DynamicProductSection
           products={getByCategory("automation")}
           sectionTitle="AUTOMATIONS"
@@ -62,11 +61,6 @@ export default async function Home() {
           sectionTitle="CUSTOM SOLUTIONS"
         />
 
-        {/* <DynamicProductSection
-          products={getByCategory("vpn")}
-          sectionTitle="VPN SERVICES"
-        /> */}
-
         <DynamicProductSection
           products={getByCategory("social")}
           sectionTitle="SOCIAL MEDIA SERVICES"
@@ -75,23 +69,22 @@ export default async function Home() {
 
       <FeaturedPromo />
 
-      <div className="container mx-auto  my-10">
+      <div className="container mx-auto my-5 relative">
         <SocialGallery />
         <FAQSection />
-        <div>
-          {/* Floating WhatsApp Support */}
-          <a
-            href="https://wa.me/YOUR_NUMBER"
-            target="_blank"
-            className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-[#25D366] text-white px-6 py-3.5 rounded-full shadow-2xl font-bold hover:scale-105 transition active:scale-95"
-          >
-            <FaWhatsapp size={24} />
-            <span>Need Help?</span>
-          </a>
-        </div>
-
         <WellcomePopUp />
       </div>
+
+      {/* Floating WhatsApp Support - Fixed Position corrected */}
+      <a
+        href="https://wa.me/YOUR_NUMBER"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-6 right-4 md:right-8 z-[9999] flex items-center gap-2 bg-[#25D366] text-white px-4 py-3 md:px-6 md:py-3.5 rounded-full shadow-2xl font-bold hover:scale-105 transition active:scale-95"
+      >
+        <FaWhatsapp size={24} />
+        <span className="text-sm md:text-base">Need Help?</span>
+      </a>
     </main>
   );
 }
