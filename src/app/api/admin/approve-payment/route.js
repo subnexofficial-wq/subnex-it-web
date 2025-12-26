@@ -72,7 +72,7 @@ export async function PATCH(req) {
               
               <div style="text-align: center; margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 20px;">
                 <p style="font-size: 12px; color: #94a3b8; margin-bottom: 5px;">This is an automated payment confirmation email.</p>
-                <p style="font-size: 12px; font-weight: bold; color: #006747;">Team SubNex</p>
+                <p style="font-size: 12px; font-weight: bold; color: #006747;">Team Subnex</p>
               </div>
             </div>
           </div>
