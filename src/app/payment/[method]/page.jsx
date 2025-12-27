@@ -139,7 +139,7 @@ const DetailsContent = () => {
                             <input required type="text" placeholder="TrxID" className="w-full p-3 bg-gray-50 border rounded-lg font-bold uppercase" value={trxId} onChange={(e) => setTrxId(e.target.value.toUpperCase())} />
                         </div>
                         <button disabled={isLoading || isFetching} type="submit" className={`w-full ${currentMethod.color} text-white py-4 rounded-xl font-black text-lg shadow-xl`}>
-                            {isLoading ? "Verifying..." : "VERIFY PAYMENT"}
+                            {isLoading ? "Verifying..." : "Submit"}
                         </button>
                     </form>
                 </div>

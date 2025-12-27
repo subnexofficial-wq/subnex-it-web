@@ -129,36 +129,11 @@ export default function UserSettingsPage() {
         </div>
 
         {/* Danger Zone Card */}
-        <div className="md:col-span-2 relative mt-4">
-          <div className="absolute inset-0 bg-red-500/5 blur-3xl -z-10"></div>
-          <div className="bg-white border-2 border-red-50 p-8 md:p-10 rounded-[40px] shadow-sm overflow-hidden relative">
-            {/* Background Decorative Icon */}
-            <FiAlertCircle className="absolute -right-4 -bottom-4 text-red-500/5 size-40" />
 
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 relative z-10">
-              <div className="max-w-md">
-                <div className="flex items-center gap-2 mb-4">
-                   <span className="px-3 py-1 bg-red-100 text-red-600 text-[10px] font-black uppercase tracking-tighter rounded-full">Danger Zone</span>
-                </div>
-                <h3 className="text-2xl font-black text-slate-900 mb-3 uppercase italic">
-                  Delete Account
-                </h3>
-                <p className="text-sm text-slate-500 leading-relaxed">
-                  Once you delete your account, there is no going back. All your order history, profile data, and settings will be <strong>permanently removed</strong>.
-                </p>
-              </div>
 
-              <button
-                onClick={deleteAccount}
-                className="flex items-center justify-center gap-2 px-8 py-4 bg-red-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-red-700 transition-all shadow-xl shadow-red-100 active:scale-95"
-              >
-                <FiTrash2 size={16} />
-                Delete Permanently
-              </button>
-            </div>
-          </div>
-        </div>
+        
       </div>
+
     </div>
   );
 }
