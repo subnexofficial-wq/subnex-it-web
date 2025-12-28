@@ -132,7 +132,7 @@ export default function AdminDashboard() {
                 <p className="text-[9px] font-bold text-slate-500 uppercase">Status</p>
                 <div className="flex items-center gap-2 mt-1">
                     <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                    <p className="text-xs font-black">Live Database Link</p>
+                    <p className="text-xs font-black"> TODAY </p>
                 </div>
             </div>
         </div>

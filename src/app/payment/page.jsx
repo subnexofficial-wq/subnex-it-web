@@ -2,7 +2,7 @@
 
 import React, { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Swal from 'sweetalert2'; // ১. SweetAlert2 ইমপোর্ট করুন
+import Swal from 'sweetalert2';
 
 const PaymentContent = () => {
     const router = useRouter();
@@ -11,7 +11,6 @@ const PaymentContent = () => {
     const orderId = searchParams.get('orderId') || "0";
     const amount = searchParams.get('amount') || "0.00";
 
-    const [activeTab, setActiveTab] = useState('MFS/WALLET');
     const [selectedMethod, setSelectedMethod] = useState('');
     const [lang, setLang] = useState('en');
     const [isVisible, setIsVisible] = useState(true);
@@ -22,65 +21,31 @@ const PaymentContent = () => {
             faq: 'FAQ',
             offers: 'Offers',
             login: 'Login',
-            card: 'CARD',
-            mfs: 'WALLET',
-            internetBank: 'INTERNET BANK',
+            mfs: 'MOBILE WALLET',
             pay: `PAY BDT ${amount}`, 
-            terms: 'By clicking this pay button you agree our terms and conditions which is limited to facilitating your payment to the merchant mentioned above',
-            tos: 'Terms of Service',
-            verified: 'Verified by',
-            pso: 'PSO Licensed',
-            pci: 'PCI DSS Compliant',
-            selectMethodError: 'Please select a payment method' // এরর মেসেজ
+            selectMethodError: 'Please select a payment method'
         },
         bn: {
             support: 'সাপোর্ট',
             faq: 'জিজ্ঞাসাবাদ',
             offers: 'অফার সমূহ',
             login: 'লগইন',
-            card: 'কার্ড',
-            mfs: 'ওয়ালেট',
-            internetBank: 'ইন্টারনেট ব্যাংক',
+            mfs: 'মোবাইল ওয়ালেট',
             pay: `${amount} টাকা প্রদান করুন`,
-            terms: 'এই পে বাটনে ক্লিক করার মাধ্যমে আপনি আমাদের শর্তাবলীতে সম্মত হচ্ছেন যা উপরে উল্লিখিত মার্চেন্টের কাছে আপনার পেমেন্ট সহজতর করার মধ্যে সীমাবদ্ধ',
-            tos: 'পরিষেবার শর্তাবলী',
-            verified: 'ভেরিফাইড বাই',
-            pso: 'পিএসও লাইসেন্সপ্রাপ্ত',
-            pci: 'পিসিআই ডিএসএস কমপ্লায়েন্ট',
-            selectMethodError: 'দয়া করে একটি পেমেন্ট পদ্ধতি নির্বাচন করুন' // এরর মেসেজ
+            selectMethodError: 'দয়া করে একটি পেমেন্ট পদ্ধতি নির্বাচন করুন'
         }
     };
 
     const t = translations[lang];
-
-    // ... কার্ড, এমএফএস এবং ব্যাংক মেথড লিস্ট আগের মতোই থাকবে ...
-    const cardMethods = [
-        { name: 'Visa', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/visa.png' },
-        { name: 'MasterCard', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/master.png' },
-        { name: 'MTB Card', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/mta.webp' },
-        { name: 'Nexus', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/naged.png' },
-        { name: 'DBBL Visa', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/visa.png' },
-        { name: 'DBBL Master', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/master.png' },
-        { name: 'Southeast', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/ok.png' },
-    ];
 
     const mfsMethods = [
         { name: 'bKash', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/bkash.png' },
         { name: 'Nagad', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/naged.png' },
         { name: 'Upay', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/upay.png' },
         { name: 'Rocket', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/roket.png' },
-        { name: 'OK', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/ok.png' },
-        { name: 'mCash', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/mck.png' },
-    ];
-
-    const bankMethods = [
-        { name: 'Islami Bank', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/islim.png' },
-        { name: 'City Touch', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/city.png' },
-        { name: 'MTB', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/mta.webp' }
     ];
 
     const handlePay = () => {
-        // ২. SweetAlert2 ওয়ার্নিং
         if (!selectedMethod) {
             Swal.fire({
                 title: lang === 'bn' ? 'পদ্ধতি নির্বাচন করুন' : 'Selection Required',
@@ -111,7 +76,6 @@ const PaymentContent = () => {
 
     return (
         <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 font-sans text-gray-900">
-            {/* UI কোড সব আগের মতোই থাকবে */}
             <div className="bg-white w-full max-w-md rounded-lg shadow-xl overflow-hidden border border-gray-200 animate-in fade-in zoom-in duration-300 relative">
 
                 {/* Header Section */}
@@ -154,22 +118,14 @@ const PaymentContent = () => {
                     ))}
                 </div>
 
-                {/* Tabs */}
-                <div className="flex bg-gray-50 border-b">
-                    {[{ id: 'CARD', label: t.card }, { id: 'MFS/WALLET', label: t.mfs }, { id: 'INTERNET BANK', label: t.internetBank }].map((tab) => (
-                        <button
-                            key={tab.id}
-                            onClick={() => { setActiveTab(tab.id); setSelectedMethod(''); }}
-                            className={`flex-1 py-3 text-[10px] font-black tracking-wider transition-all duration-300 ${activeTab === tab.id ? 'bg-[#006747] text-white shadow-inner' : 'text-[#006747] bg-white hover:bg-gray-50'}`}
-                        >
-                            {tab.label}
-                        </button>
-                    ))}
+                {/* Fixed Green Header for MFS (Since tabs are removed) */}
+                <div className="w-full py-3 text-[10px] font-black tracking-wider text-center bg-[#006747] text-white shadow-inner uppercase">
+                    {t.mfs}
                 </div>
 
                 {/* Grid */}
                 <div className="p-6 grid grid-cols-3 gap-4 min-h-[250px] bg-white content-start">
-                    {(activeTab === 'CARD' ? cardMethods : activeTab === 'MFS/WALLET' ? mfsMethods : bankMethods).map((method) => (
+                    {mfsMethods.map((method) => (
                         <div
                             key={method.name}
                             onClick={() => setSelectedMethod(method.name)}
@@ -186,24 +142,22 @@ const PaymentContent = () => {
                 </div>
 
                 {/* Button */}
-                <div className="px-6 pb-4 bg-white">
+                <div className="px-6 pb-6 bg-white">
                     <button onClick={handlePay} className="w-full bg-[#006747] text-white py-3.5 rounded-md flex items-center justify-center gap-3 font-bold text-lg hover:bg-[#004d35] active:scale-[0.98] transition-all shadow-md">
                         {t.pay}
                     </button>
                 </div>
 
-                {/* Footer */}
-                <div className="p-4 bg-gray-50 border-t flex flex-col items-center gap-4">
-                    <div className="flex justify-between w-full px-4">
-                        <div className="flex items-center gap-1.5 opacity-80">
-                            <div className="w-5 h-5 bg-green-700 rounded-full flex items-center justify-center shadow-sm">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" /></svg>
-                            </div>
-                            <span className="text-[9px] font-bold text-gray-600 uppercase tracking-tighter">{t.pso}</span>
+                {/* Footer Labels */}
+                <div className="p-4 bg-gray-50 border-t flex justify-between px-8">
+                    <div className="flex items-center gap-1.5 opacity-80">
+                         <div className="w-5 h-5 bg-green-700 rounded-full flex items-center justify-center">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" /></svg>
                         </div>
-                        <div className="flex items-center gap-1.5 opacity-80">
-                            <span className="text-[9px] font-bold text-gray-600 uppercase tracking-tighter">{t.pci}</span>
-                        </div>
+                        <span className="text-[9px] font-bold text-gray-600 uppercase">PSO Licensed</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 opacity-80">
+                        <span className="text-[9px] font-bold text-gray-600 uppercase">PCI DSS Compliant</span>
                     </div>
                 </div>
             </div>

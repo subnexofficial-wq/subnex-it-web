@@ -152,7 +152,7 @@ export default function EditProductModal({ product, onClose, onUpdated }) {
                     <input placeholder="Price" type="number" className={inputClass} value={v.price} onChange={(e) => handleVariantChange(i, "price", e.target.value)} />
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold text-red-400 uppercase flex items-center gap-1">Offer Price (৳) <Percent size={10}/></span>
+                    <span className="text-[10px] font-bold text-red-400 uppercase flex items-center gap-1">Offer Price (৳) </span>
                     <input placeholder="Discounted" type="number" className={`${inputClass} border-red-100 focus:border-red-500`} value={v.discountPrice} onChange={(e) => handleVariantChange(i, "discountPrice", e.target.value)} />
                   </div>
                 </div>

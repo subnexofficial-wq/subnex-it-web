@@ -1,4 +1,6 @@
 import { Mail, MessageCircle, Clock, ShieldCheck, PhoneCall } from "lucide-react";
+import { LiaFacebookMessenger } from "react-icons/lia";
+
 
 export const metadata = {
   title: "Contact Information | Subnex",
@@ -35,18 +37,20 @@ export default function ContactInformationPage() {
               support@subnex.com
             </a>
           </div>
-
-          {/* WhatsApp Support */}
+ {/* Contact Us (Messenger) */}
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
-            <div className="w-14 h-14 bg-green-50 text-green-600 rounded-full flex items-center justify-center mb-4">
-              <MessageCircle size={28} />
+            <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-4">
+              <LiaFacebookMessenger size={28}  />
             </div>
             <h3 className="text-lg font-bold mb-2">Instant Chat</h3>
-            <p className="text-gray-500 text-sm mb-4">ডেলিভারি ও দ্রুত সাপোর্টের জন্য মেসেজ দিন</p>
-            <button className="bg-green-600 text-white px-6 py-2 rounded-full text-sm font-bold hover:bg-green-700 transition">
-              WhatsApp Us
+            <p className="text-gray-500 text-sm mb-4">
+              ডেলিভারি ও দ্রুত সাপোর্টের জন্য আমাদের সাথে যোগাযোগ করুন
+            </p>
+            <button className="bg-blue-600 text-white px-6 py-2 rounded-full text-sm font-bold hover:bg-blue-700 transition">
+              Contact Us
             </button>
           </div>
+
 
           {/* Support Hours */}
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center text-center">
@@ -55,7 +59,7 @@ export default function ContactInformationPage() {
             </div>
             <h3 className="text-lg font-bold mb-2">Service Hours</h3>
             <p className="text-gray-500 text-sm mb-4">আমাদের সাপোর্ট টিম এই সময় এক্টিভ থাকে</p>
-            <p className="text-gray-800 font-bold">সকাল ১০টা – রাত ১০টা (প্রতিদিন)</p>
+            <p className="text-gray-800 font-bold"> সবসময় (প্রতিদিন)</p>
           </div>
         </div>
 

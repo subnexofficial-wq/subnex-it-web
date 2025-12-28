@@ -173,7 +173,6 @@ export default function CheckoutPage() {
               setDiscount={setDiscount}
               total={total}
             />
-
             <button
               onClick={handleCompleteOrder}
               disabled={checkoutItems.length === 0}
@@ -185,11 +184,8 @@ export default function CheckoutPage() {
             <p className="text-[10px] text-center text-gray-400">
               By clicking the button, you agree to our Terms of Service.
             </p>
-            {/* Security Badge */}
-            <div className="flex items-center justify-center gap-4  grayscale">
-              <img src="/bakash.webp" alt="bkash" className="h-6" /> Bkash
-              <img src="/nagad.webp" alt="nagad" className="h-6" /> Nagad
-            </div>
+         
+
           </aside>
         </div>
       </div>
