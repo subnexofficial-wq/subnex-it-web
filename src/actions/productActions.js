@@ -55,3 +55,29 @@ export async function getRelatedProducts(category, currentId) {
     return [];
   }
 }
+
+
+export async function searchProducts(query) {
+  noStore();
+  if (!query) return [];
+  
+  try {
+    const { db } = await getDB();
+    const products = await db
+      .collection("products")
+      .find({
+        active: true,
+        $or: [
+          { title: { $regex: query, $options: "i" } },
+          { category: { $regex: query, $options: "i" } }
+        ]
+      })
+      .limit(8)
+      .toArray();
+
+    return products.map(p => ({ ...p, _id: p._id.toString() }));
+  } catch (error) {
+    console.error("Search Error:", error);
+    return [];
+  }
+}

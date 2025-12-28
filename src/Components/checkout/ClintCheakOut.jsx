@@ -173,7 +173,6 @@ export default function CheckoutPage() {
               setDiscount={setDiscount}
               total={total}
             />
-
             <button
               onClick={handleCompleteOrder}
               disabled={checkoutItems.length === 0}

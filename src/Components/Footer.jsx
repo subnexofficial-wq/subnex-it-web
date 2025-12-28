@@ -68,9 +68,6 @@ export default function Footer() {
 
           {/* Policy Links */}
           <div>
-            <h3 className="text-sm font-semibold text-white mb-4 uppercase">
-              Our Links
-            </h3>
             <ul className="space-y-3 text-sm">
               <li>
                 <Link href="/" className="hover:text-white">

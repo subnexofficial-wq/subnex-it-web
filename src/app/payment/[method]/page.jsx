@@ -31,7 +31,7 @@ const DetailsContent = () => {
                 const res = await fetch('/api/admin/payment-methods');
                 const data = await res.json();
                 if (data.ok && data.methods) {
-                    const dbKey = (method === 'rocket') ? 'roket' : method;
+                    const dbKey = (method === 'rocket') ? 'rocket' : method;
                     setDynamicAdminNum(data.methods[dbKey]?.adminNum || "Not Found");
                 }
             } catch (err) { setDynamicAdminNum("Error"); }

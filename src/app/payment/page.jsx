@@ -43,8 +43,6 @@ const PaymentContent = () => {
         { name: 'Nagad', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/naged.png' },
         { name: 'Upay', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/upay.png' },
         { name: 'Rocket', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/roket.png' },
-        { name: 'OK', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/ok.png' },
-        { name: 'mCash', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/mck.png' },
     ];
 
     const handlePay = () => {
