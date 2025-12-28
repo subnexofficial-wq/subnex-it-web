@@ -89,7 +89,7 @@ export default function DeliverySection({ data, setData }) {
         <div className="relative group">
           <input
             type="tel"
-            placeholder="Phone number for delivery updates"
+            placeholder="WhatsApp number for delivery updates"
             className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400"
             value={data.phone}
             onChange={(e) => setData({ ...data, phone: e.target.value })}
