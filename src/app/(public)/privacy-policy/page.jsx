@@ -12,12 +12,6 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
-export const metadata = {
-  title: "Privacy Policy | Subnex",
-  description:
-    "Privacy Policy of Subnex – Learn how we collect, use, and protect user information.",
-};
-
 export default function PrivacyPolicyPage() {
   const date = new Date();
   return (
