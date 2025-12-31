@@ -1,70 +1,66 @@
-// src/components/Navbar.jsx
 "use client";
 
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 
-// আইকন ইম্পোর্ট (Feather Icons & FontAwesome 6)
+// আইকন ইম্পোর্ট
 import {
   FiMenu,
   FiSearch,
   FiUser,
   FiShoppingBag,
-  FiChevronDown,
-  FiChevronUp,
   FiX,
+  FiArrowRight,
 } from "react-icons/fi";
-import {
-  FaXTwitter,
-  FaFacebookF,
-  FaInstagram,
-  FaTiktok,
-  FaYoutube,
-} from "react-icons/fa6";
+import { useCart } from "@/hooks/CartContext";
+import { useAuth } from "@/hooks/useAuth";
 
-// === ডাটা: দেশের তালিকা ===
-const countryList = [
-  { name: "Bangladesh", currency: "BDT ৳" },
-  { name: "India", currency: "INR ₹" },
-  { name: "United States", currency: "USD $" },
-  { name: "United Kingdom", currency: "GBP £" },
-  { name: "Canada", currency: "CAD $" },
-  { name: "Australia", currency: "AUD $" },
-  { name: "Germany", currency: "EUR €" },
-  { name: "France", currency: "EUR €" },
-  { name: "Japan", currency: "JPY ¥" },
-  { name: "China", currency: "CNY ¥" },
-  { name: "Saudi Arabia", currency: "SAR ﷼" },
-  { name: "UAE", currency: "AED د.إ" },
-  { name: "Pakistan", currency: "PKR ₨" },
-  { name: "Nepal", currency: "NPR ₨" },
-  { name: "Sri Lanka", currency: "LKR ₨" },
-  { name: "Malaysia", currency: "MYR RM" },
-  { name: "Singapore", currency: "SGD $" },
-  { name: "Italy", currency: "EUR €" },
-  { name: "Spain", currency: "EUR €" },
-];
+const countryList = [{ name: "Bangladesh", currency: "BDT " }];
 
-// === ডাটা: সাইডবার মেনু আইটেম ===
 const menuItems = [
+  { name: "Home", href: "/" },
   { name: "All Products", href: "/products" },
-  { name: "Streaming Services", href: "/streaming" },
-  { name: "Educational Tools", href: "/education" },
-  { name: "Get Netflix Household Code", href: "/netflix-code" },
+  { name: "Digital product", href: "/digital-product" },
+  { name: "Subscription", href: "/subscription" },
+  { name: "Automation", href: "/automation" },
   { name: "Contact Information", href: "/contact" },
+  { name: "Privacy Policy", href: "/privacy-policy" },
 ];
 
 const Navbar = () => {
-  // === State Management ===
-  const [isOpen, setIsOpen] = useState(false); // কান্ট্রি ড্রপডাউন টগল
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // সাইডবার মেনু টগল
-  const [selected, setSelected] = useState(countryList[0]); // সিলেক্ট করা দেশ
-  const [searchTerm, setSearchTerm] = useState(""); // কান্ট্রি সার্চ টেক্সট
+  const { user } = useAuth();
+  const { cart } = useCart();
+  const [isOpen, setIsOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [selected, setSelected] = useState(countryList[0]);
 
-  const dropdownRef = useRef(null); // ড্রপডাউন রেফারেস
+  // --- সার্চের জন্য নতুন স্টেট ---
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
 
-  // 1. ড্রপডাউনের বাইরে ক্লিক করলে বন্ধ হবে
+  const dropdownRef = useRef(null);
+
+  // Live Search Logic (API থেকে ডাটা কল করা)
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(async () => {
+      if (searchQuery.length > 0) {
+        try {
+          const res = await fetch(`/api/products/search?q=${searchQuery}`);
+          const data = await res.json();
+          setSearchResults(data);
+        } catch (error) {
+          console.error("Search fetch error:", error);
+        }
+      } else {
+        setSearchResults([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -75,30 +71,21 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [dropdownRef]);
 
-  // 2. সাইডবার ওপেন থাকলে পেজের স্ক্রল বন্ধ রাখা
   useEffect(() => {
-    if (isMenuOpen) {
+    if (isMenuOpen || isSearchOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
     }
-  }, [isMenuOpen]);
-
-  // 3. কান্ট্রি ফিল্টার লজিক
-  const filteredCountries = countryList.filter((country) =>
-    country.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  }, [isMenuOpen, isSearchOpen]);
 
   return (
     <>
-      {/* =========================================
-          TOP NAVBAR
-      ========================================= */}
+      {/* --- আপনার আগের নেভবার (অপরিবর্তিত) --- */}
       <nav className="w-full bg-white border-b py-0 border-gray-200 sticky top-0 z-40 shadow-sm font-sans">
-
-        <div className=" px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16  ">
-            {/* --- বাম পাশ: মেনু ট্রিগার ও সার্চ আইকন --- */}
+        <div className=" max-w-[100vw] overflow-x-hidden px-2 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* বাম পাশ */}
             <div className="flex items-center gap-4 md:gap-6">
               <button
                 onClick={() => setIsMenuOpen(true)}
@@ -107,33 +94,32 @@ const Navbar = () => {
               >
                 <FiMenu size={24} />
               </button>
-              <button className="text-gray-700 hover:text-black transition p-1">
+              {/* সার্চ বাটন: এখন এটিতে ক্লিক করলে ওভারলে খুলবে */}
+              <button
+                onClick={() => setIsSearchOpen(true)}
+                className="text-gray-700 hover:text-black transition p-1"
+              >
                 <FiSearch size={24} />
               </button>
             </div>
 
-            {/* --- মাঝখান: লোগো (Image + Text) --- */}
-            <div className=" lg:pl-42 flex items-center justify-center">
+            {/* মাঝখান: লোগো */}
+            <div className="lg:pl-42 flex items-center justify-center">
               <Link href="/" className="group flex items-center gap-0.5">
-                {/* Logo Image */}
-                <div className="relative w-30 h-10 md:w-30 md:h-16  transition-transform duration-300 ease-in-out group-hover:rotate-12">
+                <div className="relative w-30 h-10 md:w-30 md:h-16 transition-transform duration-300 ease-in-out group-hover:rotate-12">
                   <Image
                     src="/logo2.png"
-                    alt="S Logo"
+                    alt="Logo"
                     fill
                     className="object-contain"
                     priority
                   />
                 </div>
-                {/* Text: UBNEX */}
               </Link>
             </div>
 
-
-            {/* --- ডান পাশ: কান্ট্রি সিলেক্টর, ইউজার, কার্ট --- */}
+            {/* ডান পাশ */}
             <div className="flex items-center gap-4 md:gap-6">
-
-              {/* Country Selector (Desktop Only) */}
               <div className="relative hidden lg:block" ref={dropdownRef}>
                 <div
                   onClick={() => setIsOpen(!isOpen)}
@@ -142,163 +128,189 @@ const Navbar = () => {
                   <span>
                     {selected.name} | {selected.currency}
                   </span>
-                  {isOpen ? (
-                    <FiChevronUp className="mt-0.5" />
-                  ) : (
-                    <FiChevronDown className="mt-0.5" />
-                  )}
                 </div>
-
-                {/* Dropdown Body */}
-                {isOpen && (
-                  <div className="absolute top-full right-0 mt-3 w-64 bg-white border border-gray-200 rounded-lg shadow-xl z-50 overflow-hidden">
-                    {/* Search Input */}
-                    <div
-                      className="p-3 border-b border-gray-100 bg-white sticky top-0"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <input
-                        type="text"
-                        placeholder="Search..."
-                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm text-black focus:outline-none focus:border-black transition-colors"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                      />
-                    </div>
-
-                    {/* Country List */}
-                    <div className="max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
-                      {filteredCountries.length > 0 ? (
-                        filteredCountries.map((country, index) => (
-                          <div
-                            key={index}
-                            className={`px-4 py-2.5 text-sm cursor-pointer hover:bg-gray-50 transition-colors flex justify-between items-center
-                              ${
-                                selected.name === country.name
-                                  ? "bg-gray-100 font-bold text-black"
-                                  : "text-gray-600"
-                              }
-                            `}
-                            onClick={() => {
-                              setSelected(country);
-                              setIsOpen(false);
-                              setSearchTerm("");
-                            }}
-                          >
-                            <span>{country.name}</span>
-                            <span className="text-xs text-gray-400">
-                              {country.currency}
-                            </span>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="px-4 py-3 text-sm text-gray-400 text-center">
-                          No result found
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
               </div>
 
-              {/* User & Cart Icons */}
-              <Link href="/login"className="text-gray-700 hover:text-black hover:scale-110 transition p-1">
+              <Link
+                href={user ? "/user" : "/login"}
+                className="text-gray-700 hover:text-black transition p-1"
+              >
                 <FiUser size={24} />
               </Link>
-              <button className="text-gray-700 hover:text-black hover:scale-110 transition p-1">
-                <FiShoppingBag size={24} />
-              </button>
+
+              <Link
+                href="/cart"
+                className="text-gray-700 hover:text-black transition p-1 relative group"
+              >
+                <FiShoppingBag
+                  size={24}
+                  className="group-hover:scale-110 transition-transform"
+                />
+                {cart.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center shadow-sm">
+                    {cart.length}
+                  </span>
+                )}
+              </Link>
             </div>
-
-
           </div>
         </div>
-
-
       </nav>
 
-      {/* =========================================
-          SIDEBAR MENU (DRAWER)
-      ========================================= */}
-
-      {/* 1. Black Overlay */}
+      {/* --- নতুন সার্চ ওভারলে পার্ট (স্ক্রিনশট অনুযায়ী ডিজাইন) --- */}
       <div
-        className={`fixed inset-0 bg-black/50 z-50 transition-opacity duration-300 
-        ${isMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"}`}
+        className={`fixed inset-0 bg-black/60 z-[100] transition-all duration-300 ${
+          isSearchOpen ? "opacity-100 visible" : "opacity-0 invisible"
+        }`}
+        onClick={() => setIsSearchOpen(false)}
+      >
+        <div
+          className="bg-white w-full max-h-[90vh] overflow-y-auto shadow-2xl transition-transform duration-300 transform"
+          onClick={(e) => e.stopPropagation()} // ড্রপডাউনে ক্লিক করলে যাতে বন্ধ না হয়
+        >
+          <div className="max-w-4xl mx-auto px-4 py-3">
+            {/* সার্চ ইনপুট সেকশন */}
+            <div className="flex items-center border-b-2 border-gray-100 pb-2">
+              <div className="flex flex-col flex-1">
+                <label className="text-xs text-gray-400 font-bold ml-1">
+                  Search
+                </label>
+                <div className="flex items-center">
+                  <input
+                    autoFocus
+                    type="text"
+                    placeholder="Search for products..."
+                    className="w-full text-xl py-2 outline-none font-medium"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery("")}
+                      className="p-1 mr-2 text-gray-400"
+                    >
+                     
+                    </button>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <FiSearch size={28} className="text-gray-400" />
+                <button
+                  onClick={() => setIsSearchOpen(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full"
+                >
+                  <FiX size={28} className="text-gray-600" />
+                </button>
+              </div>
+            </div>
+
+            {/* রেজাল্ট সেকশন */}
+            <div className="py-6">
+              {searchResults.length > 0 ? (
+                <div>
+                  <h3 className="text-[11px] font-bold text-gray-400 tracking-[0.2em] uppercase mb-6 border-b pb-2">
+                    Products
+                  </h3>
+                  <div className="space-y-6">
+                    {searchResults.map((product) => (
+                      <Link
+                        key={product._id}
+                        href={`/products/${product._id}`}
+                        onClick={() => setIsSearchOpen(false)}
+                        className="flex items-center gap-5 group"
+                      >
+                        <div className="w-16 h-16 relative bg-gray-50 border border-gray-100 rounded overflow-hidden">
+                          <Image
+                            src={product.thumbnail || "/placeholder.png"}
+                            alt={product.name}
+                            fill
+                            className="object-contain p-1 group-hover:scale-110 transition-transform"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <h4 className="font-bold text-gray-900 group-hover:text-red-600 transition text-[15px]">
+                            {product.title}
+                          </h4>
+                          <p className="text-sm text-gray-600">
+                            Tk{" "}
+                            {product.variants?.[0]?.discountPrice
+                              ? product.variants[0].discountPrice
+                              : product.variants?.[0]?.price || 0}
+                            .00 BDT
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+
+                  <div
+                   
+                    onClick={() => setIsSearchOpen(false)}
+                    className="flex items-center justify-between border-t mt-8 pt-4 text-gray-900 font-bold text-sm hover:text-red-600 transition group"
+                  >
+                    <span>Search for "{searchQuery}"</span>
+
+                  </div>
+                 
+                </div>
+              ) : (
+                searchQuery && (
+                  <div className="py-20 text-center">
+                    <p className="text-gray-400 italic">
+                      No products found matching "{searchQuery}"
+                    </p>
+                  </div>
+                )
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* --- SIDEBAR MENU (design Unchanged) --- */}
+      <div
+        className={`fixed inset-0 bg-black/50 z-50 transition-opacity duration-300 ${
+          isMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
+        }`}
         onClick={() => setIsMenuOpen(false)}
       />
-
-      {/* 2. White Sidebar Panel */}
       <div
-        className={`fixed top-0 left-0 h-full w-[300px] sm:w-[350px] bg-white z-[60] shadow-2xl 
-        transform transition-transform duration-300 ease-in-out 
-        ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
+        className={`fixed top-0 left-0 h-full w-[300px] sm:w-[350px] bg-white z-[60] shadow-2xl transform transition-transform duration-300 ${
+          isMenuOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
       >
         <div className="flex flex-col h-full font-sans">
-          {/* Header: Close & Search Icon */}
           <div className="flex items-center gap-6 p-6 pt-8">
             <button
               onClick={() => setIsMenuOpen(false)}
-              className="text-black hover:rotate-90 transition-transform duration-300 p-1"
+              className="text-black transition-transform duration-300 p-1"
             >
               <FiX size={28} />
             </button>
-            <button className="text-black hover:scale-110 transition p-1">
+            <button
+              onClick={() => {
+                setIsMenuOpen(false);
+                setIsSearchOpen(true);
+              }}
+              className="text-black p-1"
+            >
               <FiSearch size={26} />
             </button>
           </div>
-
-          {/* Body: Navigation Links */}
           <div className="flex-1 px-6 py-4 flex flex-col gap-6 overflow-y-auto">
             {menuItems.map((item, index) => (
               <Link
                 key={index}
                 href={item.href}
-                className="text-[17px] text-gray-900 font-medium hover:text-red-600 hover:translate-x-1 transition-all"
+                className="text-[17px] text-gray-900 font-medium hover:text-red-600 transition-all"
                 onClick={() => setIsMenuOpen(false)}
               >
                 {item.name}
               </Link>
             ))}
           </div>
-
-          {/* Footer: Social Icons */}
-          <div className="bg-gray-50 p-8 border-t border-gray-100">
-            <div className="flex items-center gap-6 text-black">
-              <a
-                href="#"
-                className="hover:text-gray-600 hover:-translate-y-1 transition-transform"
-              >
-                <FaXTwitter size={20} />
-              </a>
-              <a
-                href="#"
-                className="hover:text-blue-600 hover:-translate-y-1 transition-transform"
-              >
-                <FaFacebookF size={20} />
-              </a>
-              <a
-                href="#"
-                className="hover:text-pink-600 hover:-translate-y-1 transition-transform"
-              >
-                <FaInstagram size={22} />
-              </a>
-              <a
-                href="#"
-                className="hover:text-black hover:-translate-y-1 transition-transform"
-              >
-                <FaTiktok size={20} />
-              </a>
-              <a
-                href="#"
-                className="hover:text-red-600 hover:-translate-y-1 transition-transform"
-              >
-                <FaYoutube size={22} />
-              </a>
-            </div>
-          </div>
         </div>
-
       </div>
     </>
   );

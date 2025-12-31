@@ -1,4 +1,3 @@
-
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
@@ -34,13 +33,19 @@ export function AuthProvider({ children }) {
     fetchUser();
   }, []);
 
-  // 🟢 UI Refresh function
   const refreshUser = async () => {
-    const res = await fetch("/api/auth/me", {
-      credentials: "include",
-    });
-    const data = await res.json();
-    if (data.ok) setUser(data.user);
+    try {
+      const res = await fetch("/api/auth/me", {
+        method: "GET", // নিশ্চিত করুন GET মেথড
+        credentials: "include",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data.user);
+      }
+    } catch (err) {
+      console.error("Failed to refresh user", err);
+    }
   };
 
   // Logout
@@ -63,7 +68,7 @@ export function AuthProvider({ children }) {
         user,
         loading,
         logout,
-        refreshUser, 
+        refreshUser,
       }}
     >
       {children}

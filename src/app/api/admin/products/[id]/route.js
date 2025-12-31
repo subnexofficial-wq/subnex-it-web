@@ -13,16 +13,21 @@ export async function PUT(req, { params }) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
      
-    // ভুল ছিল: const {id} = await params.id
-    // সঠিক পদ্ধতি:
     const resolvedParams = await params; 
     const id = resolvedParams.id;
-
     const updates = await req.json();
     const { db } = await getDB();
 
-
     const { _id, ...updateData } = updates;
+
+    // ভেরিয়েন্ট প্রসেসিং এবং ডিসকাউন্ট প্রাইস ডাটা টাইপ নিশ্চিত করা
+    if (updateData.variants && Array.isArray(updateData.variants)) {
+      updateData.variants = updateData.variants.map(v => ({
+        duration: v.duration,
+        price: Number(v.price),
+        discountPrice: v.discountPrice ? Number(v.discountPrice) : 0
+      }));
+    }
 
     const result = await db.collection("products").updateOne(
       { _id: new ObjectId(id) },
@@ -44,7 +49,6 @@ export async function PUT(req, { params }) {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
-
 /* ================= DELETE PRODUCT ================= */
 export async function DELETE(req, { params }) {
   try {
