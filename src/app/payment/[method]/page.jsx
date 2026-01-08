@@ -34,7 +34,7 @@ const DetailsContent = () => {
                     const dbKey = (method === 'rocket') ? 'rocket' : method;
                     setDynamicAdminNum(data.methods[dbKey]?.adminNum || "Not Found");
                 }
-            } catch (err) { setDynamicAdminNum("Error"); }
+            } catch (err) { setDynamicAdminNum("Errror"); }
             finally { setIsFetching(false); }
         };
         fetchAdminNumber();
