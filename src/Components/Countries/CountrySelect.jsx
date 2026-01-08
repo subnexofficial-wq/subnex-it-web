@@ -31,7 +31,7 @@ export default function CountrySelect({ value, onChange }) {
         <div className="absolute z-50 bg-white border rounded w-full mt-1 max-h-60 overflow-y-auto shadow">
           {countries.map((c) => (
             <button
-              key={c.code}
+             key={c.name}
               onClick={() => {
                 onChange(c);
                 setOpen(false);

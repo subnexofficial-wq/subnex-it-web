@@ -46,9 +46,14 @@ export default function ContactInformationPage() {
             <p className="text-gray-500 text-sm mb-4">
               ডেলিভারি ও দ্রুত সাপোর্টের জন্য আমাদের সাথে যোগাযোগ করুন
             </p>
-            <button className="bg-blue-600 text-white px-6 py-2 rounded-full text-sm font-bold hover:bg-blue-700 transition">
+           <a
+              href="https://m.me/subnexit/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-blue-600 text-white px-6 py-2 rounded-full text-sm font-bold hover:bg-blue-700 transition inline-flex items-center gap-2"
+            >
               Contact Us
-            </button>
+            </a>
           </div>
 
 

@@ -20,11 +20,8 @@ const HeroSlider = () => {
   if (slides.length === 0) return <div className="h-[200px] md:h-[400px] bg-gray-100 animate-pulse" />;
 
   return (
-    <div className="w-full bg-white">
-      <div className="bg-black text-white text-[10px] md:text-xs py-2 text-center font-bold flex justify-center gap-2">
-        <FiClock className="text-pink-500 animate-pulse" />
-        <span className="text-green-400">Service Time: 12 PM - 1 AM | ⏸ Friday After 2:30 PM</span>
-      </div>
+    <div className="w-full bg-white ">
+ 
 
       <div className="relative w-full bg-gray-100 border-b border-gray-300">
         <Swiper

@@ -41,11 +41,11 @@ const DetailsContent = () => {
     }, [method]);
 
     const methodConfig = {
-        bkash: { name: 'bKash', color: 'bg-[#E2136E]', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/bkash.png' },
-        nagad: { name: 'Nagad', color: 'bg-[#F7941D]', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/naged.png' },
-        upay: { name: 'Upay', color: 'bg-[#FFC40C]', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/upay.png' },
-        rocket: { name: 'Rocket', color: 'bg-[#8C3494]', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/roket.png' },
-        roket: { name: 'Rocket', color: 'bg-[#8C3494]', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/roket.png' },
+        bkash: { name: 'bKash', color: 'bg-[#E2136E]', logo: "/bkash.jpeg" },
+        nagad: { name: 'Nagad', color: 'bg-[#F7941D]', logo: '/nagad.jpeg' },
+        upay: { name: 'Upay', color: 'bg-[#FFC40C]', logo: '/upay.jpeg' },
+        rocket: { name: 'Rocket', color: 'bg-[#8C3494]', logo: '/rocket.jpeg' },
+        
     };
 
     const currentMethod = methodConfig[method] || { name: method.toUpperCase(), color: 'bg-gray-600', logo: '' };

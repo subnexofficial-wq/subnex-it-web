@@ -36,7 +36,7 @@ export default function ContactSection({ data, setData }) {
           <input
             type="tel"
             className="w-full bg-white border border-gray-300 rounded-xl pl-11 pr-4 py-3.5 text-sm focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400"
-            placeholder="Phone Number (e.g. +88017...)"
+            placeholder="Whatsapp Number (e.g. +88017...)"
             value={data.phone}
             onChange={(e) => setData({ ...data, phone: e.target.value })}
           />
