@@ -1,5 +1,6 @@
 
 export const countries = [
+  { name: "Bangladesh", phoneCode: "+880", currency: { code: "BDT", symbol: "৳" } },
   { name: "Afghanistan", phoneCode: "+93", currency: { code: "AFN", symbol: "؋" } },
   { name: "Albania", phoneCode: "+355", currency: { code: "ALL", symbol: "L" } },
   { name: "Algeria", phoneCode: "+213", currency: { code: "DZD", symbol: "دج" } },
@@ -11,7 +12,7 @@ export const countries = [
   { name: "Austria", phoneCode: "+43", currency: { code: "EUR", symbol: "€" } },
   { name: "Azerbaijan", phoneCode: "+994", currency: { code: "AZN", symbol: "₼" } },
 
-  { name: "Bangladesh", phoneCode: "+880", currency: { code: "BDT", symbol: "৳" } },
+
   { name: "Belgium", phoneCode: "+32", currency: { code: "EUR", symbol: "€" } },
   { name: "Brazil", phoneCode: "+55", currency: { code: "BRL", symbol: "R$" } },
   { name: "Bulgaria", phoneCode: "+359", currency: { code: "BGN", symbol: "лв" } },

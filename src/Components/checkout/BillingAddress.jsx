@@ -1,14 +1,19 @@
 "use client";
 
-import { useState } from "react";
-import BillingCountrySelect from "../Countries/BillingCoutriesSection";
+import { useEffect, useState } from "react";
+
 import { countries } from "../../../data/Country";
+import BillingCountrySelect from "../Countries/BillingCoutriesSection";
+
+const DEFAULT_COUNTRY = countries.find(
+  (c) => c.name === "Bangladesh"
+);
 
 export default function BillingAddress() {
-  const [sameAsShipping, setSameAsShipping] = useState(true); // Default true করা ভালো UX এর জন্য
+  const [sameAsShipping, setSameAsShipping] = useState(true);
 
   const [billing, setBilling] = useState({
-    country: countries[10],
+    country: DEFAULT_COUNTRY,
     firstName: "",
     lastName: "",
     address: "",
@@ -16,6 +21,8 @@ export default function BillingAddress() {
     postalCode: "",
     phone: "",
   });
+ 
+
 
   return (
     <section className="space-y-6">

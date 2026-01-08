@@ -45,7 +45,7 @@ export default function AddTip({ subtotal = 710, onTipChange }) {
               className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 transition-all"
             />
             <span className="text-[13px] md:text-sm font-medium text-gray-800">
-              Show your support for the team at <span className="text-blue-600">SUBNEX</span> - OTT SUBSCRIPTIONS BD
+              Show your support for the team at <span className="text-blue-600">SUBNEX</span> 
             </span>
           </label>
         </div>

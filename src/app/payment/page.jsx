@@ -39,10 +39,10 @@ const PaymentContent = () => {
     const t = translations[lang];
 
     const mfsMethods = [
-        { name: 'bKash', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/bkash.png' },
-        { name: 'Nagad', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/naged.png' },
-        { name: 'Upay', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/upay.png' },
-        { name: 'Rocket', logo: 'https://raw.githubusercontent.com/mdabdullahm/video/main/img/roket.png' },
+        { name: 'bKash',logo: "/bkash.jpeg"  },
+        { name: 'Nagad', logo: '/nagad.jpeg' },
+        { name: 'Upay', logo: '/upay.jpeg' },
+        { name: 'Rocket', logo: '/rocket.jpeg' },
     ];
 
     const handlePay = () => {
