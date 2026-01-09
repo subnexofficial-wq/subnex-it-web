@@ -71,7 +71,7 @@ export default function CheckoutPage() {
     address: "",
     city: "",
     postal: "",
-    phone: "",
+  
   });
 
   const [shippingData, setShippingData] = useState({
