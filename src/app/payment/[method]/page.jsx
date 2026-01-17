@@ -120,7 +120,7 @@ const DetailsContent = () => {
 
                 <div className="p-6 space-y-6">
                     <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase text-center mb-2">Step 1: Send Money to (Personal)</p>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase text-center mb-2">Step 1:Payment(Merchant) </p>
                         <div className="flex items-center justify-between bg-white p-3 rounded-lg border">
                             <span className="text-xl font-mono font-black">{isFetching ? "..." : dynamicAdminNum}</span>
                             <button onClick={() => {navigator.clipboard.writeText(dynamicAdminNum); setCopied(true); setTimeout(()=>setCopied(false), 2000)}} className={`${currentMethod.color} text-white px-3 py-1.5 rounded-md text-[10px] font-bold`}>{copied ? "COPIED!" : "COPY"}</button>
