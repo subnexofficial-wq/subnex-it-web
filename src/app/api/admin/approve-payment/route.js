@@ -11,6 +11,8 @@ export async function PATCH(req) {
     if (!admin) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    const body = await req.json();
+    console.log("--- রিসিভড ডাটা ---", body);
 
     // আপনার রিকোয়েস্ট থেকে senderEmail আসছে
     const { transactionId, orderId, status, senderEmail } = await req.json(); 
@@ -35,6 +37,7 @@ export async function PATCH(req) {
 
     // ৩. যদি পেমেন্ট approved হয় এবং senderEmail থাকে, তবে ইনভয়েস পাঠানো হবে
     if (status === 'approved' && senderEmail && order) {
+      console.log("ইমেল পাঠানোর চেষ্টা করা হচ্ছে:", order.customer.email);
       await sendEmail({
         to: senderEmail, 
         subject: `Payment Confirmed - Order #${order._id.toString().slice(-6)}`,

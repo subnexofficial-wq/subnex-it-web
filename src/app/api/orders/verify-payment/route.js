@@ -17,7 +17,6 @@ export async function POST(req) {
 
     const { db } = await getDB();
 
- 
     const newTransaction = {
       orderId: new ObjectId(orderId), 
       senderEmail: senderEmail || null,
@@ -28,7 +27,6 @@ export async function POST(req) {
       status: "pending", 
       submittedAt: new Date(),
     };
-
     const transactionResult = await db.collection("transactions").insertOne(newTransaction);
 
     // ২. মূল 'orders' কালেকশনে পেমেন্ট স্ট্যাটাস আপডেট করা (ঐচ্ছিক কিন্তু ভালো প্র্যাকটিস)
