@@ -10,6 +10,32 @@ export default function LoginPage() {
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const handleForgotPassword = async () => {
+  const { value: email } = await Swal.fire({
+    title: "Forgot Password",
+    text: "আপনার রেজিস্টার্ড জিমেইল অ্যাড্রেসটি লিখুন",
+    input: "email",
+    inputPlaceholder: "example@gmail.com",
+    showCancelButton: true,
+    confirmButtonText: "Send Link",
+    confirmButtonColor: "#4f46e5",
+  });
+
+  if (email) {
+    Swal.fire({ title: "Sending...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+    
+    const res = await fetch("/api/auth/forgot-password", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    });
+
+    if (res.ok) {
+      Swal.fire("Sent!", "আপনার ইমেইলে রিসেট লিঙ্ক পাঠানো হয়েছে।", "success");
+    } else {
+      Swal.fire("Error", "এই ইমেইলটি আমাদের সিস্টেমে নেই!", "error");
+    }
+  }
+};
   const handleLogin = async (e) => {
     e.preventDefault();
     const { email, password } = e.target;
@@ -100,11 +126,19 @@ export default function LoginPage() {
 
         <div className="text-sm text-center mt-4">
           New here?{" "}
-          <Link href="/register" className="text-indigo-600 font-medium">
+          <Link href="/register" className=" text-indigo-600 font-medium">
             Create account
           </Link>
         </div>
+        <button
+        type="button"
+        onClick={handleForgotPassword}
+        className="text-xs text-indigo-600 hover:underline mt-1 block text-center mx-auto"
+      >
+        Forgot Password?
+      </button>
       </div>
+      
     </div>
   );
 }
