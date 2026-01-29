@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import getDB from "@/lib/mongodb";
 import { comparePassword, signToken } from "@/lib/auth";
+export const dynamic = "force-dynamic";
 
 export async function POST(req) {
   try {
