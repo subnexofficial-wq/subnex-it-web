@@ -37,6 +37,8 @@ function ResetPasswordContent() {
     } finally {
       setLoading(false);
     }
+    console.log("Token from URL:", token); // এটি চেক করুন
+  console.log("Password from input:", password);
   };
 
   return (
