@@ -3,21 +3,33 @@ import { Resend } from "resend";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendEmail({ to, subject, html, type = "admin" }) {
-  // টাইপ অনুযায়ী সেন্ডার ইমেইল সিলেক্ট হবে
-let fromEmail = "onboarding@resend.dev";
+  let fromEmail;
 
+  // টাইপ অনুযায়ী .env থেকে ইমেইল সিলেক্ট করা
   if (type === "security") {
-    fromEmail = "SubNex Security <security@subnexit.com>";
+    fromEmail = process.env.SECURITY_EMAIL;
   } else if (type === "invoice") {
-    fromEmail = "SubNex Billing <billing@subnexit.com>";
-  } else if (type === "admin") {
-    fromEmail = "SubNex Order <order@subnexit.com>";
+    fromEmail = process.env.INVOICE_EMAIL;
+  } else {
+    fromEmail = process.env.ADMIN_EMAIL;
   }
 
-  await resend.emails.send({
-    from: fromEmail, 
-    to: Array.isArray(to) ? to : [to],
-    subject,
-    html, 
-  });
+ 
+  if (!fromEmail) {
+    fromEmail = "SubNex <security@subnexit.com>"; 
+  }
+
+  try {
+    const data = await resend.emails.send({
+      from: fromEmail, 
+      to: Array.isArray(to) ? to : [to],
+      subject,
+      html, 
+    });
+    console.log("Email sent successfully:", data.id);
+    return data;
+  } catch (error) {
+    console.error("Resend Error:", error);
+    throw error;
+  }
 }
