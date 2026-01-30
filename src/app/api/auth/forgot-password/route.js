@@ -2,33 +2,19 @@ import { NextResponse } from "next/server";
 import getDB from "@/lib/mongodb";
 import crypto from "crypto";
 import { sendEmail } from "@/lib/mailer";
-export const dynamic = "force-dynamic";
 
 export async function POST(req) {
   try {
-    const body = await req.json();
-    console.log("Request Body:", body); 
-
+    const body = await req.json(); // একবার রিড
     const { email } = body;
 
-    if (!email) {
-      return NextResponse.json({ error: "ইমেইল ফিল্ডটি খালি!" }, { status: 400 });
-    }
+    if (!email) return NextResponse.json({ error: "ইমেইল দিন" }, { status: 400 });
 
     const { db } = await getDB();
-    const cleanEmail = email.trim().toLowerCase();
+    const user = await db.collection("users").findOne({ email: email.toLowerCase().trim() });
 
-    // ২. ইউজার খোঁজার আগে লগ
-    console.log("Searching for user with email:", cleanEmail);
+    if (!user) return NextResponse.json({ error: "ইউজার পাওয়া যায়নি" }, { status: 400 });
 
-    const user = await db.collection("users").findOne({ email: cleanEmail });
-
-    if (!user) {
-      console.log("User not found in DB!"); // ৩. ইউজার না মিললে এটি দেখাবে
-      return NextResponse.json({ error: "এই ইমেইলটি আমাদের সিস্টেমে নেই!" }, { status: 400 });
-    }
-
-    // ৪. টোকেন তৈরি
     const token = crypto.randomBytes(32).toString("hex");
     const expiry = Date.now() + 3600000;
 
@@ -38,28 +24,15 @@ export async function POST(req) {
     );
 
     const resetLink = `${process.env.NEXT_PUBLIC_BASE_URL}/reset-password?token=${token}`;
+    
+    await sendEmail({
+      to: email,
+      subject: "Password Reset",
+      html: `<p>লিঙ্ক: <a href="${resetLink}">${resetLink}</a></p>`
+    });
 
-    // ৫. ইমেইল পাঠানোর ঠিক আগে লগ
-    console.log("Attempting to send email to:", cleanEmail);
-
-    try {
-      await sendEmail({
-        to: cleanEmail,
-        subject: "পাসওয়ার্ড রিসেট করার লিঙ্ক - SubNex",
-        type: "security",
-        html: `<h1>রিসেট লিঙ্ক: ${resetLink}</h1>`,
-      });
-
-      console.log("Email sent successfully!");
-      return NextResponse.json({ ok: true, message: "ইমেইল পাঠানো হয়েছে।" });
-
-    } catch (emailError) {
-      console.error("Email Error:", emailError);
-      return NextResponse.json({ error: "ইমেইল সার্ভিসে সমস্যা।" }, { status: 500 });
-    }
-
+    return NextResponse.json({ ok: true, message: "ইমেইল পাঠানো হয়েছে" });
   } catch (err) {
-    console.error("Main API Error:", err);
-    return NextResponse.json({ error: "Server error occurred." }, { status: 500 });
+    return NextResponse.json({ error: "সার্ভার এরর" }, { status: 500 });
   }
 }
