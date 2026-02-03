@@ -90,7 +90,7 @@ export default function CheckoutPage() {
 
   const total = subtotal + shippingData.price + tipAmount - discount;
 
- // CheckoutPage.js এর ভেতরে handleCompleteOrder ফাংশনটি এভাবে পরিবর্তন করুন:
+
 
 const handleCompleteOrder = async () => {
   if (!delivery.address || !contact.email || !contact.phone) {
@@ -102,11 +102,11 @@ const orderItemsForBackend = checkoutItems.map(item => ({
       title: item.title,
       price: Number(item.price),
       quantity: Number(item.quantity),
-      category: item.category || "service", // ডিজিটাল হলে ডিজিটাল আসবে
-      downloadLink: item.downloadLink || null // লিঙ্ক থাকলে লিঙ্ক আসবে
+      category: item.category || "service", 
+      downloadLink: item.downloadLink || null 
     }));
   const orderData = {
-    orderItems: orderItemsForBackendj,
+    orderItems: orderItemsForBackend,
     userEmail: user?.email || "guest",
     customer: { ...contact, ...delivery },
     pricing: {
@@ -130,13 +130,13 @@ const orderItemsForBackend = checkoutItems.map(item => ({
     const result = await res.json();
 
     if (res.ok) {
-      // ডাইনামিক ইমেইল এবং নাম পাস করা হচ্ছে
+
       const fullName = `${delivery.firstName} ${delivery.lastName}`;
       const query = new URLSearchParams({
         orderId: result.orderId,
         amount: total,
         name: fullName,
-        email: contact.email // ইউজার ফর্মে যে ইমেইল দিয়েছে
+        email: contact.email 
       }).toString();
 
       router.push(`/payment?${query}`);
@@ -182,7 +182,7 @@ const orderItemsForBackend = checkoutItems.map(item => ({
           {/* RIGHT SECTION (Order Summary & Pay Button) */}
           <aside className="lg:sticky lg:top-10 space-y-6">
             <OrderSummary
-              cart={checkoutItems} // কার্টের বদলে ডাইনামিক checkoutItems
+              cart={checkoutItems} 
               subtotal={subtotal}
               shipping={shippingData.price}
               tip={tipAmount}
