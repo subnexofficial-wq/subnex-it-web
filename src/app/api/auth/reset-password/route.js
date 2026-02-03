@@ -4,23 +4,38 @@ import { hashPassword } from "@/lib/auth";
 
 export async function POST(req) {
   try {
-    const body = await req.json(); // একবার রিড
+    const body = await req.json();
     const { token, newPassword } = body;
 
     if (!token || !newPassword) {
-      return NextResponse.json({ error: "ডাটা পাওয়া যায়নি" }, { status: 400 });
+      console.log("Token not found in DB:", token);
+      return NextResponse.json({ error: "Data not found" }, { status: 400 });
     }
 
     const { db } = await getDB();
+    
+    // ১. টোকেনটিকে স্ট্রিং হিসেবে নিশ্চিত করুন এবং ট্রিম করুন
+    const searchToken = String(token).trim();
+
+    // ২. শুধুমাত্র টোকেন দিয়ে আগে ইউজার খুঁজুন (টাইমজোন সমস্যা এড়াতে)
     const user = await db.collection("users").findOne({ 
-      resetToken: token, 
-      resetTokenExpiry: { $gt: Date.now() } 
+
+      resetToken: searchToken 
     });
 
-    if (!user) return NextResponse.json({ error: "লিঙ্কটি অবৈধ বা মেয়াদ শেষ" }, { status: 400 });
+    if (!user) {
+      return NextResponse.json({ error: "The link is invalid or already used" }, { status: 400 });
+    }
+
+    // ৩. ম্যানুয়ালি মেয়াদ চেক করুন
+    if (user.resetTokenExpiry < Date.now()) {
+      return NextResponse.json({ error: "The link has expired" }, { status: 400 });
+    }
 
     const hashedPassword = await hashPassword(newPassword);
-    await db.collection("users").updateOne(
+    
+    // ৪. পাসওয়ার্ড আপডেট এবং টোকেন ক্লিয়ার
+    const updateResult = await db.collection("users").updateOne(
       { _id: user._id },
       { 
         $set: { password: hashedPassword },
@@ -28,8 +43,13 @@ export async function POST(req) {
       }
     );
 
-    return NextResponse.json({ ok: true, message: "সফল হয়েছে" });
+    if (updateResult.modifiedCount === 0) {
+      throw new Error("Database update failed");
+    }
+
+    return NextResponse.json({ ok: true, message: "successfully updated password" });
   } catch (err) {
-    return NextResponse.json({ error: "সার্ভার এরর" }, { status: 500 });
+    console.error("Reset Error:", err);
+    return NextResponse.json({ error: "server error: " + err.message }, { status: 500 });
   }
 }

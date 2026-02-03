@@ -26,10 +26,11 @@ export async function POST(req) {
     const resetLink = `${process.env.NEXT_PUBLIC_BASE_URL}/reset-password?token=${token}`;
     
     await sendEmail({
-      to: email,
-      subject: "Password Reset",
-      html: `<p>লিঙ্ক: <a href="${resetLink}">${resetLink}</a></p>`
-    });
+  to: email,
+  subject: "Password Reset",
+  type: "security", // এটি যোগ করুন
+  html: `<p>লিঙ্ক: <a href="${resetLink}">${resetLink}</a></p>`
+});
 
     return NextResponse.json({ ok: true, message: "ইমেইল পাঠানো হয়েছে" });
   } catch (err) {
