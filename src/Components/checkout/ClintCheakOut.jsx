@@ -97,9 +97,16 @@ const handleCompleteOrder = async () => {
     alert("Please fill in all information.");
     return;
   }
-
+const orderItemsForBackend = checkoutItems.map(item => ({
+      productId: item.productId || item._id,
+      title: item.title,
+      price: Number(item.price),
+      quantity: Number(item.quantity),
+      category: item.category || "service", // ডিজিটাল হলে ডিজিটাল আসবে
+      downloadLink: item.downloadLink || null // লিঙ্ক থাকলে লিঙ্ক আসবে
+    }));
   const orderData = {
-    orderItems: checkoutItems,
+    orderItems: orderItemsForBackendj,
     userEmail: user?.email || "guest",
     customer: { ...contact, ...delivery },
     pricing: {

@@ -13,11 +13,12 @@ export async function POST(req) {
     }
 
     const { db } = await getDB();
-
+const digitalProduct = orderItems.find(item => item.category === "digital-product");
     const newOrder = {
       userEmail,
       customer,
       orderItems,
+      downloadLink: digitalProduct?.downloadLink || null, 
       pricing: {
         subtotal: Number(pricing.subtotal),
         shippingFee: Number(pricing.shippingFee),
