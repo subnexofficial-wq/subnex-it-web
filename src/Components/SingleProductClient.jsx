@@ -85,6 +85,8 @@ const SingleProductClient = ({ product, relatedProducts }) => {
         quantity: parseInt(quantity),
         duration: selectedVariant ? selectedVariant.duration : null,
         totalPrice: totalPrice,
+        category: product.category, 
+        downloadLink: product.downloadLink || null,
         isBuyNow: true,
       };
 
