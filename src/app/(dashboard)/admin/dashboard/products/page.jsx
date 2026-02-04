@@ -133,6 +133,8 @@ export default function ProductsPage() {
                     )}
                   </div>
 
+                  
+
                   {/* Product Details - Compact */}
                   <div className="p-3 flex-1 flex flex-col">
                     <div className="flex items-center gap-1 mb-1">

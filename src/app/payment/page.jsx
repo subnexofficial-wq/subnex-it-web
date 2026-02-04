@@ -1,74 +1,59 @@
 "use client";
+import { useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { pushToDataLayer } from "@/lib/gtm";
 
-import React, { useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import Swal from 'sweetalert2';
+function PaymentContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
-const RedirectToUddoktaPay = () => {
-    const searchParams = useSearchParams();
-    
-    // URL থেকে ডাটা নেওয়া
-    const orderId = searchParams.get('orderId');
-    const amount = searchParams.get('amount');
-    const customerName = searchParams.get('name');
-    const customerEmail = searchParams.get('email');
+  const orderId = searchParams.get("orderId");
+  const amount = searchParams.get("amount");
+  const name = searchParams.get("name");
+  const email = searchParams.get("email");
 
-    useEffect(() => {
-        const initiatePayment = async () => {
-            // ডাটা চেক
-            if (!orderId || !amount || !customerEmail) {
-                Swal.fire('Error', 'Missing order information!', 'error');
-                return;
-            }
+  useEffect(() => {
+    const startPayment = async () => {
+      if (!orderId) return;
 
-            Swal.fire({
-                title: 'Processing Payment...',
-                text: 'Please wait while we redirect you to the secure gateway.',
-                allowOutsideClick: false,
-                didOpen: () => Swal.showLoading()
-            });
+      // ১. পিক্সেল ইভেন্ট (Initiate Checkout)
+      pushToDataLayer("InitiateCheckout", { value: amount, currency: "BDT" });
 
-            try {
-                const res = await fetch("/api/checkout", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        orderId,
-                        amount,
-                        customerName,
-                        customerEmail, 
-                    }),
-                });
+      try {
+        const res = await fetch("/api/uddoktapay/initiate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderId, amount, customerName: name, customerEmail: email }),
+        });
 
-                const data = await res.json();
-                
-                if (data.url) {
-                    // সরাসরি UddoktaPay তে পাঠিয়ে দেওয়া
-                    window.location.href = data.url;
-                } else {
-                    Swal.fire('Error', data.error || 'Failed to get payment URL', 'error');
-                }
-            } catch (err) {
-                console.error("Payment Initiation Error:", err);
-                Swal.fire('Error', 'Something went wrong. Please try again.', 'error');
-            }
-        };
+        const data = await res.json();
 
-        initiatePayment();
-    }, [orderId, amount, customerEmail, customerName]);
+        if (data.payment_url) {
+          window.location.href = data.payment_url; // সরাসরি গেটওয়েতে রিডাইরেক্ট
+        } else {
+          alert("পেমেন্ট লিঙ্ক তৈরি করা সম্ভব হয়নি। আবার চেষ্টা করুন।");
+          router.push("/checkout");
+        }
+      } catch (err) {
+        console.error("Payment Error:", err);
+        alert("সার্ভার কানেকশন এরর! আপনার ইন্টারনেট বা API সেটিংস চেক করুন।");
+      }
+    };
 
-    return (
-        <div className="min-h-screen bg-white flex flex-col items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#006747] mb-4"></div>
-            <p className="text-gray-600 font-medium">Connecting to secure gateway...</p>
-        </div>
-    );
-};
+    startPayment();
+  }, [orderId]);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="text-center">
+        <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+        <h2 className="text-xl font-bold text-gray-800">Redirecting to Secure Payment</h2>
+        <p className="text-gray-500 mt-2">দয়া করে অপেক্ষা করুন, আপনাকে পেমেন্ট গেটওয়েতে নিয়ে যাওয়া হচ্ছে...</p>
+      </div>
+    </div>
+  );
+}
 
 export default function PaymentPage() {
-    return (
-        <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
-            <RedirectToUddoktaPay />
-        </Suspense>
-    );
+  return <Suspense fallback={<div>Loading...</div>}><PaymentContent /></Suspense>;
 }

@@ -1,146 +1,140 @@
 "use client";
 import { useEffect, useState, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { FiDownload, FiHome, FiPrinter } from "react-icons/fi";
+import { useSearchParams } from "next/navigation";
+import Image from "next/image";
 
-const InvoiceContent = () => {
+function InvoiceContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
-  
+  const orderId = searchParams.get("orderId");
   const [order, setOrder] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  // URL থেকে UddoktaPay-এর invoice_id নেওয়া
-  const invoiceId = searchParams.get("invoice_id");
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    const fetchOrderDetails = async () => {
-      try {
-        // আমরা আমাদের ডাটাবেস থেকে অর্ডারের রিয়েল ডাটা নিয়ে আসবো
-        // আপনার API এন্ডপয়েন্ট অনুযায়ী এখানে কল করতে হবে
-        const res = await fetch(`/api/orders/success?invoiceId=${invoiceId}`);
-        const data = await res.json();
-        
-        if (data) {
-          setOrder(data);
-        }
-      } catch (err) {
-        console.error("Order Fetch Error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (invoiceId) {
-      fetchOrderDetails();
+    if (orderId) {
+      // রিয়েল ডাটা ফেচ করা হচ্ছে
+      fetch(`/api/orders/${orderId}`)
+        .then((res) => {
+          if (!res.ok) throw new Error("Order not found");
+          return res.json();
+        })
+        .then((data) => setOrder(data))
+        .catch((err) => {
+          console.error("Fetch Error:", err);
+          setError(true);
+        });
     }
-  }, [invoiceId]);
+  }, [orderId]);
 
-  const handlePrint = () => window.print();
+  if (error) return (
+    <div className="min-h-screen flex items-center justify-center text-red-500 font-bold bg-white">
+      Error: Order Data Not Found! 
+    </div>
+  );
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center font-bold text-emerald-600 animate-pulse uppercase tracking-widest">Generating Invoice...</div>;
-
-  // যদি অর্ডার না পাওয়া যায়, তবে একটি ডিফোল্ট ভিউ
-  if (!order) return <div className="text-center py-20">Order not found. Please contact support.</div>;
+  if (!order) return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8fafc]">
+      <div className="w-10 h-10 border-4 border-[#2563eb] border-t-transparent rounded-full animate-spin mb-4"></div>
+      <p className="font-black text-[#2563eb] animate-pulse">FETCHING REAL-TIME DATA...</p>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-[#f1f5f9] py-10 px-4 font-sans text-[#111827]">
-      <div className="max-w-[850px] mx-auto bg-white p-6 md:p-12 rounded-xl shadow-lg border border-gray-100 print:shadow-none print:border-none print:p-0">
+    <div className="min-h-screen bg-[#f8fafc] p-4 flex flex-col items-center">
+      <div className="w-full max-w-[850px] bg-white border p-10 rounded-3xl shadow-sm">
         
-        {/* HEADER */}
-        <div className="flex justify-between items-center border-b-2 border-[#e5e7eb] pb-6">
+        {/* Header - SubNex Logo & Status */}
+        <div className="flex justify-between items-center border-b pb-8 mb-10">
           <div>
-            <div className="logo mb-2">
-              <img src="https://subnexit.com/_next/image?url=%2Flogo2.png&w=1920&q=75" alt="Subnex Logo" className="h-10 w-auto" />
-            </div>
-            <div className="text-[12px] font-bold text-gray-400 uppercase tracking-tight">
-              Invoice #{order._id?.toString().slice(-6) || "000"}
-            </div>
+            <Image src="/logo2.png" alt="SubNex Logo" width={100} height={40}></Image>
+            <p className="text-[11px] font-bold text-slate-400 mt-2 uppercase tracking-widest">
+              Invoice: #{orderId.slice(-6)}
+            </p>
           </div>
-          <div className="flex flex-col items-end">
-             <div className="bg-[#e0ecff] text-[#2563eb] px-5 py-2 rounded-full font-black text-[12px] tracking-widest mb-2">PAID</div>
-             <p className="text-[10px] text-gray-400 font-mono">TXN: {invoiceId}</p>
+          <div className="text-right">
+            <span className="bg-[#e0ecff] text-[#2563eb] px-6 py-2 rounded-full text-xs font-black uppercase">
+              {order.paymentStatus === "paid" ? "PAID" : "COMPLETED"}
+            </span>
           </div>
         </div>
 
-        {/* INFO SECTION */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10">
-          <div className="text-sm leading-relaxed">
-            <strong className="text-gray-400 uppercase text-[10px] block mb-2 tracking-widest">Billed To:</strong>
-            <p className="font-black text-lg text-gray-800 uppercase">{order.customer?.firstName} {order.customer?.lastName}</p>
-            <p className="text-gray-500 font-medium">{order.customer?.email}</p>
-            <p className="text-gray-500">{order.customer?.phone}</p>
+        {/* Info Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
+          <div>
+            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Invoice To:</h3>
+            <p className="font-black text-slate-800 text-lg">
+              {order.customer?.firstName} {order.customer?.lastName}
+            </p>
+            <p className="text-sm text-slate-500">{order.customer?.email}</p>
+            <p className="text-sm text-slate-500">{order.customer?.phone}</p>
+            <p className="text-sm text-slate-500">{order.customer?.address}</p>
           </div>
-          <div className="md:text-right text-sm">
-            <strong className="text-gray-400 uppercase text-[10px] block mb-2 tracking-widest">Invoice Date:</strong>
-            <p className="font-bold text-gray-800 text-lg">
-              {new Date(order.createdAt).toLocaleDateString('en-GB', {
-                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-              })}
+          <div className="md:text-right">
+            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Invoice Date:</h3>
+            <p className="font-bold text-slate-800 italic">
+              {new Date(order.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
             </p>
           </div>
         </div>
 
-        {/* TABLE SECTION (Real Products) */}
-        <div className="mt-10 border border-[#e5e7eb] rounded-xl overflow-hidden shadow-sm">
-          <table className="w-full text-left text-sm border-collapse">
-            <thead className="bg-[#f8fafc] text-gray-700 font-black uppercase text-[11px] border-b border-[#e5e7eb] tracking-wider">
+        {/* Table Items */}
+        <div className="border rounded-2xl overflow-hidden mb-10">
+          <table className="w-full text-sm text-left">
+            <thead className="bg-slate-50 border-b">
               <tr>
-                <th className="p-4">Item Description</th>
-                <th className="p-4 text-center">Qty</th>
-                <th className="p-4 text-right">Amount</th>
+                <th className="p-5 font-black text-slate-400 uppercase text-[10px]">Item Description</th>
+                <th className="p-5 font-black text-slate-400 uppercase text-[10px] text-center">Qty</th>
+                <th className="p-5 font-black text-slate-400 uppercase text-[10px] text-right">Amount</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
-              {order.cartItems?.map((item, index) => (
-                <tr key={index}>
-                  <td className="p-4 font-bold text-gray-800">{item.name} <span className="block text-[10px] text-gray-400 font-medium font-mono">{item.variant || 'Standard'}</span></td>
-                  <td className="p-4 text-center font-medium">1</td>
-                  <td className="p-4 text-right font-bold text-gray-800">৳{item.price}</td>
+            <tbody className="divide-y divide-slate-50">
+              {order.orderItems?.map((item, idx) => (
+                <tr key={idx}>
+                  <td className="p-5 font-bold text-slate-700">{item.title}</td>
+                  <td className="p-5 text-center font-bold text-slate-600">{item.quantity}</td>
+                  <td className="p-5 text-right font-black text-slate-800">
+                    ৳{item.totalPrice || (item.price * item.quantity)}.00
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
 
-        {/* SUMMARY SECTION */}
-        <div className="mt-8 flex justify-end">
-          <div className="w-full md:w-80 bg-[#f8fafc] p-6 rounded-2xl space-y-3 border border-gray-100 shadow-inner">
-            <div className="flex justify-between text-sm text-gray-500 font-medium">
-              <span>Sub Total</span>
-              <span className="font-bold text-gray-800">৳{order.pricing?.subTotal || order.pricing?.totalAmount}</span>
+        {/* Pricing Summary */}
+        <div className="flex justify-end pr-5">
+          <div className="w-64 space-y-3">
+            <div className="flex justify-between text-sm">
+              <span className="font-bold text-slate-400">Sub Total</span>
+              <span className="font-bold text-slate-800">৳{order.pricing?.subtotal}.00</span>
             </div>
-            <div className="flex justify-between text-sm text-gray-500 font-medium">
-              <span>Shipping / Fee</span>
-              <span className="font-bold text-gray-800">৳{order.pricing?.shippingFee || 0}</span>
-            </div>
-            <div className="flex justify-between items-center border-t border-gray-200 pt-4 mt-2">
-              <span className="font-black text-gray-800 uppercase text-xs">Total Amount</span>
-              <span className="text-2xl font-black text-[#006747] tracking-tighter">৳{order.pricing?.totalAmount}</span>
+            {order.pricing?.discount > 0 && (
+              <div className="flex justify-between text-sm text-red-500">
+                <span className="font-bold">Discount</span>
+                <span className="font-bold">-৳{order.pricing?.discount}.00</span>
+              </div>
+            )}
+            <div className="flex justify-between border-t-2 border-slate-50 pt-4 mt-4 items-center">
+              <span className="text-sm font-black text-slate-800 uppercase">Total Paid</span>
+              <span className="text-2xl font-black text-[#2563eb]">৳{order.pricing?.totalAmount}.00</span>
             </div>
           </div>
         </div>
 
-        {/* FOOTER NOTE */}
-        <div className="mt-12 pt-8 border-t border-dashed border-gray-200 text-center">
-            <p className="text-[11px] text-gray-400 font-medium">Thank you for choosing SubNex. This is an official electronic receipt.</p>
-            <p className="text-[10px] text-gray-300 mt-1">Ref ID: {order._id}</p>
-        </div>
-
-        {/* ACTION BUTTONS */}
-        <div className="mt-10 flex flex-col md:flex-row gap-4 print:hidden">
-          <button onClick={handlePrint} className="flex-1 bg-white border-2 border-gray-200 hover:border-emerald-500 hover:text-emerald-600 text-gray-700 py-3.5 rounded-xl font-black uppercase text-xs flex items-center justify-center gap-2 transition-all">
-            <FiPrinter size={18} /> Print Invoice
-          </button>
-          <button onClick={() => router.push("/")} className="flex-1 bg-[#111827] hover:bg-black text-white py-3.5 rounded-xl font-black uppercase text-xs flex items-center justify-center gap-2 shadow-lg transition-all">
-            <FiHome size={18} /> Back to Store
-          </button>
-        </div>
+        <button 
+          onClick={() => window.print()} 
+          className="w-full mt-10 bg-black text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl no-print hover:scale-[1.01] transition-all"
+        >
+          Download / Print Invoice
+        </button>
       </div>
     </div>
   );
-};
+}
 
 export default function SuccessPage() {
-  return <Suspense><InvoiceContent /></Suspense>;
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <InvoiceContent />
+    </Suspense>
+  );
 }

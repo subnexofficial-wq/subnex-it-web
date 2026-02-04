@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import getDB from "@/lib/mongodb";
 import { verifyAdminToken } from "@/lib/auth";
 import { ObjectId } from "mongodb";
-import { sendEmail } from "@/lib/mailer"; // ইমেইল ফাংশনটি ইমপোর্ট করলাম
+import { sendEmail } from "@/lib/mailer";
 
 export async function PATCH(req, { params }) {
   try {
@@ -23,14 +23,15 @@ export async function PATCH(req, { params }) {
 
     const { db } = await getDB();
 
-    // ৩. ডাটাবেসে আপডেট করা এবং অর্ডারের ডাটা তুলে আনা (ইমেইল পাঠানোর জন্য)
+    // ৩. অর্ডার ডাটা খুঁজে বের করা
     const order = await db.collection("orders").findOne({ _id: new ObjectId(id) });
 
     if (!order) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
-    const result = await db.collection("orders").updateOne(
+    // ৪. স্ট্যাটাস আপডেট করা
+    await db.collection("orders").updateOne(
       { _id: new ObjectId(id) },
       { 
         $set: { 
@@ -40,12 +41,32 @@ export async function PATCH(req, { params }) {
       }
     );
 
-    // ৪. যদি স্ট্যাটাস 'completed' হয়, তবে ক্লায়েন্টকে ইনভয়েস ইমেইল পাঠানো
+    // ৫. যদি স্ট্যাটাস 'completed' হয়, তবে ক্লায়েন্টকে ইনভয়েস পাঠানো
     if (status === "completed" && order.customer?.email) {
+      
+      // ডাউনলোড লিঙ্ক এবং ডিজিটাল প্রোডাক্ট কিনা তা চেক করা
+      let downloadUrl = null;
+      let isDigital = false;
+
+      try {
+        // অর্ডারের প্রথম আইটেমের productId দিয়ে প্রোডাক্ট খুঁজে বের করা
+        const product = await db.collection("products").findOne({ 
+          _id: new ObjectId(order.items[0].productId)   
+        });
+        
+        if (product && product.isDownloadable) {
+          downloadUrl = product.downloadLink;
+          isDigital = true;
+        }
+      } catch (pErr) {
+        console.error("Product link fetch failed:", pErr);
+      }
+
       try {
         await sendEmail({
           to: order.customer.email,
           subject: `Order Completed - #${order._id.toString().slice(-6)}`,
+          type: "invoice", 
           html: `
             <div style="font-family: 'Segoe UI', sans-serif; max-width: 600px; margin: auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
               <div style="background-color: #4f46e5; padding: 30px; text-align: center; color: white;">
@@ -70,6 +91,13 @@ export async function PATCH(req, { params }) {
                   </table>
                 </div>
 
+                ${isDigital && downloadUrl ? `
+                  <div style="text-align: center; margin: 30px 0; padding: 20px; border: 2px dashed #4f46e5; border-radius: 10px; background-color: #f5f3ff;">
+                    <p style="margin-bottom: 15px; font-weight: bold;">Your digital product is ready!</p>
+                    <a href="${downloadUrl}" style="background-color: #4f46e5; color: white; padding: 12px 25px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;">DOWNLOAD NOW</a>
+                  </div>
+                ` : ''}
+
                 <p style="font-size: 14px; color: #64748b;">If you have any questions, feel free to contact our support team.</p>
                 
                 <div style="text-align: center; margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 20px;">
@@ -79,9 +107,9 @@ export async function PATCH(req, { params }) {
             </div>
           `
         });
+        console.log("Invoice sent from billing email");
       } catch (emailErr) {
         console.error("Email Sending Failed:", emailErr);
-        // ইমেইল না গেলেও যেন স্ট্যাটাস আপডেট সাকসেস দেখায়, তাই এখানে রিটার্ন করছি না
       }
     }
 

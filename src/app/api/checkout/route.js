@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
+import getDB from "@/lib/mongodb";
 
 export async function POST(req) {
   try {
-    const { orderId, amount, customerName, customerEmail } = await req.json();
+    const { amount, customerName, customerEmail, customerMobile, orderDetails } = await req.json();
+    const { db } = await getDB();
 
     // আপনার .env ফাইলের নামের সাথে মিল রেখে এখানে পরিবর্তন করা হয়েছে
     const apiKey = process.env.SUBNEXIT_PAY_API_KEY; 
@@ -18,8 +20,9 @@ export async function POST(req) {
         full_name: customerName,
         email: customerEmail,
         amount: amount,
-        metadata: { orderId: orderId },
+        metadata: { order_id: order.insertedId.toString() }, // অর্ডার আইডি ট্র্যাকিং এর জন্য
         redirect_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/success`,
+        return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/cancel`,
         cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/cancel`,
         webhook_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/webhook/uddoktapay`,
       }),

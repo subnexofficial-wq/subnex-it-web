@@ -19,6 +19,9 @@ export async function POST(req) {
       featured,
       variants,
       storageSize,
+      isDownloadable,
+      downloadLink,
+      couponCode,
     } = await req.json();
 
     if (
@@ -53,6 +56,9 @@ export async function POST(req) {
       active: active ?? true,
       featured: featured ?? false,
       totalReviews: 0,
+      isDownloadable: isDownloadable ?? false,
+      downloadLink: isDownloadable ? (downloadLink || "") : null,
+      couponCode: couponCode || null,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
