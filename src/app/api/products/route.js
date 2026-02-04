@@ -25,6 +25,9 @@ export async function GET(req, { params }) {
             discountPrice: 1,
             thumbnail: 1,
             duration: 1,
+            category: 1,      
+              downloadLink: 1,   
+              isDownloadable: 1  
           },
         }
       )
