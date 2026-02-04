@@ -74,7 +74,7 @@ function InvoiceContent() {
               {new Date(order.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
             </p>
           </div>
-        </div>
+     </div>
 
         {/* Table Items */}
         <div className="border rounded-2xl overflow-hidden mb-10">
@@ -96,8 +96,28 @@ function InvoiceContent() {
                   </td>
                 </tr>
               ))}
+                               
+   
             </tbody>
           </table>
+          {/* ✅ ডাউনলোড সেকশনটি টেবিলের বাইরে এখানে রাখুন */}
+          {order.orderItems?.some(item => item.category === "digital-product") && order.downloadLink && (
+            <div className="mb-10 p-8 bg-blue-50 border-2 border-dashed border-blue-200 rounded-3xl text-center no-print">
+              <div className="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">🚀</span>
+              </div>
+              <h3 className="text-blue-900 font-black text-sm uppercase tracking-wider mb-2">Your Digital Content is Ready</h3>
+              <p className="text-blue-600 text-xs mb-6">You can access your files instantly by clicking the button below.</p>
+              <a 
+                href={order.downloadLink} 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-[#2563eb] text-white px-10 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-blue-200 hover:scale-105 transition-transform"
+              >
+                Access / Download Assets
+              </a>
+            </div>
+          )}
         </div>
 
         {/* Pricing Summary */}
@@ -118,6 +138,7 @@ function InvoiceContent() {
               <span className="text-2xl font-black text-[#2563eb]">৳{order.pricing?.totalAmount}.00</span>
             </div>
           </div>
+
         </div>
 
         <button 
