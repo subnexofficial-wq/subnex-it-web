@@ -16,30 +16,32 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
-
-  const addToCart = async (product, mainPrice ,  quantity, variant) => {
-    const productId = product._id || product.id; 
+  const addToCart = async (product, mainPrice, quantity, variant) => {
+    const productId = product._id || product.id;
     const duration = variant?.duration || "N/A";
     const uniqueId = `${productId}-${duration}`;
 
-    // সার্ভার থেকে (Unit Price * Quantity) নিয়ে আসা
-    const totalAmount = await priceCalculation( productId, duration, quantity);
+    const totalAmount = await priceCalculation(productId, duration, quantity);
 
     setCart((prevCart) => {
       const existingItem = prevCart.find((item) => item.uniqueId === uniqueId);
-      
+
       if (existingItem) {
-      
         return prevCart.map((item) => {
-           if(item.uniqueId === uniqueId) {
-              const newQty = item.quantity + Number(quantity);
-           
-              return { ...item, quantity: newQty };
-           }
-           return item;
+          if (item.uniqueId === uniqueId) {
+            const newQty = item.quantity + Number(quantity);
+            return { 
+              ...item, 
+              quantity: newQty,
+            
+              category: product.category || item.category || "service",
+              downloadLink: product.downloadLink || item.downloadLink || null,
+            };
+          }
+          return item;
         });
       }
-      
+
       return [
         ...prevCart,
         {
@@ -48,18 +50,19 @@ export const CartProvider = ({ children }) => {
           title: product.title,
           image: product.thumbnail,
           price: mainPrice,
-          totalPrice: totalAmount,       
+          totalPrice: totalAmount,
           duration: duration,
           quantity: Number(quantity),
+       
+          category: product.category || "service",
+          downloadLink: product.downloadLink || null,
         },
       ];
     });
   };
 
-
   const updateQuantity = async (uniqueId, amount, productId, duration, currentQty) => {
     const newQty = Math.max(1, currentQty + amount);
-
     const newTotalPrice = await priceCalculation(productId, duration, newQty);
 
     setCart((prevCart) =>
