@@ -22,6 +22,9 @@ export default function EditProductModal({ product, onClose, onUpdated }) {
     storageSize: product.storageSize || "",
     // ভেরিয়েন্টের ভেতর discountPrice যোগ করা হয়েছে
     variants: product.variants || [{ duration: "", price: "", discountPrice: "" }],
+    isDownloadable: product.isDownloadable ?? false,
+  downloadLink: product.downloadLink || "",
+  couponCode: product.couponCode || "",
   });
 
   const handleChange = (e) => {
@@ -203,7 +206,45 @@ export default function EditProductModal({ product, onClose, onUpdated }) {
             <label className="flex items-center gap-2 cursor-pointer font-medium text-sm"><input type="checkbox" name="active" checked={form.active} onChange={handleChange} /> Active</label>
             <label className="flex items-center gap-2 cursor-pointer font-medium text-sm"><input type="checkbox" name="featured" checked={form.featured} onChange={handleChange} /> Featured</label>
           </div>
-        </form>
+          <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-4">
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {/* Downloadable Toggle */}
+          <div>
+            <label className="flex items-center gap-2 cursor-pointer font-bold text-sm text-gray-700 mb-2">
+              <input 
+                type="checkbox" 
+                name="isDownloadable" 
+                checked={form.isDownloadable} 
+                onChange={handleChange} 
+                className="w-4 h-4 text-blue-600"
+              /> 
+              Is Downloadable Product?
+            </label>
+            {form.isDownloadable && (
+              <input 
+                name="downloadLink" 
+                value={form.downloadLink} 
+                onChange={handleChange} 
+                className={inputClass} 
+                placeholder="Paste Download Link Here" 
+              />
+            )}
+          </div>
+
+          {/* Coupon Code */}
+          <div>
+            <label className={labelClass}><Percent size={16}/> Secret Coupon (Optional)</label>
+            <input 
+              name="couponCode" 
+              value={form.couponCode} 
+              onChange={handleChange} 
+              className={inputClass} 
+              placeholder="e.g. SAVE50" 
+            />
+          </div>
+        </div>
+      </div>
+              </form>
 
         <div className="px-6 py-4 border-t bg-gray-50 flex justify-end gap-3">
           <button onClick={onClose} className="px-4 py-2 text-sm font-bold text-gray-500 uppercase">Cancel</button>

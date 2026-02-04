@@ -7,7 +7,7 @@ export default function ContactSection({ data, setData }) {
     <section className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-lg font-bold text-gray-800">Contact Information</h2>
+        <h2 className="text-lg font-bold text-gray-800">Delivery Information</h2>
         <span className="text-[11px] text-blue-600 font-semibold uppercase tracking-wider bg-blue-50 px-2 py-0.5 rounded">
           Required
         </span>

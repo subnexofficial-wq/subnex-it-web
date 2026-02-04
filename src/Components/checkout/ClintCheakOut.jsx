@@ -71,7 +71,7 @@ export default function CheckoutPage() {
     address: "",
     city: "",
     postal: "",
-    phone: "",
+    
   });
 
   const [shippingData, setShippingData] = useState({
@@ -90,44 +90,54 @@ export default function CheckoutPage() {
 
   const total = subtotal + shippingData.price + tipAmount - discount;
 
-  const handleCompleteOrder = async () => {
-    if (!delivery.address || !contact.email || !contact.phone) {
-      alert("Please fill in all information.");
-      return;
-    }
+ // CheckoutPage.js এর ভেতরে handleCompleteOrder ফাংশনটি এভাবে পরিবর্তন করুন:
 
-    const orderData = {
-      orderItems: checkoutItems,
-      userEmail: user?.email || "guest",
-      customer: { ...contact, ...delivery },
-      pricing: {
-        subtotal,
-        shippingFee: shippingData.price,
-        tip: tipAmount,
-        discount,
-        totalAmount: total, 
-      },
-      status: "pending",
-      paymentStatus: "unpaid",
-    };
+const handleCompleteOrder = async () => {
+  if (!delivery.address || !contact.email || !contact.phone) {
+    alert("Please fill in all information.");
+    return;
+  }
 
-    try {
-      const res = await fetch("/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orderData),
-      });
-
-      const result = await res.json();
-
-      if (res.ok) {
-        // শুধু orderId নিয়ে পেমেন্ট পেজে যান
-        router.push(`/payment?orderId=${result.orderId}&amount=${total}`);
-      }
-    } catch (err) {
-      console.error("Order Creation Error", err);
-    }
+  const orderData = {
+    orderItems: checkoutItems,
+    userEmail: user?.email || "guest",
+    customer: { ...contact, ...delivery },
+    pricing: {
+      subtotal,
+      shippingFee: shippingData.price,
+      tip: tipAmount,
+      discount,
+      totalAmount: total, 
+    },
+    status: "pending",
+    paymentStatus: "unpaid",
   };
+
+  try {
+    const res = await fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(orderData),
+    });
+
+    const result = await res.json();
+
+    if (res.ok) {
+      // ডাইনামিক ইমেইল এবং নাম পাস করা হচ্ছে
+      const fullName = `${delivery.firstName} ${delivery.lastName}`;
+      const query = new URLSearchParams({
+        orderId: result.orderId,
+        amount: total,
+        name: fullName,
+        email: contact.email // ইউজার ফর্মে যে ইমেইল দিয়েছে
+      }).toString();
+
+      router.push(`/payment?${query}`);
+    }
+  } catch (err) {
+    console.error("Order Creation Error", err);
+  }
+};
 
   return (
     <div className="min-h-screen bg-[#f7f7f7]">
