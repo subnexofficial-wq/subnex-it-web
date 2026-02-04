@@ -4,14 +4,18 @@ export async function POST(req) {
   try {
     const { orderId, amount, customerName, customerEmail } = await req.json();
 
-    // সরাসরি .env থেকে URL টি নেওয়া হচ্ছে (যেহেতু আপনি সেখানে checkout-v2 সহ দিয়েছেন)
-    const apiUrl = process.env.UDDOKTAPAY_BASE_URL;
-    
+    const apiKey = process.env.UDDOKTAPAY_API_KEY;
+    const apiUrl = process.env.UDDOKTAPAY_BASE_URL; // এখন এটি সরাসরি checkout-v2 সহ
+
+    if (!apiKey || !apiUrl) {
+      return NextResponse.json({ error: "API Credentials Missing" }, { status: 500 });
+    }
+
     const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "RT-UDDOKTAPAY-API-KEY": process.env.UDDOKTAPAY_API_KEY,
+        "RT-UDDOKTAPAY-API-KEY": apiKey,
       },
       body: JSON.stringify({
         full_name: customerName,
@@ -24,15 +28,27 @@ export async function POST(req) {
       }),
     });
 
-    const result = await response.json();
+    // রেসপন্সটি টেক্সট হিসেবে নিয়ে চেক করা (যাতে ক্রাশ না করে)
+    const rawResponse = await response.text();
+    
+    try {
+      const result = JSON.parse(rawResponse);
+      
+      if (!response.ok || result.status === false) {
+        console.error("Gateway Response Error:", result);
+        return NextResponse.json({ error: result.message || "UddoktaPay Error" }, { status: 400 });
+      }
 
-    if (!response.ok) {
-      return NextResponse.json(result, { status: response.status });
+      // যদি সফল হয়, তবে পেমেন্ট লিঙ্কটি রিটার্ন করবে
+      return NextResponse.json(result);
+      
+    } catch (jsonErr) {
+      console.error("The Gateway returned HTML instead of JSON. Check your BASE_URL.");
+      return NextResponse.json({ error: "Invalid API URL or Gateway Error" }, { status: 502 });
     }
 
-    return NextResponse.json(result);
   } catch (err) {
-    console.error("Initiate Error:", err);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    console.error("Internal Server Error:", err);
+    return NextResponse.json({ error: "Failed to initiate payment" }, { status: 500 });
   }
 }
