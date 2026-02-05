@@ -56,6 +56,7 @@ export async function PATCH(req, { params }) {
         
         if (product && product.isDownloadable) {
           downloadUrl = product.downloadLink;
+          console.log(downloadUrl)
           isDigital = true;
         }
       } catch (pErr) {

@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
-    const invoiceId = searchParams.get("invoiceId"); // UddoktaPay transaction_id
+    const invoiceId = searchParams.get("invoiceId"); 
 
     const { db } = await getDB();
     

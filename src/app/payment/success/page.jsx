@@ -11,13 +11,15 @@ function InvoiceContent() {
 
   useEffect(() => {
     if (orderId) {
-      // রিয়েল ডাটা ফেচ করা হচ্ছে
       fetch(`/api/orders/${orderId}`)
         .then((res) => {
           if (!res.ok) throw new Error("Order not found");
           return res.json();
         })
-        .then((data) => setOrder(data))
+        .then((data) => {
+          console.log("Fetched Order Data:", data); // ডাটা চেক করার জন্য
+          setOrder(data);
+        })
         .catch((err) => {
           console.error("Fetch Error:", err);
           setError(true);
@@ -38,20 +40,27 @@ function InvoiceContent() {
     </div>
   );
 
+  // ডিজিটাল আইটেমগুলো আলাদা করা হচ্ছে যেগুলোর ডাউনলোড লিঙ্ক আছে
+  const digitalProducts = order.orderItems?.filter(
+    (item) => item.category === "digital-product" && item.downloadLink
+  );
+console.log(digitalProducts)
   return (
     <div className="min-h-screen bg-[#f8fafc] p-4 flex flex-col items-center">
-      <div className="w-full max-w-[850px] bg-white border p-10 rounded-3xl shadow-sm">
+      <div className="w-full max-w-[800px] bg-white border p-10 rounded-3xl shadow-sm">
         
         {/* Header - SubNex Logo & Status */}
-        <div className="flex justify-between items-center border-b pb-8 mb-10">
+        <div className="flex justify-between items-center border-b pb-8 mb-8">
           <div>
-            <Image src="/logo2.png" alt="SubNex Logo" width={100} height={40}></Image>
+            <Image src="/logo2.png" alt="SubNex Logo" width={100} height={40} />
             <p className="text-[11px] font-bold text-slate-400 mt-2 uppercase tracking-widest">
               Invoice: #{orderId.slice(-6)}
             </p>
           </div>
           <div className="text-right">
-            <span className="bg-[#e0ecff] text-[#2563eb] px-6 py-2 rounded-full text-xs font-black uppercase">
+            <span className={`px-6 py-2 rounded-full text-xs font-black uppercase ${
+              order.paymentStatus === "paid" ? "bg-green-100 text-green-600" : "bg-[#e0ecff] text-[#2563eb]"
+            }`}>
               {order.paymentStatus === "paid" ? "PAID" : "COMPLETED"}
             </span>
           </div>
@@ -89,7 +98,12 @@ function InvoiceContent() {
             <tbody className="divide-y divide-slate-50">
               {order.orderItems?.map((item, idx) => (
                 <tr key={idx}>
-                  <td className="p-5 font-bold text-slate-700">{item.title}</td>
+                  <td className="p-5 font-bold text-slate-700">
+                    {item.title}
+                    {item.category === 'digital-product' && (
+                      <span className="ml-2 text-[9px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded uppercase font-black">Digital</span>
+                    )}
+                  </td>
                   <td className="p-5 text-center font-bold text-slate-600">{item.quantity}</td>
                   <td className="p-5 text-right font-black text-slate-800">
                     ৳{item.totalPrice || (item.price * item.quantity)}.00
@@ -99,6 +113,33 @@ function InvoiceContent() {
             </tbody>
           </table>
         </div>
+
+        {/* digital products */}
+        {digitalProducts && digitalProducts.length > 0 && (
+          <div className="mb-5 p-8 bg-blue-50 border-2 border-dashed border-blue-200 rounded-3xl text-center no-print">
+            
+            <h3 className="text-blue-900 font-black text-sm uppercase tracking-wider mb-2">Your Digital Products is Ready</h3>
+            <p className="text-blue-600 text-xs mb-6">You can access your files instantly by clicking the buttons below.</p>
+            
+            <div className="flex flex-col gap-4 items-center">
+              {digitalProducts.map((item, idx) => (
+                <div key={idx} className="w-full max-w-sm bg-white p-4 rounded-2xl border border-blue-100 shadow-sm">
+                  <p className="text-[10px] font-bold text-blue-500 mb-2 uppercase tracking-tighter">
+                    File for: {item.title}
+                  </p>
+                  <a 
+                    href={item.downloadLink} 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block w-full bg-[#2563eb] text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all hover:scale-[1.02] active:scale-95 text-center"
+                  >
+                    Access Assets / Download
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Pricing Summary */}
         <div className="flex justify-end pr-5">
