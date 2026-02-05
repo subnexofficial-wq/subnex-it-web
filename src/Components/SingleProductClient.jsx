@@ -17,6 +17,7 @@ import { FaStar } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { priceCalculation } from "@/actions/priceAction";
 import { pushToDataLayer } from "@/lib/gtm";
+import Swal from "sweetalert2";
 
 const SingleProductClient = ({ product, relatedProducts }) => {
   const { addToCart } = useCart();
@@ -66,33 +67,45 @@ const SingleProductClient = ({ product, relatedProducts }) => {
       });
     }
   }, [product, mainPrice]);
+// কুপন ভ্যালিডেশন ফাংশন আপডেট
+const handleApplyCoupon = async () => {
+  if (!couponInput) return;
 
-  // কুপন ভ্যালিডেশন ফাংশন
-  const handleApplyCoupon = async () => {
-    if (!couponInput) return;
-    try {
-      const res = await fetch(`/api/coupons/validate?code=${couponInput.toUpperCase()}&productId=${product._id}`);
-      const data = await res.json();
+  // ১. 
+  const isUsed = sessionStorage.getItem(`used_coupon_${product._id}`);
+  if (isUsed) {
+    Swal("You have already applied a coupon for this product!");
+    setCouponInput(""); 
+    return;
+  }
 
-      if (!res.ok) {
-        alert(data.error || "Invalid Coupon");
-        return;
-      }
+  try {
+    const res = await fetch(`/api/coupons/validate?code=${couponInput.toUpperCase()}&productId=${product._id}`);
+    const data = await res.json();
 
-      let discount = 0;
-      if (data.type === "percentage") {
-        discount = (mainPrice * data.value) / 100;
-      } else {
-        discount = data.value;
-      }
-
-      setDiscountAmount(discount);
-      setAppliedCoupon(data);
-      alert("Coupon Applied Successfully!");
-    } catch (error) {
-      console.error("Coupon Error:", error);
+    if (!res.ok) {
+      alert(data.message || "Invalid Coupon");
+      return;
     }
-  };
+
+    let discount = 0;
+    if (data.type === "percentage") {
+      discount = (mainPrice * data.value) / 100;
+    } else {
+      discount = data.value;
+    }
+
+    setDiscountAmount(discount);
+    setAppliedCoupon(data);
+    
+    
+    sessionStorage.setItem(`used_coupon_${product._id}`, "true");
+    
+    alert("Coupon Applied Successfully!");
+  } catch (error) {
+    console.error("Coupon Error:", error);
+  }
+};
 
   // Add to Cart
   const handleAddToCart = async () => {
@@ -246,27 +259,74 @@ const SingleProductClient = ({ product, relatedProducts }) => {
             </button>
           </div>
 
-          {/* Coupon Section */}
-          <div className="mb-10 p-4 border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50 lg:w-2/3">
-            <p className="text-xs font-black uppercase tracking-widest mb-2 text-gray-500">Have a coupon?</p>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Enter Code"
-                className="flex-1 px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:border-black uppercase font-bold text-sm"
-                value={couponInput}
-                onChange={(e) => setCouponInput(e.target.value)}
-              />
-              <button onClick={handleApplyCoupon} className="bg-black text-white px-6 py-2 rounded-xl font-bold text-xs uppercase hover:bg-gray-800 transition">
-                Apply
-              </button>
-            </div>
-            {appliedCoupon && (
-              <div className="mt-2 text-xs font-bold text-green-600 flex items-center gap-1">
-                <FiCheckCircle /> Coupon "{appliedCoupon.code}" Applied! (৳{discountAmount * quantity} off)
-              </div>
-            )}
+     {/* Coupon Section */}
+<div className="mb-10 p-4 border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50 lg:w-2/3">
+  <p className="text-xs font-black uppercase tracking-widest mb-2 text-gray-500">
+    {appliedCoupon ? "Coupon Applied" : "Have a coupon?"}
+  </p>
+  
+  <div className="flex gap-2">
+    <input
+      type="text"
+      placeholder="Enter Code"
+      // কুপন অ্যাপ্লাই হলে ইনপুট ফিল্ডের স্টাইল পরিবর্তন
+      className={`flex-1 px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:border-black uppercase font-bold text-sm transition-all ${
+        appliedCoupon ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-white"
+      }`}
+      value={couponInput}
+      onChange={(e) => setCouponInput(e.target.value)}
+      // কুপন অ্যাপ্লাই হলে ইনপুট লক করে দেওয়া, যাতে অন্য কোড না লিখতে পারে
+      disabled={!!appliedCoupon}
+      readOnly={!!appliedCoupon}
+    />
+    
+    {appliedCoupon ? (
+      /* কুপন রিমুভ বাটন: এটি ক্লিক করলে ইউজার আবার নতুন কুপন দেওয়ার সুযোগ পাবে */
+      <button
+        onClick={() => {
+          setAppliedCoupon(null);
+          setDiscountAmount(0);
+          setCouponInput("");
+        }}
+        className="bg-red-50 text-red-600 px-4 py-2 rounded-xl font-bold text-xs uppercase hover:bg-red-100 transition-all border border-red-100"
+      >
+        Remove
+      </button>
+    ) : (
+      /* কুপন অ্যাপ্লাই বাটন */
+      <button
+        onClick={handleApplyCoupon}
+        className="bg-black text-white px-6 py-2 rounded-xl font-bold text-xs uppercase hover:bg-gray-800 transition-all shadow-sm active:scale-95"
+      >
+        Apply
+      </button>
+    )}
+  </div>
+
+  {/* সাকসেস মেসেজ এবং ডিসকাউন্ট সামারি */}
+  {appliedCoupon && (
+    <div className="mt-3 p-3 bg-white border border-green-100 rounded-xl shadow-sm animate-in fade-in slide-in-from-top-1">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="bg-green-100 p-1 rounded-full">
+            <FiCheckCircle className="text-green-600" size={14} />
           </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] text-gray-400 font-black uppercase leading-tight">Code Active</span>
+            <span className="text-xs font-black text-gray-800 uppercase leading-tight">{appliedCoupon.code}</span>
+          </div>
+        </div>
+        
+        <div className="text-right">
+          <p className="text-[10px] text-gray-400 font-black uppercase leading-tight">Discount</p>
+          <p className="text-sm font-black text-green-600 leading-tight">
+            - ৳{Math.round(discountAmount * quantity)}
+          </p>
+        </div>
+      </div>
+    </div>
+  )}
+</div>
 
           {/* Features Section */}
           <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
