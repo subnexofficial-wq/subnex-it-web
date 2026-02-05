@@ -4,7 +4,7 @@ import { ObjectId } from "mongodb";
 
 export async function GET(req, { params }) {
   try {
-    // Next.js 15 এ params এখন একটি Promise, তাই await করতে হবে
+   
     const { id } = await params; 
     
     const { db } = await getDB();
