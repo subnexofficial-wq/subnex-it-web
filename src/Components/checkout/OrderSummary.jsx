@@ -73,24 +73,7 @@ export default function OrderSummary({
           )}
         </div>
 
-        {/* COUPON SECTION */}
-        <div className="space-y-3">
-          <div className="flex gap-2">
-            <input
-              value={coupon}
-              onChange={(e) => setCoupon(e.target.value)}
-              placeholder="Coupon code"
-              className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:border-blue-500 outline-none"
-            />
-            <button 
-              onClick={applyCoupon}
-              className="bg-black text-white px-4 py-2 rounded-xl text-xs font-bold"
-            >
-              Apply
-            </button>
-          </div>
-          {error && <p className="text-[10px] text-red-600">{error}</p>}
-        </div>
+      
 
         {/* PRICING BREAKDOWN */}
         <div className="space-y-3 border-t border-gray-100 pt-5 text-sm">
