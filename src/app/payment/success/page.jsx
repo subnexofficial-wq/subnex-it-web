@@ -47,10 +47,10 @@ function InvoiceContent() {
 console.log(digitalProducts)
   return (
     <div className="min-h-screen bg-[#f8fafc] p-4 flex flex-col items-center">
-      <div className="w-full max-w-[850px] bg-white border p-10 rounded-3xl shadow-sm">
+      <div className="w-full max-w-[800px] bg-white border p-10 rounded-3xl shadow-sm">
         
         {/* Header - SubNex Logo & Status */}
-        <div className="flex justify-between items-center border-b pb-8 mb-10">
+        <div className="flex justify-between items-center border-b pb-8 mb-8">
           <div>
             <Image src="/logo2.png" alt="SubNex Logo" width={100} height={40} />
             <p className="text-[11px] font-bold text-slate-400 mt-2 uppercase tracking-widest">
@@ -114,11 +114,11 @@ console.log(digitalProducts)
           </table>
         </div>
 
-        {/* ✅ নতুন ডাউনলোড সেকশন - যা ডিজিটাল প্রোডাক্ট থাকলে দেখাবে */}
+        {/* digital products */}
         {digitalProducts && digitalProducts.length > 0 && (
           <div className="mb-5 p-8 bg-blue-50 border-2 border-dashed border-blue-200 rounded-3xl text-center no-print">
             
-            <h3 className="text-blue-900 font-black text-sm uppercase tracking-wider mb-2">Your Digital Content is Ready</h3>
+            <h3 className="text-blue-900 font-black text-sm uppercase tracking-wider mb-2">Your Digital Products is Ready</h3>
             <p className="text-blue-600 text-xs mb-6">You can access your files instantly by clicking the buttons below.</p>
             
             <div className="flex flex-col gap-4 items-center">

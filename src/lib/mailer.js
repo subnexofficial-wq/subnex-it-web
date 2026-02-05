@@ -16,7 +16,7 @@ export async function sendEmail({ to, subject, html, type = "admin" }) {
 
  
   if (!fromEmail) {
-    fromEmail = "SubNex <security@subnexit.com>"; 
+    fromEmail = "Subnex <security@subnexit.com>"; 
   }
 
   try {
