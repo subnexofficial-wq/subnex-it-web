@@ -17,11 +17,12 @@ import { FaStar } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { priceCalculation } from "@/actions/priceAction";
 import { pushToDataLayer } from "@/lib/gtm";
-import Swal from "sweetalert2";
 
 const SingleProductClient = ({ product, relatedProducts }) => {
   const { addToCart } = useCart();
   const router = useRouter();
+  
+  // States
   const [selectedVariant, setSelectedVariant] = useState(
     product.variants && product.variants.length > 0 ? product.variants[0] : null
   );
@@ -29,12 +30,12 @@ const SingleProductClient = ({ product, relatedProducts }) => {
   const [showMoreDesc, setShowMoreDesc] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   
-  // কুপন স্টেটস
+  // Coupon States
   const [couponInput, setCouponInput] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [discountAmount, setDiscountAmount] = useState(0);
 
-  // ডিফল্ট মেইন প্রাইস ক্যালকুলেশন
+  // Default Price Logic
   const mainPrice = selectedVariant
     ? selectedVariant.discountPrice > 0
       ? selectedVariant.discountPrice
@@ -49,12 +50,13 @@ const SingleProductClient = ({ product, relatedProducts }) => {
     ? product.regularPrice
     : null;
 
-  // ভেরিয়েন্ট চেঞ্জ হলে কুপন রিসেট করা (যাতে ভুল ডিসকাউন্ট না থাকে)
+  // Variant Change হলে কুপন রিসেট
   useEffect(() => {
     setAppliedCoupon(null);
     setDiscountAmount(0);
     setCouponInput("");
-  }, [selectedVariant]);
+    sessionStorage.removeItem(`used_coupon_${product._id}`);
+  }, [selectedVariant, product._id]);
 
   // Tracking: ViewContent
   useEffect(() => {
@@ -67,50 +69,46 @@ const SingleProductClient = ({ product, relatedProducts }) => {
       });
     }
   }, [product, mainPrice]);
-// কুপন ভ্যালিডেশন ফাংশন আপডেট
-const handleApplyCoupon = async () => {
-  if (!couponInput) return;
 
-  // ১. 
-  const isUsed = sessionStorage.getItem(`used_coupon_${product._id}`);
-  if (isUsed) {
-    Swal("You have already applied a coupon for this product!");
-    setCouponInput(""); 
-    return;
-  }
+  // Coupon Application Logic
+  const handleApplyCoupon = async () => {
+    if (!couponInput) return;
+    try {
+      const res = await fetch(`/api/coupons/validate?code=${couponInput.toUpperCase().trim()}&productId=${product._id}`);
+      const data = await res.json();
 
-  try {
-    const res = await fetch(`/api/coupons/validate?code=${couponInput.toUpperCase()}&productId=${product._id}`);
-    const data = await res.json();
+      if (!res.ok) {
+        alert(data.message || "Invalid Coupon");
+        return;
+      }
 
-    if (!res.ok) {
-      alert(data.message || "Invalid Coupon");
-      return;
+      let discount = 0;
+      if (data.type === "percentage") {
+        discount = (mainPrice * data.value) / 100;
+      } else {
+        discount = data.value;
+      }
+
+      setDiscountAmount(discount);
+      setAppliedCoupon(data);
+      sessionStorage.setItem(`used_coupon_${product._id}`, "true");
+    } catch (error) {
+      console.error("Coupon Error:", error);
     }
+  };
 
-    let discount = 0;
-    if (data.type === "percentage") {
-      discount = (mainPrice * data.value) / 100;
-    } else {
-      discount = data.value;
-    }
-
-    setDiscountAmount(discount);
-    setAppliedCoupon(data);
-    
-    
-    sessionStorage.setItem(`used_coupon_${product._id}`, "true");
-    
-    alert("Coupon Applied Successfully!");
-  } catch (error) {
-    console.error("Coupon Error:", error);
-  }
-};
-
-  // Add to Cart
+  // Add to Cart Logic (Price Fix)
   const handleAddToCart = async () => {
-    const finalUnitPrice = mainPrice - discountAmount;
-    await addToCart(product, finalUnitPrice, parseInt(quantity), selectedVariant);
+    const finalUnitPrice = mainPrice - (discountAmount || 0);
+
+    // কার্ট কনটেক্সট যেন সঠিক প্রাইস পায় তার জন্য প্রোডাক্ট অবজেক্ট আপডেট
+    const productWithDiscount = {
+      ...product,
+      price: finalUnitPrice, 
+      discountPrice: 0 // কুপন অ্যাপ্লাইড প্রাইসটাই এখন মেইন প্রাইস
+    };
+
+    await addToCart(productWithDiscount, finalUnitPrice, parseInt(quantity), selectedVariant);
     setIsPopupOpen(true);
     
     pushToDataLayer("AddToCart", {
@@ -122,20 +120,18 @@ const handleApplyCoupon = async () => {
     });
   };
 
-  // Buy Now
+  // Buy Now Logic (Price Fix)
   const handleBuyNow = async () => {
     try {
-      // ১. মেইন ক্যালকুলেশন সার্ভার অ্যাকশন থেকে আনা
       const baseTotalPrice = await priceCalculation(
         product._id,
         selectedVariant ? selectedVariant.duration : null,
         quantity
       );
 
-      // ২. কুপন ডিসকাউন্ট মাইনাস করা
-      const finalDiscountTotal = discountAmount * quantity;
+      const finalDiscountTotal = (discountAmount || 0) * quantity;
       const finalTotalPrice = baseTotalPrice - finalDiscountTotal;
-      const finalUnitPrice = mainPrice - discountAmount;
+      const finalUnitPrice = mainPrice - (discountAmount || 0);
 
       const buyNowData = {
         productId: product._id,
@@ -146,7 +142,6 @@ const handleApplyCoupon = async () => {
         duration: selectedVariant ? selectedVariant.duration : null,
         totalPrice: finalTotalPrice,
         category: product.category,
-        downloadLink: product.downloadLink || null,
         isBuyNow: true,
         appliedCoupon: appliedCoupon?.code || null,
       };
@@ -155,8 +150,7 @@ const handleApplyCoupon = async () => {
         item_id: product._id,
         item_name: product.title,
         value: finalTotalPrice,
-        currency: "BDT",
-        coupon: appliedCoupon?.code || ""
+        currency: "BDT"
       });
 
       sessionStorage.setItem("directCheckout", JSON.stringify(buyNowData));
@@ -170,7 +164,7 @@ const handleApplyCoupon = async () => {
     <div className="w-full min-h-screen bg-white pb-20 font-sans text-black">
       <CartPopup open={isPopupOpen} onClose={() => setIsPopupOpen(false)} />
 
-      {/* Breadcrumb - (Shortened for brevity) */}
+      {/* Breadcrumb */}
       <div className="container mx-auto px-8 pt-6 pb-2">
         <div className="text-sm text-blue-800 flex items-center gap-1 font-medium">
           <Link href="/" className="hover:underline">Home</Link>
@@ -189,16 +183,16 @@ const handleApplyCoupon = async () => {
 
         {/* Content Section */}
         <div className="flex flex-col">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4 uppercase">{product.title}</h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-4 uppercase leading-tight text-gray-900">{product.title}</h1>
 
-          {/* Pricing */}
+          {/* Pricing UI */}
           <div className="flex items-baseline gap-3 mb-4 flex-wrap">
             <span className="text-3xl font-black text-red-600">
-              Tk {(mainPrice - discountAmount) * quantity}.00
+              Tk {Math.round((mainPrice - (discountAmount || 0)) * quantity)}.00
             </span>
             {(oldPrice || discountAmount > 0) && (
               <span className="text-xl text-gray-400 line-through">
-                Tk {(oldPrice || mainPrice) * quantity}.00
+                Tk {Math.round((oldPrice || mainPrice) * quantity)}.00
               </span>
             )}
             {product.storageSize && (
@@ -212,24 +206,24 @@ const handleApplyCoupon = async () => {
             <div className="flex text-yellow-500 text-sm">
               {[...Array(5)].map((_, i) => (<FiStar key={i} fill="currentColor" />))}
             </div>
-            <span className="text-sm text-gray-500 font-medium">Excellent Service (Verified)</span>
+            <span className="text-sm text-gray-500 font-medium">Verified Product</span>
           </div>
 
           <hr className="mb-6 border-gray-100" />
 
-          {/* Variants */}
+          {/* Variant Selection */}
           {product.variants?.length > 0 && (
             <div className="mb-6">
-              <p className="font-bold mb-3 text-sm text-gray-700 uppercase">Select Duration:</p>
+              <p className="font-bold mb-3 text-sm text-gray-700 uppercase tracking-wider">Select Duration:</p>
               <div className="flex flex-wrap gap-3">
                 {product.variants.map((v, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedVariant(v)}
-                    className={`px-5 py-2.5 text-sm font-bold rounded-xl transition-all border-2 ${
+                    className={`px-5 py-2.5 text-sm font-bold rounded-xl border-2 transition-all ${
                       selectedVariant?.duration === v.duration
                         ? "border-black bg-black text-white shadow-md"
-                        : "border-gray-200 bg-white text-gray-600 hover:border-black"
+                        : "border-gray-200 bg-white hover:border-black text-gray-600"
                     }`}
                   >
                     {v.duration}
@@ -243,15 +237,15 @@ const handleApplyCoupon = async () => {
           <div className="mb-8">
             <p className="font-bold mb-3 text-sm text-gray-700 uppercase tracking-wider">Quantity:</p>
             <div className="flex items-center border-2 border-gray-200 w-36 rounded-xl h-12 overflow-hidden bg-gray-50">
-              <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-12 h-full flex items-center justify-center hover:bg-gray-200"><FiMinus /></button>
+              <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-12 h-full flex items-center justify-center hover:bg-gray-200 transition-colors"><FiMinus /></button>
               <span className="flex-1 text-center font-bold text-lg">{quantity}</span>
-              <button onClick={() => setQuantity(quantity + 1)} className="w-12 h-full flex items-center justify-center hover:bg-gray-200"><FiPlus /></button>
+              <button onClick={() => setQuantity(quantity + 1)} className="w-12 h-full flex items-center justify-center hover:bg-gray-200 transition-colors"><FiPlus /></button>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="grid grid-cols-1 lg:w-2/3 gap-3 mb-6">
-            <button onClick={handleAddToCart} className="w-full border border-black text-black py-4 font-black uppercase tracking-widest text-sm hover:text-white hover:bg-gray-800 transition rounded-xl shadow-lg">
+          <div className="grid grid-cols-1 lg:w-2/3 gap-3 mb-8">
+            <button onClick={handleAddToCart} className="w-full border border-black text-black py-4 font-black uppercase tracking-widest text-sm hover:text-white hover:bg-gray-800 transition rounded-xl shadow-sm">
               Add to cart
             </button>
             <button onClick={handleBuyNow} className="w-full bg-red-600 text-white py-4 font-black uppercase tracking-widest text-sm hover:bg-red-700 transition rounded-xl shadow-lg">
@@ -259,78 +253,47 @@ const handleApplyCoupon = async () => {
             </button>
           </div>
 
-     {/* Coupon Section */}
-<div className="mb-10 p-4 border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50 lg:w-2/3">
-  <p className="text-xs font-black uppercase tracking-widest mb-2 text-gray-500">
-    {appliedCoupon ? "Coupon Applied" : "Have a coupon?"}
-  </p>
-  
-  <div className="flex gap-2">
-    <input
-      type="text"
-      placeholder="Enter Code"
-      // কুপন অ্যাপ্লাই হলে ইনপুট ফিল্ডের স্টাইল পরিবর্তন
-      className={`flex-1 px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:border-black uppercase font-bold text-sm transition-all ${
-        appliedCoupon ? "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200" : "bg-white"
-      }`}
-      value={couponInput}
-      onChange={(e) => setCouponInput(e.target.value)}
-      // কুপন অ্যাপ্লাই হলে ইনপুট লক করে দেওয়া, যাতে অন্য কোড না লিখতে পারে
-      disabled={!!appliedCoupon}
-      readOnly={!!appliedCoupon}
-    />
-    
-    {appliedCoupon ? (
-      /* কুপন রিমুভ বাটন: এটি ক্লিক করলে ইউজার আবার নতুন কুপন দেওয়ার সুযোগ পাবে */
-      <button
-        onClick={() => {
-          setAppliedCoupon(null);
-          setDiscountAmount(0);
-          setCouponInput("");
-        }}
-        className="bg-red-50 text-red-600 px-4 py-2 rounded-xl font-bold text-xs uppercase hover:bg-red-100 transition-all border border-red-100"
-      >
-        Remove
-      </button>
-    ) : (
-      /* কুপন অ্যাপ্লাই বাটন */
-      <button
-        onClick={handleApplyCoupon}
-        className="bg-black text-white px-6 py-2 rounded-xl font-bold text-xs uppercase hover:bg-gray-800 transition-all shadow-sm active:scale-95"
-      >
-        Apply
-      </button>
-    )}
-  </div>
-
-  {/* সাকসেস মেসেজ এবং ডিসকাউন্ট সামারি */}
-  {appliedCoupon && (
-    <div className="mt-3 p-3 bg-white border border-green-100 rounded-xl shadow-sm animate-in fade-in slide-in-from-top-1">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="bg-green-100 p-1 rounded-full">
-            <FiCheckCircle className="text-green-600" size={14} />
+          {/* Coupon Section */}
+          <div className="mb-10 p-4 border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50 lg:w-2/3">
+            <p className="text-xs font-black uppercase tracking-widest mb-2 text-gray-500">
+                {appliedCoupon ? "Coupon Applied" : "Have a coupon?"}
+            </p>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Enter Code"
+                className={`flex-1 px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:border-black uppercase font-bold text-sm transition-all ${appliedCoupon ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "bg-white"}`}
+                value={couponInput}
+                onChange={(e) => setCouponInput(e.target.value)}
+                disabled={!!appliedCoupon}
+              />
+              {appliedCoupon ? (
+                <button 
+                  onClick={() => { setAppliedCoupon(null); setDiscountAmount(0); setCouponInput(""); }} 
+                  className="bg-red-50 text-red-600 px-4 py-2 rounded-xl font-bold text-xs uppercase hover:bg-red-100 border border-red-100 transition"
+                >
+                  Remove
+                </button>
+              ) : (
+                <button 
+                  onClick={handleApplyCoupon} 
+                  className="bg-black text-white px-6 py-2 rounded-xl font-bold text-xs uppercase hover:bg-gray-800 transition shadow-sm"
+                >
+                  Apply
+                </button>
+              )}
+            </div>
+            {appliedCoupon && (
+              <div className="mt-3 p-2 bg-green-50 text-green-600 text-[11px] font-bold rounded-lg flex items-center justify-between animate-in fade-in slide-in-from-top-1">
+                <span className="flex items-center gap-1"><FiCheckCircle /> {appliedCoupon.code} Applied!</span>
+                <span className="bg-green-600 text-white px-2 py-0.5 rounded">- ৳{Math.round(discountAmount * quantity)} OFF</span>
+              </div>
+            )}
           </div>
-          <div className="flex flex-col">
-            <span className="text-[10px] text-gray-400 font-black uppercase leading-tight">Code Active</span>
-            <span className="text-xs font-black text-gray-800 uppercase leading-tight">{appliedCoupon.code}</span>
-          </div>
-        </div>
-        
-        <div className="text-right">
-          <p className="text-[10px] text-gray-400 font-black uppercase leading-tight">Discount</p>
-          <p className="text-sm font-black text-green-600 leading-tight">
-            - ৳{Math.round(discountAmount * quantity)}
-          </p>
-        </div>
-      </div>
-    </div>
-  )}
-</div>
 
-          {/* Features Section */}
+          {/* Features Highlights */}
           <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
-            <p className="font-bold text-lg mb-4 flex items-center gap-2">
+            <p className="font-bold text-lg mb-4 flex items-center gap-2 text-gray-800">
               <span className="w-1.5 h-5 bg-black rounded-full"></span> Features:
             </p>
             <div className={`space-y-3 transition-all duration-500 overflow-hidden ${showMoreDesc ? "max-h-[1000px]" : "max-h-[250px]"}`}>
@@ -345,23 +308,12 @@ const handleApplyCoupon = async () => {
                 </div>
               )}
             </div>
-            <button onClick={() => setShowMoreDesc(!showMoreDesc)} className="text-blue-600 font-bold text-xs mt-4 uppercase hover:underline">
+            <button onClick={() => setShowMoreDesc(!showMoreDesc)} className="text-blue-600 font-bold text-[10px] mt-4 uppercase hover:underline">
               {showMoreDesc ? "Show Less" : "Read Full Details"}
             </button>
           </div>
-
-          {/* Reviews & Delivery Info */}
-          <div className="flex items-center gap-6 mt-8 text-gray-400 text-xs font-bold ">
-            <div className="flex items-center gap-1 text-gray-500 font-bold">
-              <FaStar size={16} color="red" /> <FaStar size={16} color="red" /> <FaStar size={16} color="red" />
-              {product.totalReviews} Reviews
-            </div>
-            <div className="flex items-center gap-1 text-green-600 font-bold"><FiCheckCircle size={16} /> Instant Delivery</div>
-            <button className="flex items-center gap-2 text-black transition"><FiShare2 size={16} /> Share</button>
-          </div>
         </div>
       </div>
-
       <DynamicProductSection products={relatedProducts} sectionTitle="Related Products" />
       <ReviewSection productId={product._id} />
     </div>

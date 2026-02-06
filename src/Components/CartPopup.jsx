@@ -2,14 +2,13 @@
 
 import { useCart } from "@/hooks/CartContext";
 import Image from "next/image";
-import { FiX, FiCheck, FiLoader } from "react-icons/fi"; // FiLoader যোগ করা হয়েছে
+import { FiX, FiCheck, FiLoader } from "react-icons/fi"; 
 import { useRouter } from "next/navigation";
 
 export default function CartPopup({ open, onClose }) {
   const { cart } = useCart();
   const router = useRouter();
 
-  // যদি পপআপ ওপেন না থাকে তবেই কেবল রিটার্ন করবে
   if (!open) return null;
 
   return (
@@ -29,13 +28,12 @@ export default function CartPopup({ open, onClose }) {
           </button>
         </div>
 
-        {/* কন্টেন্ট সেকশন - এখানে Fallback লজিক যোগ করা হয়েছে */}
-        <div className="overflow-y-auto p-4 space-y-4 max-h-[50vh] custom-scrollbar bg-white/30 min-h-[100px] flex flex-col justify-center">
+        {/* Content Section */}
+        <div className="overflow-y-auto p-4 space-y-4 max-h-[50vh] custom-scrollbar bg-white/30 min-h-[100px] flex flex-col">
           {cart.length > 0 ? (
-            // যদি কার্টে ডেটা থাকে
             cart.map((product, index) => (
               <div key={index} className="flex gap-3 items-start border-b border-gray-300/50 pb-3 last:border-0">
-                <div className="relative w-16 h-16 overflow-hidden border border-gray-300 flex-shrink-0 bg-white">
+                <div className="relative w-16 h-16 overflow-hidden border border-gray-300 flex-shrink-0 bg-white rounded-md">
                   <Image
                     src={product.image}
                     alt={product.title}
@@ -45,7 +43,7 @@ export default function CartPopup({ open, onClose }) {
                 </div>
 
                 <div className="flex-1 min-w-0 text-left">
-                  <p className="font-bold text-gray-900 text-[13px] leading-tight mb-0.5 truncate">
+                  <p className="font-bold text-gray-900 text-[13px] leading-tight mb-0.5 truncate uppercase">
                     {product.title}
                   </p>
                   <div className="text-[11px] text-gray-600">
@@ -55,15 +53,15 @@ export default function CartPopup({ open, onClose }) {
                       Quantity: <span className="text-black">{product.quantity}</span>
                     </p>
                   </div>
-                  <p className="text-[13px] font-bold text-black mt-1">
-                    Tk {product.totalPrice?.toLocaleString()}.00
+                  {/* PRICE FIX: সরাসরি price * quantity ব্যবহার করা হয়েছে */}
+                  <p className="text-[14px] font-black text-red-600 mt-1">
+                    Tk {(product.price * product.quantity).toLocaleString()}.00
                   </p>
                 </div>
               </div>
             ))
           ) : (
-            // Fallback: যখন কার্ট খালি বা ডেটা আসছে
-            <div className="flex flex-col items-center justify-center py-4 text-gray-500 gap-2">
+            <div className="flex flex-col items-center justify-center py-8 text-gray-500 gap-2">
               <FiLoader className="animate-spin text-[#44BD6A]" size={24} />
               <p className="text-[12px] font-medium italic">Updating cart details...</p>
             </div>
@@ -78,7 +76,7 @@ export default function CartPopup({ open, onClose }) {
               router.push("/cart");
             }}
             disabled={cart.length === 0}
-            className={`w-full bg-white text-black border border-gray-400 py-2 rounded-md text-[13px] font-bold transition-all ${cart.length === 0 ? 'opacity-50' : 'hover:bg-gray-50'}`}
+            className={`w-full bg-white text-black border border-gray-400 py-2.5 rounded-md text-[13px] font-bold transition-all ${cart.length === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 active:scale-[0.98]'}`}
           >
             View cart ({cart.length})
           </button>
@@ -89,14 +87,14 @@ export default function CartPopup({ open, onClose }) {
               router.push("/checkouts");
             }}
             disabled={cart.length === 0}
-            className={`w-full bg-black text-white py-2 rounded-md text-[13px] font-bold transition-all ${cart.length === 0 ? 'opacity-50' : 'hover:bg-zinc-800 shadow-md'}`}
+            className={`w-full bg-black text-white py-2.5 rounded-md text-[13px] font-bold transition-all ${cart.length === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-zinc-800 shadow-md active:scale-[0.98]'}`}
           >
             Check out
           </button>
 
           <button
             onClick={onClose}
-            className="w-full text-center text-[12px] underline text-gray-600 hover:text-black font-semibold mt-1"
+            className="w-full text-center text-[12px] underline text-gray-600 hover:text-black font-semibold mt-2 pb-1"
           >
             Continue shopping
           </button>

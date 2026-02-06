@@ -6,9 +6,11 @@ export async function POST(req) {
     const { amount, customerName, customerEmail, customerMobile, orderDetails } = await req.json();
     const { db } = await getDB();
 
-    // ENV
-    const apiKey = process.env.SUBNEXIT_PAY_API_KEY;
-    const baseUrl = `${process.env.SUBNEXIT_PAY_BASE}`;
+    // আপনার .env ফাইলের নামের সাথে মিল রেখে এখানে পরিবর্তন করা হয়েছে
+    const apiKey = process.env.SUBNEXIT_PAY_API_KEY; 
+    const baseUrl = `${process.env.SUBNEXIT_PAY_BASE}`; 
+
+ 
 
     if (!apiKey || !baseUrl) {
       return NextResponse.json({ error: "Payment configuration missing" }, { status: 500 });
