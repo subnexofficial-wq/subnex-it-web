@@ -34,7 +34,7 @@ const SingleProductClient = ({ product, relatedProducts }) => {
   const [couponInput, setCouponInput] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [discountAmount, setDiscountAmount] = useState(0);
-
+const [isCouponLoading, setIsCouponLoading] = useState(false);
   // Default Price Logic
   const mainPrice = selectedVariant
     ? selectedVariant.discountPrice > 0
@@ -70,18 +70,27 @@ const SingleProductClient = ({ product, relatedProducts }) => {
     }
   }, [product, mainPrice]);
 
-  // Coupon Application Logic
+// coupon apply 
   const handleApplyCoupon = async () => {
-    if (!couponInput) return;
+
+    if (!couponInput || appliedCoupon || isCouponLoading) return;
+
+    setIsCouponLoading(true); // লোডিং শুরু
+
     try {
-      const res = await fetch(`/api/coupons/validate?code=${couponInput.toUpperCase().trim()}&productId=${product._id}`);
+      const res = await fetch(
+        `/api/coupons/validate?code=${couponInput.toUpperCase().trim()}&productId=${product._id}`
+      );
       const data = await res.json();
 
+    
       if (!res.ok) {
-        alert(data.message || "Invalid Coupon");
+        alert(data.message || "Invalid Coupon code!");
+        setCouponInput(""); 
         return;
       }
 
+      // ডিসকাউন্ট ক্যালকুলেশন
       let discount = 0;
       if (data.type === "percentage") {
         discount = (mainPrice * data.value) / 100;
@@ -89,11 +98,16 @@ const SingleProductClient = ({ product, relatedProducts }) => {
         discount = data.value;
       }
 
+      // স্টেট আপডেট
       setDiscountAmount(discount);
       setAppliedCoupon(data);
-      sessionStorage.setItem(`used_coupon_${product._id}`, "true");
+ 
+
     } catch (error) {
       console.error("Coupon Error:", error);
+      alert("সার্ভার এরর! দয়া করে আবার চেষ্টা করুন।");
+    } finally {
+      setIsCouponLoading(false); // লোডিং শেষ
     }
   };
 
@@ -254,42 +268,61 @@ const SingleProductClient = ({ product, relatedProducts }) => {
           </div>
 
           {/* Coupon Section */}
-          <div className="mb-10 p-4 border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50 lg:w-2/3">
-            <p className="text-xs font-black uppercase tracking-widest mb-2 text-gray-500">
-                {appliedCoupon ? "Coupon Applied" : "Have a coupon?"}
-            </p>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Enter Code"
-                className={`flex-1 px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:border-black uppercase font-bold text-sm transition-all ${appliedCoupon ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "bg-white"}`}
-                value={couponInput}
-                onChange={(e) => setCouponInput(e.target.value)}
-                disabled={!!appliedCoupon}
-              />
-              {appliedCoupon ? (
-                <button 
-                  onClick={() => { setAppliedCoupon(null); setDiscountAmount(0); setCouponInput(""); }} 
-                  className="bg-red-50 text-red-600 px-4 py-2 rounded-xl font-bold text-xs uppercase hover:bg-red-100 border border-red-100 transition"
-                >
-                  Remove
-                </button>
-              ) : (
-                <button 
-                  onClick={handleApplyCoupon} 
-                  className="bg-black text-white px-6 py-2 rounded-xl font-bold text-xs uppercase hover:bg-gray-800 transition shadow-sm"
-                >
-                  Apply
-                </button>
-              )}
-            </div>
-            {appliedCoupon && (
-              <div className="mt-3 p-2 bg-green-50 text-green-600 text-[11px] font-bold rounded-lg flex items-center justify-between animate-in fade-in slide-in-from-top-1">
-                <span className="flex items-center gap-1"><FiCheckCircle /> {appliedCoupon.code} Applied!</span>
-                <span className="bg-green-600 text-white px-2 py-0.5 rounded">- ৳{Math.round(discountAmount * quantity)} OFF</span>
-              </div>
-            )}
-          </div>
+          {/* Coupon Section */}
+<div className="mb-10 p-4 border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50 lg:w-2/3">
+  <p className="text-xs font-black uppercase tracking-widest mb-2 text-gray-500">
+    {appliedCoupon ? "Coupon Applied Successfully" : "Apply Discount Coupon"}
+  </p>
+  
+  <div className="flex gap-2">
+    <input
+      type="text"
+      placeholder="Enter Code (e.g. TEST10)"
+      className={`flex-1 px-4 py-2 rounded-xl border border-gray-300 focus:outline-none focus:border-black uppercase font-bold text-sm transition-all ${
+        appliedCoupon || isCouponLoading ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-white"
+      }`}
+      value={couponInput}
+      onChange={(e) => setCouponInput(e.target.value)}
+      disabled={!!appliedCoupon || isCouponLoading}
+    />
+
+    {appliedCoupon ? (
+      <button 
+        onClick={() => { 
+          setAppliedCoupon(null); 
+          setDiscountAmount(0); 
+          setCouponInput(""); 
+        }} 
+        className="bg-red-50 text-red-600 px-4 py-2 rounded-xl font-bold text-xs uppercase hover:bg-red-100 border border-red-100 transition shadow-sm"
+      >
+        Remove
+      </button>
+    ) : (
+      <button 
+        onClick={handleApplyCoupon} 
+        disabled={isCouponLoading || !couponInput}
+        className={`bg-black text-white px-6 py-2 rounded-xl font-bold text-xs uppercase transition shadow-md ${
+          isCouponLoading || !couponInput ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-800 active:scale-95"
+        }`}
+      >
+        {isCouponLoading ? "Checking..." : "Apply"}
+      </button>
+    )}
+  </div>
+
+  {/* সাফল্য বার্তা */}
+  {appliedCoupon && (
+    <div className="mt-3 p-3 bg-green-50 text-green-700 text-[11px] font-bold rounded-lg border border-green-100 flex items-center justify-between animate-in fade-in slide-in-from-top-2">
+      <span className="flex items-center gap-1.5">
+        <FiCheckCircle className="text-green-600" /> 
+        Code "{appliedCoupon.code}" activated!
+      </span>
+      <span className="bg-green-600 text-white px-2 py-0.5 rounded shadow-sm">
+        - ৳{Math.round(discountAmount * quantity)} OFF
+      </span>
+    </div>
+  )}
+</div>
 
           {/* Features Highlights */}
           <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
