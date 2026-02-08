@@ -25,7 +25,7 @@ const LandingHome = () => {
     const [activeHeroBtn, setActiveHeroBtn] = useState("start");
 
     return (
-        <main className="w-full relative bg-[#020617] text-white min-h-screen overflow-x-clip pb-32">
+        <main className="w-full relative bg-[#020617] text-white min-h-screen overflow-x-clip ">
             {/* ব্যাকগ্রাউন্ড ইফেক্ট */}
             <MouseGlow />
             
@@ -36,17 +36,14 @@ const LandingHome = () => {
             />
 
             {/* লোগো স্লাইডার */}
-            <div className="py-10 border-y border-white/5 bg-white/[0.02]">
+            <div className=" border-y border-white/5 bg-white/[0.02]">
                 <PartnerSlider logos={logos} />
             </div>
 
      <LandingAutomation></LandingAutomation>
           
             
-            {/* নিচের দিকে একটি কাস্টম ট্রাস্ট ব্যাজ বা ফুটার টেক্সট দিতে পারেন */}
-            <div className="text-center mt-20 opacity-40 text-sm">
-                <p>© 2026 AI Automation Lab. All Rights Reserved.</p>
-            </div>
+            
         </main>
     );
 };

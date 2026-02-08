@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import getDB from "@/lib/mongodb";
 import { verifyAdminToken } from "@/lib/auth";
 
-// ===============================
-// GET: Admin Dashboard → সব category data
-// ===============================
+/* ===============================
+   GET: Admin Dashboard
+================================ */
 export async function GET() {
   try {
     const { db } = await getDB();
@@ -15,19 +15,19 @@ export async function GET() {
 
     return NextResponse.json(data);
   } catch (err) {
-    console.error("GET ERROR:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
 
-// ===============================
-// POST: নতুন category create
-// ===============================
+/* ===============================
+   POST: Create category
+================================ */
 export async function POST(req) {
   try {
     const admin = await verifyAdminToken();
-    if (!admin)
+    if (!admin) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const data = await req.json();
     const { db } = await getDB();
@@ -45,7 +45,7 @@ export async function POST(req) {
 
     if (exists) {
       return NextResponse.json(
-        { error: "Category already exists. Use PUT to update." },
+        { error: "Category already exists. Use PUT." },
         { status: 400 }
       );
     }
@@ -58,19 +58,19 @@ export async function POST(req) {
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("POST ERROR:", err);
     return NextResponse.json({ error: "Failed to create" }, { status: 500 });
   }
 }
 
-// ===============================
-// PUT: Admin → Update (UPSERT)
-// ===============================
+/* ===============================
+   PUT: Update / Upsert category
+================================ */
 export async function PUT(req) {
   try {
     const admin = await verifyAdminToken();
-    if (!admin)
+    if (!admin) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const data = await req.json();
     const { db } = await getDB();
@@ -97,19 +97,19 @@ export async function PUT(req) {
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("PUT ERROR:", err);
     return NextResponse.json({ error: "Failed to update" }, { status: 500 });
   }
 }
 
-// ===============================
-// DELETE: category delete
-// ===============================
+/* ===============================
+   DELETE: Category delete
+================================ */
 export async function DELETE(req) {
   try {
     const admin = await verifyAdminToken();
-    if (!admin)
+    if (!admin) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const { searchParams } = new URL(req.url);
     const category = searchParams.get("category");
@@ -127,18 +127,11 @@ export async function DELETE(req) {
       .deleteOne({ category });
 
     if (!result.deletedCount) {
-      return NextResponse.json(
-        { error: "Not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("DELETE ERROR:", err);
-    return NextResponse.json(
-      { error: "Delete failed" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Delete failed" }, { status: 500 });
   }
 }
