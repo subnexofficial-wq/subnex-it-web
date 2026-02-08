@@ -204,6 +204,7 @@ const orderItemsForBackend = checkoutItems.map(item => ({
          
 
           </aside>
+    
         </div>
       </div>
     </div>
