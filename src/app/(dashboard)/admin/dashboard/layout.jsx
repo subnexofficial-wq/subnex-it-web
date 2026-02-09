@@ -23,6 +23,7 @@ export default function AdminLayout({ children }) {
     { name: " Add Sliders", href: "/admin/dashboard/sliders", icon: <FiSettings /> },
     { name: "Coupons", href: "/admin/dashboard/coupons", icon: <FiCode /> },
     { name: "Automation", href: "/admin/dashboard/automation", icon: <Zap /> },
+    { name: "Automation Orders", href: "/admin/dashboard/automation-orders", icon: <FileSignatureIcon size={18} /> },
   ];
 
   const handleLogout = async () => {
