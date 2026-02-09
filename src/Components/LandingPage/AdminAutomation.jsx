@@ -400,7 +400,6 @@ export default function AdminAutomation() {
   </button>
 </div>
 
-        {/* ================= PRICING ================= */}
       {/* ================= PRICING ================= */}
 <div className="bg-white p-8 rounded-3xl border shadow-sm">
   <div className="flex justify-between items-center mb-6">
@@ -515,183 +514,84 @@ export default function AdminAutomation() {
         />
 
         {/* COUPON BOX */}
-        {plan.pricingType === "price" && (
-          <div className="mt-2 p-3 bg-blue-50 rounded-2xl space-y-2">
-            <p className="text-xs font-black text-blue-600 uppercase">
-              Coupon Settings
-            </p>
+       {/* COUPON BOX */}
+{plan.pricingType === "price" && (
+  <div className="mt-2 p-4 bg-blue-50/50 border border-blue-100 rounded-2xl space-y-3">
+    <div className="flex items-center justify-between">
+      <p className="text-[10px] font-black text-blue-600 uppercase tracking-wider">
+        Coupon Settings
+      </p>
+      {plan.coupon?.type && (
+        <span className="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-bold">
+          Active
+        </span>
+      )}
+    </div>
 
-            <input
-              className="w-full p-2 rounded-xl bg-white text-xs font-bold"
-              placeholder="Coupon Code (SAVE10)"
-              value={plan.coupon?.code || ""}
-              onChange={(e) => {
-                const p = [...current.pricing];
-                p[i].coupon = { ...p[i].coupon, code: e.target.value };
-                updateField("pricing", p);
-              }}
-            />
+    <div className="grid grid-cols-2 gap-2">
+      {/* COUPON CODE */}
+      <input
+        className="w-full p-2.5 rounded-xl bg-white border border-transparent focus:border-blue-400 text-xs font-bold outline-none transition-all"
+        placeholder="CODE (e.g. SAVE20)"
+        value={plan.coupon?.code || ""}
+        onChange={(e) => {
+          const p = [...current.pricing];
+          p[i].coupon = { ...p[i].coupon, code: e.target.value.toUpperCase() };
+          updateField("pricing", p);
+        }}
+      />
 
-            <select
-              className="w-full p-2 rounded-xl bg-white text-xs font-bold"
-              value={plan.coupon?.type || ""}
-              onChange={(e) => {
-                const p = [...current.pricing];
-                p[i].coupon = { ...p[i].coupon, type: e.target.value };
-                updateField("pricing", p);
-              }}
-            >
-              <option value="">No Coupon</option>
-              <option value="percent">Percentage (%)</option>
-              <option value="flat">Flat Amount (৳)</option>
-            </select>
+      {/* DISCOUNT TYPE */}
+      <select
+        className="w-full p-2.5 rounded-xl bg-white border border-transparent focus:border-blue-400 text-xs font-bold outline-none cursor-pointer"
+        value={plan.coupon?.type || ""}
+        onChange={(e) => {
+          const p = [...current.pricing];
+          p[i].coupon = { ...p[i].coupon, type: e.target.value };
+          updateField("pricing", p);
+        }}
+      >
+        <option value="">No Coupon</option>
+        <option value="percent">Percentage (%)</option>
+        <option value="flat">Flat Amount (৳)</option>
+      </select>
+    </div>
 
-            {plan.coupon?.type && (
-              <input
-                type="number"
-                min={1}
-                className="w-full p-2 rounded-xl bg-white text-xs font-bold"
-                placeholder={
-                  plan.coupon.type === "percent"
-                    ? "Discount %"
-                    : "Discount Amount"
-                }
-                value={plan.coupon?.value || ""}
-                onChange={(e) => {
-                  const p = [...current.pricing];
-                  p[i].coupon = {
-                    ...p[i].coupon,
-                    value: Number(e.target.value)
-                  };
-                  updateField("pricing", p);
-                }}
-              />
-            )}
-          </div>
-        )}
+    {/* DISCOUNT VALUE - এখানে সমস্যা হচ্ছিল */}
+    {plan.coupon?.type && (
+      <div className="relative">
+        <input
+          type="number"
+          className="w-full p-2.5 rounded-xl bg-white border border-transparent focus:border-blue-400 text-xs font-black text-blue-600 outline-none"
+          placeholder={
+            plan.coupon.type === "percent"
+              ? "Discount Percentage (e.g. 20)"
+              : "Discount Amount (e.g. 500)"
+          }
+          // value={plan.coupon?.value || ""} // এই লাইনটি নিচের মতো পরিবর্তন করুন
+          value={plan.coupon?.value === 0 ? "" : plan.coupon?.value} 
+          onChange={(e) => {
+            const val = e.target.value === "" ? "" : Number(e.target.value);
+            const p = [...current.pricing];
+            p[i].coupon = {
+              ...p[i].coupon,
+              value: val
+            };
+            updateField("pricing", p);
+          }}
+        />
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-gray-400 pointer-events-none">
+          {plan.coupon.type === "percent" ? "%" : "৳"}
+        </span>
+      </div>
+    )}
+  </div>
+)}
       </div>
     ))}
   </div>
 </div>
 
-        {/* ================= COMBO TABLE ================= */}
-{activeTab === "combo" && (
-  <div className="bg-white p-8 rounded-3xl border shadow-sm overflow-x-auto">
-    <h3 className="text-xs font-black text-blue-600 uppercase mb-6">
-      Combo Comparison Table
-    </h3>
-
-    <table className="w-full border border-gray-200 rounded-xl overflow-hidden text-sm">
-      {/* HEADER */}
-      <thead className="bg-gray-100">
-        <tr>
-          <th className="border p-3 text-left font-black">Feature</th>
-          {current.comparisonTable.headers.map((h, i) => (
-            <th key={i} className="border p-3 font-black text-center">
-              {h}
-            </th>
-          ))}
-          <th className="border p-3 text-center font-black">Action</th>
-        </tr>
-      </thead>
-
-      {/* BODY */}
-      <tbody>
-        {current.comparisonTable.rows.map((row, r) => (
-          <tr key={r} className="odd:bg-white even:bg-gray-50">
-            {/* Feature name */}
-            <td className="border p-2">
-              <input
-                className="w-full p-2 bg-transparent outline-none font-bold"
-                placeholder="Feature name"
-                value={row.label}
-                onChange={e => {
-                  const rows = [...current.comparisonTable.rows];
-                  rows[r].label = e.target.value;
-                  updateField("comparisonTable.rows", rows);
-                }}
-              />
-            </td>
-
-            {/* Values */}
-            {row.values.map((cell, c) => (
-              <td key={c} className="border p-2 text-center space-y-1">
-                {/* TYPE SELECT */}
-                <select
-                  className="p-1 rounded-lg bg-gray-50 font-bold text-xs"
-                  value={cell.type}
-                  onChange={e => {
-                    const rows = [...current.comparisonTable.rows];
-                    const type = e.target.value;
-
-                    rows[r].values[c] =
-                      type === "number"
-                        ? { type: "number", value: 1 }
-                        : { type };
-
-                    updateField("comparisonTable.rows", rows);
-                  }}
-                >
-                  <option value="true">✔ Yes</option>
-                  <option value="false">✖ No</option>
-                  <option value="number">Number</option>
-                </select>
-
-                {/* NUMBER INPUT */}
-                {cell.type === "number" && (
-                  <input
-                    type="number"
-                    min={1}
-                    className="w-20 text-center p-1 rounded-lg border font-bold"
-                    value={cell.value}
-                    onChange={e => {
-                      const rows = [...current.comparisonTable.rows];
-                      rows[r].values[c].value = Number(e.target.value);
-                      updateField("comparisonTable.rows", rows);
-                    }}
-                  />
-                )}
-              </td>
-            ))}
-
-            {/* DELETE ROW */}
-            <td className="border p-2 text-center">
-              <button
-                className="text-red-500 font-black"
-                onClick={() => {
-                  const rows = current.comparisonTable.rows.filter(
-                    (_, i) => i !== r
-                  );
-                  updateField("comparisonTable.rows", rows);
-                }}
-              >
-                ✕
-              </button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-
-    {/* ADD ROW */}
-    <button
-      className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-black"
-      onClick={() =>
-        updateField("comparisonTable.rows", [
-          ...current.comparisonTable.rows,
-          {
-            label: "",
-            values: current.comparisonTable.headers.map(() => ({
-              type: "false"
-            }))
-          }
-        ])
-      }
-    >
-      + Add Row
-    </button>
-  </div>
-)}
         {/* ================= FAQ ================= */}
         <div className="bg-white p-8 rounded-3xl border shadow-sm">
           <h3 className="text-xs font-black text-blue-600 uppercase mb-4 flex items-center gap-2">
@@ -742,8 +642,8 @@ export default function AdminAutomation() {
           disabled={saving}
           className="w-full py-5 bg-blue-600 text-white rounded-full font-black shadow-xl hover:scale-105 transition"
         >
-          {saving ? <FiLoader className="animate-spin mx-auto" /> : <FiSave />}
-          {saving ? " Saving..." : " Save All Changes"}
+          {saving ? <><FiLoader className="animate-spin inline-block mr-2" /> Saving...</> : "Save All Changes"}
+       
         </button>
       </div>
     </section>

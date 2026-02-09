@@ -7,19 +7,21 @@ export async function POST(req) {
     const data = await req.json();
     const { db } = await getDB();
 
-    const orderId = data?.metadata?.orderId;
+    // ১. মেটাডেটা থেকে কালেকশন এবং অর্ডার আইডি বের করা
+ 
+    const orderId = data?.metadata?.order_id || data?.metadata?.orderId;
+    const collectionName = data?.metadata?.collection || "orders"; 
     const transactionId = data?.transaction_id;
 
-    // ১. ডাটা চেক
     if (!orderId || !transactionId) {
       return NextResponse.json({ error: "Invalid Data" }, { status: 400 });
     }
 
-    // ২. UddoktaPay verify
-    const verifyRes = await fetch(`${process.env.UDDOKTAPAY_BASE_URL}/verify-payment`, {
+    // ২. UddoktaPay verify (পেমেন্ট নিশ্চিত করা)
+    const verifyRes = await fetch(`${process.env.SUBNEXIT_PAY_BASE}/verify-payment`, {
       method: "POST",
       headers: {
-        "RT-UDDOKTAPAY-API-KEY": process.env.UDDOKTAPAY_API_KEY,
+        "RT-UDDOKTAPAY-API-KEY": process.env.SUBNEXIT_PAY_API_KEY,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ transaction_id: transactionId }),
@@ -27,11 +29,11 @@ export async function POST(req) {
 
     const verifyData = await verifyRes.json();
 
-    // ৩. payment status
+    // ৩. পেমেন্ট সাকসেস হলে ডাটাবেস আপডেট
     if (verifyData.status === "Completed") {
       
-      // ৪. database update 
-      const result = await db.collection("orders").updateOne(
+     
+      const result = await db.collection(collectionName).updateOne(
         { _id: new ObjectId(orderId), paymentStatus: { $ne: "paid" } },
         { 
           $set: { 
@@ -45,9 +47,10 @@ export async function POST(req) {
       );
 
       if (result.matchedCount === 0) {
-        return NextResponse.json({ message: "Order already processed or not found" });
+        return NextResponse.json({ message: "Order already processed or not found in " + collectionName });
       }
 
+      console.log(`Success: Order ${orderId} updated in ${collectionName}`);
       return NextResponse.json({ ok: true });
     }
 

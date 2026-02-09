@@ -1,7 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2, ArrowRight, Loader2 } from "lucide-react";
+import { CheckCircle2, ArrowRight, Loader2, Cpu, Database, Send, CheckCircle, HelpCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 /* ================= TABS ================= */
 const tabs = [
@@ -28,6 +29,8 @@ export default function LandingAutomation() {
     whatsapp: "",
     email: "",
   });
+  const router = useRouter();
+const [isProcessing, setIsProcessing] = useState(false);
 
   /* ================= FETCH ================= */
   useEffect(() => {
@@ -42,28 +45,92 @@ export default function LandingAutomation() {
 
   const current = dbData?.[activeTab];
 
-  /* ================= COUPON ================= */
+  /* ================= COUPON LOGIC (FIXED) ================= */
   const handleApplyCoupon = () => {
-    if (
-      selectedPlan?.coupon &&
-      couponInput.trim().toUpperCase() ===
-        selectedPlan.coupon.code.toUpperCase()
-    ) {
-      setAppliedCoupon(selectedPlan.coupon);
+    // ১. নিশ্চিত করা যে প্ল্যান সিলেক্ট করা আছে
+    if (!selectedPlan) {
+      alert("Please select a plan first!");
+      return;
+    }
+
+    // ২. সিলেক্ট করা প্ল্যানে কুপন আছে কি না চেক করা
+    const planCoupon = selectedPlan.coupon;
+    
+    if (!planCoupon || !planCoupon.code) {
+      alert("No coupon available for this specific plan.");
+      setAppliedCoupon(null);
+      return;
+    }
+
+    // ৩. ইনপুট ম্যাচ করা (Case Insensitive)
+    if (couponInput.trim().toUpperCase() === planCoupon.code.toUpperCase()) {
+      setAppliedCoupon(planCoupon);
     } else {
-      alert("Invalid coupon code");
+      alert("Invalid coupon code for this product.");
       setAppliedCoupon(null);
     }
   };
 
   const calculateFinalPrice = (price, coupon) => {
-    const p = Number(price);
-    if (!coupon) return p;
-    if (coupon.type === "percent")
-      return Math.max(p - Math.round((p * coupon.value) / 100), 0);
-    if (coupon.type === "flat") return Math.max(p - coupon.value, 0);
+    const p = Number(price) || 0;
+    if (!coupon || !coupon.value) return p;
+
+    const discountValue = Number(coupon.value); 
+
+    if (coupon.type === "percent") {
+      const discount = Math.round((p * discountValue) / 100);
+      return Math.max(p - discount, 0);
+    }
+    
+    if (coupon.type === "flat") {
+      return Math.max(p - discountValue, 0);
+    }
+    
     return p;
   };
+  // checkout handler
+const handleFinalCheckout = async () => {
+  if (!customer.name || !customer.whatsapp || !customer.email) {
+    alert("দয়া করে সব তথ্য পূরণ করুন!");
+    return;
+  }
+
+  setIsProcessing(true);
+  const finalAmount = calculateFinalPrice(selectedPlan.price, appliedCoupon);
+
+  try {
+    const response = await fetch("/api/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        amount: finalAmount,
+        customerName: customer.name,
+        customerEmail: customer.email,
+        customerMobile: customer.whatsapp,
+       
+        orderType: "AUTOMATION_LANDING", 
+        orderDetails: {
+          planName: selectedPlan.name,
+          category: activeTab, 
+          coupon: appliedCoupon?.code || "NONE"
+       
+        },
+        isAutomation: true
+      }),
+    });
+
+    const data = await response.json();
+    if (data.payment_url) {
+      window.location.href = data.payment_url;
+    } else {
+      alert("পেমেন্ট লিঙ্ক তৈরি করা যায়নি।");
+      setIsProcessing(false);
+    }
+  } catch (error) {
+    alert("সার্ভার এরর!");
+    setIsProcessing(false);
+  }
+};
 
   if (loading) {
     return (
@@ -106,7 +173,7 @@ export default function LandingAutomation() {
                   setAppliedCoupon(null);
                   setCouponInput("");
                 }}
-                className={`px-8 py-4 rounded-2xl font-black text-xs uppercase transition
+                className={`px-8 py-4 rounded-2xl font-black text-xs uppercase transition whitespace-nowrap
                   ${
                     active
                       ? "bg-cyan-400 text-black shadow-[0_0_20px_rgba(34,211,238,.6)]"
@@ -139,39 +206,67 @@ export default function LandingAutomation() {
           </div>
         </section>
       )}
-
       {/* ================= HOW IT WORKS ================= */}
-      {current?.workflow?.length > 0 && (
-        <section className="py-24">
-          <h2 className="text-center text-4xl font-black italic mb-16">
-            How It Works
-          </h2>
+{current?.workflow?.length > 0 && (
+  <section className="py-24 px-6">
+    <div className="max-w-6xl mx-auto">
+      <h2 className="text-center text-4xl font-black italic mb-16">
+        How It Works
+      </h2>
 
-          <div className="grid md:grid-cols-3 gap-10 max-w-6xl mx-auto px-6">
-            {current.workflow.map((step, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="bg-white/5 border border-white/10 rounded-3xl p-8 text-center"
-              >
-                <div className="w-10 h-10 mx-auto mb-4 rounded-full bg-cyan-400/20 text-cyan-400 flex items-center justify-center font-black">
-                  {i + 1}
+      <div className="grid md:grid-cols-3 gap-10">
+        {current.workflow.map((step, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="bg-[#0b121d] border border-white/10 rounded-3xl p-8 text-center hover:border-cyan-400/40 transition"
+          >
+            <div className="w-12 h-12 mx-auto mb-6 rounded-full bg-cyan-400/20 text-cyan-400 flex items-center justify-center font-black text-lg">
+              {i + 1}
+            </div>
+            <h4 className="font-black text-xl mb-3">
+              {step.title}
+            </h4>
+            <p className="text-gray-400 text-sm leading-relaxed">
+              {step.desc}
+            </p>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+ {/* ================= FEATURES ================= */}
+      {current?.features?.length > 0 && (
+        <section className="py-24 px-6 bg-white/[0.02]">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-center text-4xl font-black italic mb-16 flex items-center justify-center gap-4">
+              <Cpu className="text-cyan-400" /> Platform Features
+            </h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {current.features.map((item, i) => (
+                <div key={i} className="p-8 rounded-3xl bg-[#0b121d] border border-white/5 hover:border-cyan-400/50 transition">
+                  <div className="text-cyan-400 mb-4">
+                    {item.icon === "sheet" && <Database size={32} />}
+                    {item.icon === "telegram" && <Send size={32} />}
+                    {item.icon === "ai" && <Cpu size={32} />}
+                    {item.icon === "output" && <CheckCircle size={32} />}
+                  </div>
+                  <h4 className="text-xl font-bold mb-2">{item.title}</h4>
+                  <p className="text-gray-400 text-sm leading-relaxed">{item.desc}</p>
                 </div>
-                <h4 className="font-black text-xl mb-2">{step.title}</h4>
-                <p className="text-gray-400 text-sm">{step.desc}</p>
-              </motion.div>
-            ))}
+              ))}
+            </div>
           </div>
         </section>
       )}
-
-      {/* ================= PRICING ================= */}
+      {/* ================= PRICING SECTION ================= */}
       <section className="py-28 px-6">
         <div className="grid md:grid-cols-3 gap-10 max-w-6xl mx-auto">
           {current?.pricing?.map((plan, i) => {
-            const isFeatured = i === 1;
+            const isFeatured = i === 1; 
             return (
               <motion.div
                 key={i}
@@ -191,26 +286,22 @@ export default function LandingAutomation() {
                   {plan.pricingType === "price" ? (
                     <div className="text-5xl font-black mb-8">৳{plan.price}</div>
                   ) : (
-                    <div className="text-3xl font-black mb-8 text-green-400">
-                      Contact Us
-                    </div>
+                    <div className="text-3xl font-black mb-8 text-green-400">Contact Us</div>
                   )}
 
                   <div className="space-y-4 mb-10 flex-grow">
                     {plan.perks?.split(",").map((perk, idx) => (
                       <div key={idx} className="flex gap-3">
-                        <CheckCircle2 size={18} className="text-cyan-400" />
-                        <span className="text-gray-300">{perk.trim()}</span>
+                        <CheckCircle2 size={18} className="text-cyan-400 shrink-0" />
+                        <span className="text-gray-300 text-sm leading-tight">{perk.trim()}</span>
                       </div>
                     ))}
                   </div>
 
                   {plan.pricingType === "contact" ? (
                     <button
-                      onClick={() =>
-                        window.open(`https://wa.me/${plan.whatsapp}`, "_blank")
-                      }
-                      className="w-full py-5 rounded-2xl bg-green-500 text-black font-black uppercase text-xs"
+                      onClick={() => window.open(`https://wa.me/${plan.whatsapp}?text=I am interested in ${plan.name}`, "_blank")}
+                      className="w-full py-5 rounded-2xl bg-green-500 text-black font-black uppercase text-xs hover:bg-green-400 transition"
                     >
                       Contact on WhatsApp
                     </button>
@@ -222,10 +313,10 @@ export default function LandingAutomation() {
                         setAppliedCoupon(null);
                         setCouponInput("");
                       }}
-                      className={`w-full py-5 rounded-2xl font-black uppercase text-xs ${
+                      className={`w-full py-5 rounded-2xl font-black uppercase text-xs transition ${
                         isFeatured
-                          ? "bg-cyan-400 text-black"
-                          : "bg-white/10"
+                          ? "bg-cyan-400 text-black shadow-lg shadow-cyan-400/20"
+                          : "bg-white/10 hover:bg-white/20"
                       }`}
                     >
                       Order Now <ArrowRight size={14} className="inline ml-2" />
@@ -237,132 +328,99 @@ export default function LandingAutomation() {
           })}
         </div>
       </section>
-<tbody>
-  {current.comparisonTable.headers.map((planName, planIndex) => {
-    const pricingPlan = current.pricing?.[planIndex];
-    if (!pricingPlan) return null;
 
-    return (
-      <tr
-        key={planIndex}
-        className="border-t border-white/10 hover:bg-white/5 transition"
-      >
-        {/* PLAN NAME */}
-        <td className="p-5 font-black text-cyan-400 whitespace-nowrap">
-          {planName}
-        </td>
-
-        {/* FEATURE VALUES */}
-        {current.comparisonTable.rows.map((feature, fIndex) => {
-          const cell = feature.values?.[planIndex];
-
-          return (
-            <td
-              key={fIndex}
-              className="p-5 text-center font-black whitespace-nowrap"
-            >
-              {cell?.type === "true" && "✔"}
-              {cell?.type === "false" && "✖"}
-              {cell?.type === "number" && `${cell.value} টি`}
-              {cell?.type === "custom" && "Custom"}
-            </td>
-          );
-        })}
-
-        {/* ACTION */}
-        <td className="p-5 text-center whitespace-nowrap">
-          {pricingPlan.pricingType === "contact" ? (
-            <button
-              onClick={() =>
-                window.open(
-                  `https://wa.me/${pricingPlan.whatsapp}?text=I am interested in ${pricingPlan.name}`,
-                  "_blank"
-                )
-              }
-              className="px-6 py-3 rounded-xl bg-green-500 text-black font-black text-xs uppercase"
-            >
-              Contact Us
-            </button>
-          ) : (
-            <button
-              onClick={() => {
-                setSelectedPlan({
-                  ...pricingPlan,
-                  price: Number(pricingPlan.price),
-                });
-                setShowCheckout(true);
-                setAppliedCoupon(null);
-                setCouponInput("");
-              }}
-              className="px-6 py-3 rounded-xl bg-cyan-400 text-black font-black text-xs uppercase"
-            >
-              Order Now
-            </button>
-          )}
-        </td>
-      </tr>
-    );
-  })}
-</tbody>
-      {/* ================= CHECKOUT ================= */}
+      {/* ================= CHECKOUT SECTION (FIXED) ================= */}
       {showCheckout && selectedPlan?.pricingType === "price" && (
-        <section className="py-24 px-6">
-          <div className="max-w-xl mx-auto bg-white/5 rounded-3xl p-8">
-            <h3 className="text-xl font-black mb-6 text-center">
-              Contact Details
+        <section className="py-24 px-6 border-t border-white/10">
+          <div className="max-w-xl mx-auto bg-[#0b121d] border border-white/10 rounded-[2.5rem] p-8 md:p-12 shadow-2xl">
+            <h3 className="text-2xl font-black mb-8 text-center italic uppercase tracking-widest">
+              Checkout - <span className="text-cyan-400">{selectedPlan.name}</span>
             </h3>
 
-            <div className="space-y-4">
+            <div className="space-y-5">
               <input
-                placeholder="Your Name"
-                className="w-full p-4 rounded-xl bg-black/40"
-                onChange={(e) =>
-                  setCustomer({ ...customer, name: e.target.value })
-                }
+                placeholder="Your Full Name"
+                className="w-full p-4 rounded-2xl bg-black/40 border border-white/10 focus:border-cyan-400 outline-none transition"
+                onChange={(e) => setCustomer({ ...customer, name: e.target.value })}
               />
               <input
                 placeholder="WhatsApp Number"
-                className="w-full p-4 rounded-xl bg-black/40"
-                onChange={(e) =>
-                  setCustomer({ ...customer, whatsapp: e.target.value })
-                }
+                className="w-full p-4 rounded-2xl bg-black/40 border border-white/10 focus:border-cyan-400 outline-none transition"
+                onChange={(e) => setCustomer({ ...customer, whatsapp: e.target.value })}
               />
               <input
                 type="email"
                 placeholder="Email Address"
-                className="w-full p-4 rounded-xl bg-black/40"
-                onChange={(e) =>
-                  setCustomer({ ...customer, email: e.target.value })
-                }
+                className="w-full p-4 rounded-2xl bg-black/40 border border-white/10 focus:border-cyan-400 outline-none transition"
+                onChange={(e) => setCustomer({ ...customer, email: e.target.value })}
               />
 
-              <input
-                placeholder="Coupon Code"
-                className="w-full p-4 rounded-xl bg-black/40"
-                value={couponInput}
-                onChange={(e) => setCouponInput(e.target.value)}
-              />
-
-              <button
-                onClick={handleApplyCoupon}
-                className="w-full py-3 bg-white/10 rounded-xl font-bold"
-              >
-                Apply Coupon
-              </button>
-
-              {appliedCoupon && (
-                <div className="text-center text-sm text-red-400 line-through">
-                  ৳{selectedPlan.price}
-                </div>
-              )}
-
-              <div className="text-center text-3xl font-black text-cyan-400">
-                ৳{calculateFinalPrice(selectedPlan.price, appliedCoupon)}
+              <div className="flex gap-2">
+                <input
+                  placeholder="Coupon Code"
+                  className="flex-grow p-4 rounded-2xl bg-black/40 border border-white/10 focus:border-cyan-400 outline-none transition uppercase font-bold text-sm"
+                  value={couponInput}
+                  onChange={(e) => setCouponInput(e.target.value)}
+                />
+                <button
+                  onClick={handleApplyCoupon}
+                  className="px-6 bg-white/10 hover:bg-white/20 rounded-2xl font-black text-[10px] uppercase transition"
+                >
+                  Apply
+                </button>
               </div>
 
-              <button className="w-full py-5 bg-cyan-400 text-black font-black rounded-2xl">
-                Pay ৳{calculateFinalPrice(selectedPlan.price, appliedCoupon)}
-              </button>
+              <div className="bg-black/20 p-6 rounded-3xl border border-dashed border-white/10 text-center space-y-2">
+                {appliedCoupon ? (
+                  <>
+                    <div className="text-sm text-gray-500 line-through">৳{selectedPlan.price}</div>
+                    <div className="text-xs text-green-400 font-bold uppercase tracking-widest">Coupon Applied!</div>
+                  </>
+                ) : (
+                  <div className="text-sm text-gray-400">Total Payable Amount</div>
+                )}
+                <div className="text-5xl font-black text-cyan-400">
+                  ৳{calculateFinalPrice(selectedPlan.price, appliedCoupon)}
+                </div>
+              </div>
+
+             <button 
+  onClick={ handleFinalCheckout}
+  disabled={isProcessing}
+  className="w-full py-6 bg-cyan-400 hover:bg-cyan-300 text-black font-black rounded-2xl uppercase text-sm shadow-[0_10px_30px_rgba(34,211,238,0.3)] transition-all flex items-center justify-center gap-2"
+>
+  {isProcessing ? (
+    <><Loader2 className="animate-spin" size={18} /> Processing...</>
+  ) : (
+    "Proceed to Payment"
+  )}
+</button>
+            </div>
+          </div>
+        </section>
+      )}
+
+     
+
+      {/* ================= FAQ ================= */}
+      {current?.faqs?.length > 0 && (
+        <section className="py-24 px-6">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-center text-4xl font-black italic mb-16 flex items-center justify-center gap-4">
+              <HelpCircle className="text-cyan-400" /> Frequently Asked
+            </h2>
+            <div className="space-y-4">
+              {current.faqs.map((faq, i) => (
+                <details key={i} className="group bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+                  <summary className="p-6 cursor-pointer font-bold flex justify-between items-center list-none">
+                    {faq.q}
+                    <span className="group-open:rotate-180 transition-transform">↓</span>
+                  </summary>
+                  <div className="p-6 pt-0 text-gray-400 text-sm border-t border-white/5">
+                    {faq.a}
+                  </div>
+                </details>
+              ))}
             </div>
           </div>
         </section>

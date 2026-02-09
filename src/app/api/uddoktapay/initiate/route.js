@@ -5,7 +5,7 @@ export async function POST(req) {
     const { orderId, amount, customerName, customerEmail } = await req.json();
 
     const apiKey = process.env.UDDOKTAPAY_API_KEY;
-    const apiUrl = process.env.UDDOKTAPAY_BASE_URL; // এখন এটি সরাসরি checkout-v2 সহ
+    const apiUrl = process.env.UDDOKTAPAY_BASE_URL; 
 
     if (!apiKey || !apiUrl) {
       return NextResponse.json({ error: "API Credentials Missing" }, { status: 500 });

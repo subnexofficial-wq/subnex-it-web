@@ -1,181 +1,48 @@
 "use client";
-import { useEffect, useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
-import Image from "next/image";
+import React from "react";
+import { motion } from "framer-motion";
+import { CheckCircle2, MessageSquare, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
-function InvoiceContent() {
-  const searchParams = useSearchParams();
-  const orderId = searchParams.get("orderId");
-  const [order, setOrder] = useState(null);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    if (orderId) {
-      fetch(`/api/orders/${orderId}`)
-        .then((res) => {
-          if (!res.ok) throw new Error("Order not found");
-          return res.json();
-        })
-        .then((data) => {
-          console.log("Fetched Order Data:", data); // ডাটা চেক করার জন্য
-          setOrder(data);
-        })
-        .catch((err) => {
-          console.error("Fetch Error:", err);
-          setError(true);
-        });
-    }
-  }, [orderId]);
-
-  if (error) return (
-    <div className="min-h-screen flex items-center justify-center text-red-500 font-bold bg-white">
-      Error: Order Data Not Found! 
-    </div>
-  );
-
-  if (!order) return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8fafc]">
-      <div className="w-10 h-10 border-4 border-[#2563eb] border-t-transparent rounded-full animate-spin mb-4"></div>
-      <p className="font-black text-[#2563eb] animate-pulse">FETCHING REAL-TIME DATA...</p>
-    </div>
-  );
-
-  // ডিজিটাল আইটেমগুলো আলাদা করা হচ্ছে যেগুলোর ডাউনলোড লিঙ্ক আছে
-  const digitalProducts = order.orderItems?.filter(
-    (item) => item.category === "digital-product" && item.downloadLink
-  );
-console.log(digitalProducts)
+export default function PaymentSuccess() {
   return (
-    <div className="min-h-screen bg-[#f8fafc] p-4 flex flex-col items-center">
-      <div className="w-full max-w-[800px] bg-white border p-10 rounded-3xl shadow-sm">
-        
-        {/* Header - SubNex Logo & Status */}
-        <div className="flex justify-between items-center border-b pb-8 mb-8">
-          <div>
-            <Image src="/logo2.png" alt="SubNex Logo" width={100} height={40} />
-            <p className="text-[11px] font-bold text-slate-400 mt-2 uppercase tracking-widest">
-              Invoice: #{orderId.slice(-6)}
-            </p>
-          </div>
-          <div className="text-right">
-            <span className={`px-6 py-2 rounded-full text-xs font-black uppercase ${
-              order.paymentStatus === "paid" ? "bg-green-100 text-green-600" : "bg-[#e0ecff] text-[#2563eb]"
-            }`}>
-              {order.paymentStatus === "paid" ? "PAID" : "COMPLETED"}
-            </span>
+    <div className="min-h-screen bg-[#010409] text-white flex items-center justify-center px-6">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="max-w-md w-full bg-[#0b121d] border border-white/10 p-10 rounded-[3rem] text-center shadow-2xl"
+      >
+        <div className="flex justify-center mb-6">
+          <div className="bg-green-500/20 p-4 rounded-full">
+            <CheckCircle2 size={64} className="text-green-400" />
           </div>
         </div>
 
-        {/* Info Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
-          <div>
-            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Invoice To:</h3>
-            <p className="font-black text-slate-800 text-lg">
-              {order.customer?.firstName} {order.customer?.lastName}
-            </p>
-            <p className="text-sm text-slate-500">{order.customer?.email}</p>
-            <p className="text-sm text-slate-500">{order.customer?.phone}</p>
-            <p className="text-sm text-slate-500">{order.customer?.address}</p>
-          </div>
-          <div className="md:text-right">
-            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Invoice Date:</h3>
-            <p className="font-bold text-slate-800 italic">
-              {new Date(order.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
-            </p>
-          </div>
+        <h1 className="text-3xl font-black italic uppercase mb-4 tracking-tight">
+          পেমেন্ট সফল হয়েছে!
+        </h1>
+
+        <p className="text-gray-300 text-lg leading-relaxed mb-8">
+          শিগ্রই আপনার সঙ্গে একজন প্রতিনিধি যোগাযোগ করবেন, ধন্যবাদ।
+        </p>
+
+        <div className="space-y-4">
+          <Link 
+            href="/automation"
+            className="flex items-center justify-center gap-2 w-full py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition font-bold"
+          >
+            <ArrowLeft size={18} /> ব্যাক টু হোম
+          </Link>
+          
+          <a 
+            href="https://wa.me/8801979554344" 
+            target="_blank"
+            className="flex items-center justify-center gap-2 w-full py-4 bg-green-500 hover:bg-green-600 text-black rounded-2xl transition font-bold"
+          >
+            <MessageSquare size={18} /> সরাসরি হোয়াটস্যাপ করুন
+          </a>
         </div>
-
-        {/* Table Items */}
-        <div className="border rounded-2xl overflow-hidden mb-10">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-slate-50 border-b">
-              <tr>
-                <th className="p-5 font-black text-slate-400 uppercase text-[10px]">Item Description</th>
-                <th className="p-5 font-black text-slate-400 uppercase text-[10px] text-center">Qty</th>
-                <th className="p-5 font-black text-slate-400 uppercase text-[10px] text-right">Amount</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {order.orderItems?.map((item, idx) => (
-                <tr key={idx}>
-                  <td className="p-5 font-bold text-slate-700">
-                    {item.title}
-                    {item.category === 'digital-product' && (
-                      <span className="ml-2 text-[9px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded uppercase font-black">Digital</span>
-                    )}
-                  </td>
-                  <td className="p-5 text-center font-bold text-slate-600">{item.quantity}</td>
-                  <td className="p-5 text-right font-black text-slate-800">
-                    ৳{item.totalPrice || (item.price * item.quantity)}.00
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* digital products */}
-        {digitalProducts && digitalProducts.length > 0 && (
-          <div className="mb-5 p-8 bg-blue-50 border-2 border-dashed border-blue-200 rounded-3xl text-center no-print">
-            
-            <h3 className="text-blue-900 font-black text-sm uppercase tracking-wider mb-2">Your Digital Products is Ready</h3>
-            <p className="text-blue-600 text-xs mb-6">You can access your files instantly by clicking the buttons below.</p>
-            
-            <div className="flex flex-col gap-4 items-center">
-              {digitalProducts.map((item, idx) => (
-                <div key={idx} className="w-full max-w-sm bg-white p-4 rounded-2xl border border-blue-100 shadow-sm">
-                  <p className="text-[10px] font-bold text-blue-500 mb-2 uppercase tracking-tighter">
-                    File for: {item.title}
-                  </p>
-                  <a 
-                    href={item.downloadLink} 
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block w-full bg-[#2563eb] text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all hover:scale-[1.02] active:scale-95 text-center"
-                  >
-                    Access Assets / Download
-                  </a>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Pricing Summary */}
-        <div className="flex justify-end pr-5">
-          <div className="w-64 space-y-3">
-            <div className="flex justify-between text-sm">
-              <span className="font-bold text-slate-400">Sub Total</span>
-              <span className="font-bold text-slate-800">৳{order.pricing?.subtotal}.00</span>
-            </div>
-            {order.pricing?.discount > 0 && (
-              <div className="flex justify-between text-sm text-red-500">
-                <span className="font-bold">Discount</span>
-                <span className="font-bold">-৳{order.pricing?.discount}.00</span>
-              </div>
-            )}
-            <div className="flex justify-between border-t-2 border-slate-50 pt-4 mt-4 items-center">
-              <span className="text-sm font-black text-slate-800 uppercase">Total Paid</span>
-              <span className="text-2xl font-black text-[#2563eb]">৳{order.pricing?.totalAmount}.00</span>
-            </div>
-          </div>
-        </div>
-
-        <button 
-          onClick={() => window.print()} 
-          className="w-full mt-10 bg-black text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl no-print hover:scale-[1.01] transition-all"
-        >
-          Download / Print Invoice
-        </button>
-      </div>
+      </motion.div>
     </div>
-  );
-}
-
-export default function SuccessPage() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <InvoiceContent />
-    </Suspense>
   );
 }

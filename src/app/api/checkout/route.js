@@ -3,34 +3,41 @@ import getDB from "@/lib/mongodb";
 
 export async function POST(req) {
   try {
-    const { amount, customerName, customerEmail, customerMobile, orderDetails } = await req.json();
-    const { db } = await getDB();
+    const body = await req.json();
+    const { amount, customerName, customerEmail, customerMobile, orderDetails, isAutomation } = body;
 
-    // আপনার .env ফাইলের নামের সাথে মিল রেখে এখানে পরিবর্তন করা হয়েছে
-    const apiKey = process.env.SUBNEXIT_PAY_API_KEY; 
-    const baseUrl = `${process.env.SUBNEXIT_PAY_BASE}`; 
+    // ১. ডাটাবেস কানেকশন (সেফ লজিক)
+    const dbRes = await getDB();
+    const db = dbRes.db ? (typeof dbRes.db === 'function' ? dbRes.db() : dbRes.db) : dbRes;
 
- 
+    // ২. আপনার .env ফাইলের নামের সাথে মিল রেখে পরিবর্তন
+    const apiKey = process.env.UDDOKTAPAY_API_KEY; 
+    const baseUrl = process.env.UDDOKTAPAY_BASE_URL; 
 
+    // কনফিগারেশন চেক
     if (!apiKey || !baseUrl) {
-      return NextResponse.json({ error: "Payment configuration missing" }, { status: 500 });
+      console.log("Missing Config:", { apiKey: !!apiKey, baseUrl: !!baseUrl });
+      return NextResponse.json({ error: "Payment config missing in .env" }, { status: 500 });
     }
 
-    // 1️⃣ Create Order
-    const order = await db.collection("orders").insertOne({
+    // ৩. কালেকশন সিলেকশন
+    const collectionName = isAutomation ? "automation_orders" : "orders";
+
+    // ৪. ডাটাবেসে অর্ডার সেভ
+    const order = await db.collection(collectionName).insertOne({
       customer: {
-        firstName: customerName,
+        firstName: customerName || "Customer",
         email: customerEmail,
         phone: customerMobile,
       },
-      pricing: { totalAmount: amount },
+      pricing: { totalAmount: Number(amount) },
       items: orderDetails,
       status: "pending",
       paymentStatus: "unpaid",
       createdAt: new Date(),
     });
 
-    // 2️⃣ Payment Request
+    // ৫. পেমেন্ট গেটওয়ে রিকোয়েস্ট (Uddoktapay)
     const response = await fetch(baseUrl, {
       method: "POST",
       headers: {
@@ -40,35 +47,28 @@ export async function POST(req) {
       body: JSON.stringify({
         full_name: customerName,
         email: customerEmail,
-        amount: amount,
-        metadata: { order_id: order.insertedId.toString() },
+        amount: Number(amount),
+        metadata: { 
+          order_id: order.insertedId.toString(),
+          collection: collectionName 
+        },
         redirect_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/success`,
-        return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/cancel`,
+        return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/success`,
         cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/cancel`,
         webhook_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/webhook/uddoktapay`,
       }),
     });
 
-    // যদি payment API fail করে
-    if (!response.ok) {
-      await db.collection("orders").updateOne(
-        { _id: order.insertedId },
-        { $set: { status: "failed", paymentStatus: "failed" } }
-      );
-
-      return NextResponse.json({ error: "Payment gateway error" }, { status: 500 });
-    }
-
     const data = await response.json();
 
-    if (!data?.payment_url) {
-      return NextResponse.json({ error: "Invalid payment response" }, { status: 400 });
+    if (!response.ok || !data?.payment_url) {
+      return NextResponse.json({ error: data?.message || "Gateway Error" }, { status: 400 });
     }
 
     return NextResponse.json({ payment_url: data.payment_url });
 
   } catch (error) {
-    console.error("Checkout Error:", error);
-      return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    console.error("Checkout Error:", error.message);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
