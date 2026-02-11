@@ -16,6 +16,12 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
+  // --- কার্ট একদম খালি করার ফাংশন ---
+  const clearCart = () => {
+    setCart([]);
+    localStorage.removeItem("cart");
+  };
+
   const addToCart = async (product, mainPrice, quantity, variant) => {
     const productId = product._id || product.id;
     const duration = variant?.duration || "N/A";
@@ -33,7 +39,6 @@ export const CartProvider = ({ children }) => {
             return { 
               ...item, 
               quantity: newQty,
-            
               category: product.category || item.category || "service",
               downloadLink: product.downloadLink || item.downloadLink || null,
             };
@@ -53,7 +58,6 @@ export const CartProvider = ({ children }) => {
           totalPrice: totalAmount,
           duration: duration,
           quantity: Number(quantity),
-       
           category: product.category || "service",
           downloadLink: product.downloadLink || null,
         },
@@ -79,7 +83,8 @@ export const CartProvider = ({ children }) => {
   };
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, updateQuantity, removeFromCart }}>
+ 
+    <CartContext.Provider value={{ cart, addToCart, updateQuantity, removeFromCart, clearCart }}>
       {children}
     </CartContext.Provider>
   );

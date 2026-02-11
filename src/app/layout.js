@@ -44,11 +44,11 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
-  // ENV থেকে GTM ID রিড করা হচ্ছে
+
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID;
 
   return (
-    <html lang="en" data-theme="light" style={{ colorScheme: "light" }}>
+    <html lang="en" data-theme="light"  style={{ colorScheme: "light" }} suppressHydrationWarning>
       <head>
         {/* Google Tag Manager - মূল স্ক্রিপ্ট */}
         {gtmId && (
@@ -62,6 +62,7 @@ export default function RootLayout({ children }) {
         )}
       </head>
       <body
+      suppressHydrationWarning
         className={` overflow-x-hidden w-full relative
           ${geistSans.variable} ${geistMono.variable} ${lobster.variable} ${notoSerifBn.variable} antialiased`}
       >

@@ -28,7 +28,7 @@ export default function PaymentSuccess() {
 
         <div className="space-y-4">
           <Link 
-            href="/automation"
+            href="/"
             className="flex items-center justify-center gap-2 w-full py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition font-bold"
           >
             <ArrowLeft size={18} /> ব্যাক টু হোম

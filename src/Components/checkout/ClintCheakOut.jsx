@@ -15,30 +15,62 @@ import { pushToDataLayer } from "@/lib/gtm";
 
 export default function CheckoutPage() {
 
-  const router = useRouter();
+const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuth();
   const { cart } = useCart();
   const isBuyNow = searchParams.get("buyNow") === "true";
 
+  /* ================= STATE MANAGEMENT ================= */
+  // ১. সব স্টেটগুলো আগে ডিক্লেয়ার করতে হবে
+  const [couponCode, setCouponCode] = useState("");
   const [checkoutItems, setCheckoutItems] = useState([]);
+  const [contact, setContact] = useState({ email: "", phone: "" });
 
+  const [delivery, setDelivery] = useState({
+    country: countries?.[0] || { name: "Bangladesh" },
+    firstName: "",
+    lastName: "",
+    address: "",
+    city: "",
+    postal: "",
+  });
 
+  const [shippingData, setShippingData] = useState({
+    price: 0,
+    title: "Regular WhatsApp Delivery",
+  });
+  const [tipAmount, setTipAmount] = useState(0);
+  const [discount, setDiscount] = useState(0);
+
+  /* ================= CALCULATIONS ================= */
+  // ২. ক্যালকুলেশনগুলো useEffect-এর আগে রাখতে হবে
+  const subtotal = useMemo(() => {
+  return checkoutItems.reduce(
+    (acc, item) => acc + (item.price * item.quantity),
+    0
+  );
+}, [checkoutItems]);
+
+ const total = subtotal + shippingData.price + tipAmount;
+
+  /* ================= EFFECTS ================= */
+  // ৩. এখন এই useEffect টি 'total' এবং অন্যান্য ভ্যালু খুঁজে পাবে
   useEffect(() => {
     if (checkoutItems.length > 0) {
       pushToDataLayer("InitiateCheckout", {
         currency: "BDT",
         value: total,
-        items: checkoutItems.map(item => ({
+        coupon: couponCode || "",
+        items: checkoutItems.map((item) => ({
           item_id: item.productId || item._id,
           item_name: item.title,
           price: item.price,
-          quantity: item.quantity
-        }))
+          quantity: item.quantity,
+        })),
       });
     }
-  }, [checkoutItems.length]);
-
+  }, [checkoutItems.length, total, couponCode]);
 
   useEffect(() => {
     if (isBuyNow) {
@@ -46,6 +78,7 @@ export default function CheckoutPage() {
       if (savedData) {
         try {
           const item = JSON.parse(savedData);
+          
           setCheckoutItems([item]);
         } catch (e) {
           router.push("/products");
@@ -62,90 +95,65 @@ export default function CheckoutPage() {
     }
   }, [cart, isBuyNow, router]);
 
-  /* ================= STATE MANAGEMENT ================= */
-  const [contact, setContact] = useState({ email: "", phone: "" });
-  const [delivery, setDelivery] = useState({
-    country: countries?.[0] || { name: "Bangladesh" },
-    firstName: "",
-    lastName: "",
-    address: "",
-    city: "",
-    postal: "",
-    
-  });
+  /* ================= HANDLERS ================= */
+  const handleCompleteOrder = async () => {
+    if (!delivery.address || !contact.email || !contact.phone) {
+      alert("Please fill in all information.");
+      return;
+    }
 
-  const [shippingData, setShippingData] = useState({
-    price: 0,
-    title: "Regular WhatsApp Delivery",
-  });
-  const [tipAmount, setTipAmount] = useState(0);
-  const [discount, setDiscount] = useState(0);
+    const currentTotal = subtotal + shippingData.price + tipAmount - discount;
 
-  const subtotal = useMemo(() => {
-    return checkoutItems.reduce(
-      (acc, item) => acc + (item.totalPrice || item.price * item.quantity),
-      0
-    );
-  }, [checkoutItems]);
-
-  const total = subtotal + shippingData.price + tipAmount - discount;
-
-
-
-const handleCompleteOrder = async () => {
-  if (!delivery.address || !contact.email || !contact.phone) {
-    alert("Please fill in all information.");
-    return;
-  }
-const orderItemsForBackend = checkoutItems.map(item => ({
+    const orderItemsForBackend = checkoutItems.map((item) => ({
       productId: item.productId || item._id,
       title: item.title,
       price: Number(item.price),
       quantity: Number(item.quantity),
-      category: item.category || "service", 
-      downloadLink: item.downloadLink || null 
+      category: item.category || "service",
+      downloadLink: item.downloadLink || null,
     }));
-  const orderData = {
-    orderItems: orderItemsForBackend,
-    userEmail: user?.email || "guest",
-    customer: { ...contact, ...delivery },
-    pricing: {
-      subtotal,
-      shippingFee: shippingData.price,
-      tip: tipAmount,
-      discount,
-      totalAmount: total, 
-    },
-    status: "pending",
-    paymentStatus: "unpaid",
-  };
 
-  try {
-    const res = await fetch("/api/orders", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(orderData),
-    });
+    const orderData = {
+      orderItems: orderItemsForBackend,
+      userEmail: user?.email || "guest",
+      customer: { ...contact, ...delivery },
+      pricing: {
+        subtotal,
+        shippingFee: shippingData.price,
+        tip: tipAmount,
+        discount,
+        couponCode: couponCode || "none",
+        totalAmount: currentTotal,
+      },
+      status: "pending",
+      paymentStatus: "unpaid",
+    };
 
-    const result = await res.json();
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderData),
+      });
 
-    if (res.ok) {
+      const result = await res.json();
 
-      const fullName = `${delivery.firstName} ${delivery.lastName}`;
-      const query = new URLSearchParams({
-        orderId: result.orderId,
-        amount: total,
-        name: fullName,
-        email: contact.email 
-      }).toString();
+      if (res.ok) {
+        const fullName = `${delivery.firstName} ${delivery.lastName}`;
+        const query = new URLSearchParams({
+          orderId: result.orderId,
+          amount: currentTotal.toString(),
+          name: fullName,
+          email: contact.email,
+          coupon: couponCode || "",
+        }).toString();
 
-      router.push(`/payment?${query}`);
+        router.push(`/payment?${query}`);
+      }
+    } catch (err) {
+      console.error("Order Creation Error", err);
     }
-  } catch (err) {
-    console.error("Order Creation Error", err);
-  }
-};
-
+  };
   return (
     <div className="min-h-screen bg-[#f7f7f7]">
       <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
@@ -179,7 +187,7 @@ const orderItemsForBackend = checkoutItems.map(item => ({
             </div>
           </div>
 
-          {/* RIGHT SECTION (Order Summary & Pay Button) */}
+          {/* RIGHT SECTION*/}
           <aside className="lg:sticky lg:top-10 space-y-6">
             <OrderSummary
               cart={checkoutItems} 
@@ -188,15 +196,16 @@ const orderItemsForBackend = checkoutItems.map(item => ({
               tip={tipAmount}
               discount={discount}
               setDiscount={setDiscount}
+              setCouponCode={setCouponCode}
               total={total}
             />
-            <button
-              onClick={handleCompleteOrder}
-              disabled={checkoutItems.length === 0}
-              className="w-full bg-black hover:bg-gray-800 disabled:bg-gray-400 text-white py-4 rounded-xl text-sm font-black uppercase tracking-widest shadow-2xl transition-all active:scale-95"
-            >
-              Proceed to Payment • ৳{total.toLocaleString()}
-            </button>
+           <button
+  onClick={handleCompleteOrder}
+  disabled={checkoutItems.length === 0}
+  className="w-full bg-black hover:bg-gray-800 disabled:bg-gray-400 text-white py-4 rounded-xl text-sm font-black uppercase tracking-widest shadow-2xl transition-all active:scale-95"
+>
+   Proceed to Payment • ৳{total.toLocaleString()}
+</button>
 
             <p className="text-[10px] text-center text-gray-400">
               By clicking the button, you agree to our Terms of Service.

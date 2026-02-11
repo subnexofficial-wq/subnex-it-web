@@ -3,11 +3,12 @@
 import { useCart } from "@/hooks/CartContext";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FiCheckCircle, FiTrash2 } from "react-icons/fi";
 
 export default function CartPage() {
   const { cart, updateQuantity, removeFromCart } = useCart();
-
+const router = useRouter();
   // সাবটোটাল ক্যালকুলেশন: কুপন সহ যে প্রাইসটা কার্টে এসেছে সেটার সাথে কোয়ান্টিটি গুণ হচ্ছে
   const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
