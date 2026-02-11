@@ -8,7 +8,7 @@ const StreamingPage = async () => {
 
 
   return (
-    <div className="pt-6 min-h-[70vh]">
+    <div className="min-h-[70vh]">
 <LandingHome></LandingHome>
     </div>
   );

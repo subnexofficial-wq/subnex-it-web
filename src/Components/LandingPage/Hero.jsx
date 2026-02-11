@@ -16,7 +16,7 @@ const Hero = ({ onDemoClick, activeBtn }) => {
                 সময় বাঁচান, আপনার বিক্রি কয়েক গুণ বাড়িয়ে নিন।
             </p>
             
-            <div className="flex justify-center mb-16 relative z-10">
+            {/* <div className="flex justify-center mb-16 relative z-10">
                 <a
                     href="#features-section"
                     onClick={onDemoClick}
@@ -28,7 +28,7 @@ const Hero = ({ onDemoClick, activeBtn }) => {
                 >
                     ডেমো দেখুন
                 </a>
-            </div>
+            </div> */}
 
             <div className="max-w-5xl mx-auto border-t border-white/5 pt-2 grid grid-cols-2 md:grid-cols-4 text-center">
                 <div className="py-4"><div className="text-3xl md:text-5xl font-black text-[#00E5FF]"><SmoothCounter target={1000} suffix="+" /></div><p className="text-gray-500 font-bold uppercase text-[10px]">ব্যবহারকারী</p></div>

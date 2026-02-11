@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2, ArrowRight, Loader2, Cpu, Database, Send, CheckCircle, HelpCircle } from "lucide-react";
+import { CheckCircle2, ArrowRight, Loader2, Cpu, Database, Send, CheckCircle, HelpCircle, Rocket } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 /* ================= TABS ================= */
@@ -30,7 +30,7 @@ export default function LandingAutomation() {
     email: "",
   });
   const router = useRouter();
-const [isProcessing, setIsProcessing] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   /* ================= FETCH ================= */
   useEffect(() => {
@@ -45,15 +45,13 @@ const [isProcessing, setIsProcessing] = useState(false);
 
   const current = dbData?.[activeTab];
 
-  /* ================= COUPON LOGIC (FIXED) ================= */
+  /* ================= COUPON LOGIC ================= */
   const handleApplyCoupon = () => {
-    // ১. নিশ্চিত করা যে প্ল্যান সিলেক্ট করা আছে
     if (!selectedPlan) {
       alert("Please select a plan first!");
       return;
     }
 
-    // ২. সিলেক্ট করা প্ল্যানে কুপন আছে কি না চেক করা
     const planCoupon = selectedPlan.coupon;
     
     if (!planCoupon || !planCoupon.code) {
@@ -62,11 +60,10 @@ const [isProcessing, setIsProcessing] = useState(false);
       return;
     }
 
-    // ৩. ইনপুট ম্যাচ করা (Case Insensitive)
     if (couponInput.trim().toUpperCase() === planCoupon.code.toUpperCase()) {
       setAppliedCoupon(planCoupon);
     } else {
-      alert("Invalid coupon code for this product.");
+      alert("Invalid coupon code.");
       setAppliedCoupon(null);
     }
   };
@@ -74,60 +71,61 @@ const [isProcessing, setIsProcessing] = useState(false);
   const calculateFinalPrice = (price, coupon) => {
     const p = Number(price) || 0;
     if (!coupon || !coupon.value) return p;
-
     const discountValue = Number(coupon.value); 
-
     if (coupon.type === "percent") {
       const discount = Math.round((p * discountValue) / 100);
       return Math.max(p - discount, 0);
     }
-    
     if (coupon.type === "flat") {
       return Math.max(p - discountValue, 0);
     }
-    
     return p;
   };
-  // checkout handler
+
+  /* ================= CHECKOUT HANDLER (FIXED) ================= */
 const handleFinalCheckout = async () => {
   if (!customer.name || !customer.whatsapp || !customer.email) {
-    alert("দয়া করে সব তথ্য পূরণ করুন!");
+    alert("দয়া করে সব তথ্য পূরণ করুন!");
     return;
   }
 
   setIsProcessing(true);
   const finalAmount = calculateFinalPrice(selectedPlan.price, appliedCoupon);
 
+  // পে-লোড ভেরিয়েবলটি আগে তৈরি করে নিতে হবে
+  const payload = {
+    amount: finalAmount,
+    customerName: customer.name,
+    customerEmail: customer.email,
+    customerMobile: customer.whatsapp,
+    orderType: "AUTOMATION_LANDING",
+    orderDetails: {
+      planName: selectedPlan.name,
+      category: activeTab,
+      coupon: appliedCoupon?.code || "NONE"
+    },
+    isAutomation: true
+  };
+
+  console.log("Sending to Backend:", payload); 
+
   try {
     const response = await fetch("/api/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        amount: finalAmount,
-        customerName: customer.name,
-        customerEmail: customer.email,
-        customerMobile: customer.whatsapp,
-       
-        orderType: "AUTOMATION_LANDING", 
-        orderDetails: {
-          planName: selectedPlan.name,
-          category: activeTab, 
-          coupon: appliedCoupon?.code || "NONE"
-       
-        },
-        isAutomation: true
-      }),
+      body: JSON.stringify(payload), 
     });
 
     const data = await response.json();
     if (data.payment_url) {
       window.location.href = data.payment_url;
     } else {
-      alert("পেমেন্ট লিঙ্ক তৈরি করা যায়নি।");
+      alert(data.error || "পেমেন্ট লিঙ্ক তৈরি করা যায়নি।");
       setIsProcessing(false);
     }
   } catch (error) {
-    alert("সার্ভার এরর!");
+    console.error("Checkout Error:", error);
+    alert("সার্ভার এরর! সম্ভবত API কানেকশনে সমস্যা হচ্ছে।");
     setIsProcessing(false);
   }
 };
@@ -158,34 +156,42 @@ const handleFinalCheckout = async () => {
         </p>
       </section>
 
-      {/* ================= TABS ================= */}
-      <div className="sticky top-0 z-[999] bg-[#010409]/95 backdrop-blur border-y border-white/10">
-        <div className="flex justify-center gap-3 px-4 py-6 overflow-x-auto">
-          {tabs.map((tab) => {
-            const active = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => {
-                  setActiveTab(tab.id);
-                  setSelectedPlan(null);
-                  setShowCheckout(false);
-                  setAppliedCoupon(null);
-                  setCouponInput("");
-                }}
-                className={`px-8 py-4 rounded-2xl font-black text-xs uppercase transition whitespace-nowrap
-                  ${
-                    active
-                      ? "bg-cyan-400 text-black shadow-[0_0_20px_rgba(34,211,238,.6)]"
-                      : "bg-white/5 text-gray-400 hover:text-white"
-                  }`}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
+   
+    {/* STICKY TABS  */}
+<div className="sticky top-0 z-[999] bg-[#010409]/95 backdrop-blur border-y border-white/10">
+  <div className="max-w-6xl mx-auto px-4 py-4">
+ 
+    <div className="grid grid-cols-6 md:flex md:justify-center gap-2 md:gap-3">
+      {tabs.map((tab, index) => {
+        const active = activeTab === tab.id;
+        return (
+          <button
+            key={tab.id}
+            onClick={() => {
+              setActiveTab(tab.id);
+              setSelectedPlan(null);
+              setShowCheckout(false);
+              setAppliedCoupon(null);
+            }}
+            className={`
+              py-3 rounded-xl font-black text-[10px] md:text-xs uppercase transition-all border
+              ${active 
+                ? "bg-cyan-400 text-black shadow-[0_0_15px_rgba(34,211,238,0.4)] border-cyan-400" 
+                : "bg-white/5 text-gray-400 hover:text-white border-white/5"
+              }
+            
+              ${index < 3 ? "col-span-2" : "col-span-3"}
+             
+              md:px-6 md:col-auto
+            `}
+          >
+            {tab.label}
+          </button>
+        );
+      })}
+    </div>
+  </div>
+</div>
 
       {/* ================= VIDEO ================= */}
       {current?.videoUrl && (
@@ -206,38 +212,56 @@ const handleFinalCheckout = async () => {
           </div>
         </section>
       )}
-      {/* ================= HOW IT WORKS ================= */}
+ {/* ================= WORKFLOW (UI AS PER SCREENSHOT) ================= */}
 {current?.workflow?.length > 0 && (
   <section className="py-24 px-6">
     <div className="max-w-6xl mx-auto">
-      <h2 className="text-center text-4xl font-black italic mb-16">
-        How It Works
-      </h2>
-
-      <div className="grid md:grid-cols-3 gap-10">
+      <h1 className="text-center text-4xl p-5">How it  works ?</h1>
+      <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-0">
         {current.workflow.map((step, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="bg-[#0b121d] border border-white/10 rounded-3xl p-8 text-center hover:border-cyan-400/40 transition"
-          >
-            <div className="w-12 h-12 mx-auto mb-6 rounded-full bg-cyan-400/20 text-cyan-400 flex items-center justify-center font-black text-lg">
-              {i + 1}
+          <React.Fragment key={i}>
+            {/* আইকন কার্ড */}
+            <div className="flex flex-col items-center group">
+              {/* আইকন বক্স উইথ অ্যানিমেশন */}
+              <motion.div
+                animate={{ y: [0, -8, 0] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: i * 0.2 }}
+                className="w-24 h-24 md:w-32 md:h-32 rounded-[2rem] bg-[#0b121d] border border-cyan-400/20 flex items-center justify-center p-6 mb-6 shadow-[0_0_30px_rgba(34,211,238,0.05)] group-hover:border-cyan-400/50 transition-all duration-500"
+              >
+                {step.image ? (
+                  <img 
+                    src={step.image} 
+                    alt={step.title} 
+                    className="w-full h-full object-contain filter brightness-110 group-hover:scale-110 transition-transform duration-500" 
+                  />
+                ) : (
+                  <Rocket className="text-cyan-400" size={40} />
+                )}
+              </motion.div>
+
+              {/* টেক্সট সেকশন */}
+              <div className="text-center">
+                <h4 className="text-lg font-black text-white uppercase tracking-tight">{step.title}</h4>
+                <p className="text-xs text-gray-500 mt-1 font-medium">{step.desc}</p>
+              </div>
             </div>
-            <h4 className="font-black text-xl mb-3">
-              {step.title}
-            </h4>
-            <p className="text-gray-400 text-sm leading-relaxed">
-              {step.desc}
-            </p>
-          </motion.div>
+
+            {/* কানেক্টিং অ্যারো (লাস্ট আইটেমের পর দেখাবে না) */}
+            {i < current.workflow.length - 1 && (
+              <div className="flex items-center justify-center px-4 md:px-8 py-4 md:py-0">
+                <ArrowRight 
+                  className="text-cyan-400 rotate-90 md:rotate-0 opacity-40 group-hover:opacity-100 transition-opacity" 
+                  size={24} 
+                />
+              </div>
+            )}
+          </React.Fragment>
         ))}
       </div>
     </div>
   </section>
 )}
+
  {/* ================= FEATURES ================= */}
       {current?.features?.length > 0 && (
         <section className="py-24 px-6 bg-white/[0.02]">
@@ -262,7 +286,7 @@ const handleFinalCheckout = async () => {
           </div>
         </section>
       )}
-      {/* ================= PRICING SECTION ================= */}
+      {/* ==== PRICING SECTION ==== */}
       <section className="py-28 px-6">
         <div className="grid md:grid-cols-3 gap-10 max-w-6xl mx-auto">
           {current?.pricing?.map((plan, i) => {
@@ -329,7 +353,7 @@ const handleFinalCheckout = async () => {
         </div>
       </section>
 
-      {/* ================= CHECKOUT SECTION (FIXED) ================= */}
+      {/* ========== CHECKOUT SECTION (FIXED) ============ */}
       {showCheckout && selectedPlan?.pricingType === "price" && (
         <section className="py-24 px-6 border-t border-white/10">
           <div className="max-w-xl mx-auto bg-[#0b121d] border border-white/10 rounded-[2.5rem] p-8 md:p-12 shadow-2xl">
@@ -416,7 +440,7 @@ const handleFinalCheckout = async () => {
                     {faq.q}
                     <span className="group-open:rotate-180 transition-transform">↓</span>
                   </summary>
-                  <div className="p-6 pt-0 text-gray-400 text-sm border-t border-white/5">
+                  <div className="p-6 pt-3 text-gray-400 text-sm border-t border-white/5">
                     {faq.a}
                   </div>
                 </details>
