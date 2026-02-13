@@ -1,174 +1,92 @@
 "use client";
+import { useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { pushToDataLayer } from "@/lib/gtm";
 
-import React, { useState, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import Swal from 'sweetalert2';
+function PaymentContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
-const PaymentContent = () => {
-    const router = useRouter();
-    const searchParams = useSearchParams();
-    
-    const orderId = searchParams.get('orderId') || "0";
-    const amount = searchParams.get('amount') || "0.00";
+  // URL থেকে সব ডাটা নেওয়া হচ্ছে
+  const orderId = searchParams.get("orderId");
+  const amount = searchParams.get("amount"); // এটা আপনার ডিসকাউন্টেড প্রাইস হওয়া উচিত
+  const name = searchParams.get("name");
+  const email = searchParams.get("email");
+  const couponCode = searchParams.get("coupon");
 
-    const [selectedMethod, setSelectedMethod] = useState('');
-    const [lang, setLang] = useState('en');
-    const [isVisible, setIsVisible] = useState(true);
+  useEffect(() => {
+    const startPayment = async () => {
+      // যদি অর্ডার আইডি বা অ্যামাউন্ট না থাকে তবে পেমেন্ট শুরু হবে না
+      if (!orderId || !amount) return;
 
-    const translations = {
-        en: {
-            support: 'Support',
-            faq: 'FAQ',
-            offers: 'Offers',
-            login: 'Login',
-            mfs: 'MOBILE WALLET',
-            pay: `PAY BDT ${amount}`, 
-            selectMethodError: 'Please select a payment method'
-        },
-        bn: {
-            support: 'সাপোর্ট',
-            faq: 'জিজ্ঞাসাবাদ',
-            offers: 'অফার সমূহ',
-            login: 'লগইন',
-            mfs: 'মোবাইল ওয়ালেট',
-            pay: `${amount} টাকা প্রদান করুন`,
-            selectMethodError: 'দয়া করে একটি পেমেন্ট পদ্ধতি নির্বাচন করুন'
+      // ১. পিক্সেল ইভেন্ট (Initiate Checkout) - কুপনসহ ডাটা লেয়ারে পুশ
+      pushToDataLayer("InitiateCheckout", { 
+        value: amount, 
+        currency: "BDT",
+        coupon: couponCode || "" 
+      });
+
+      try {
+        const res = await fetch("/api/uddoktapay/initiate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            orderId, 
+            amount, // ডিসকাউন্ট হওয়ার পর যে প্রাইস তা এখানে যাবে
+            customerName: name, 
+            customerEmail: email,
+            coupon: couponCode || "" // কুপন কোডটি এপিআই-তে পাঠানো হচ্ছে
+          }),
+        });
+
+        const data = await res.json();
+
+        if (data.payment_url) {
+          window.location.href = data.payment_url; // সরাসরি গেটওয়েতে রিডাইরেক্ট
+        } else {
+          alert("পেমেন্ট লিঙ্ক তৈরি করা সম্ভব হয়নি। আবার চেষ্টা করুন।");
+          router.push("/checkout");
         }
+      } catch (err) {
+        console.error("Payment Error:", err);
+        alert("সার্ভার কানেকশন এরর! আপনার ইন্টারনেট বা API সেটিংস চেক করুন।");
+      }
     };
 
-    const t = translations[lang];
+    startPayment();
+  }, [orderId, amount]); // ডিপেন্ডেন্সি লিস্টে অ্যামাউন্ট যোগ করা হয়েছে
 
-    const mfsMethods = [
-        { name: 'bKash',logo: "/bkash.jpeg"  },
-        { name: 'Nagad', logo: '/nagad.jpeg' },
-        { name: 'Upay', logo: '/upay.jpeg' },
-        { name: 'Rocket', logo: '/rocket.jpeg' },
-    ];
-
-    const handlePay = () => {
-        if (!selectedMethod) {
-            Swal.fire({
-                title: lang === 'bn' ? 'পদ্ধতি নির্বাচন করুন' : 'Selection Required',
-                text: t.selectMethodError,
-                icon: 'warning',
-                confirmButtonColor: '#006747',
-                confirmButtonText: lang === 'bn' ? 'ঠিক আছে' : 'OK'
-            });
-            return;
-        }
-
-        const methodName = selectedMethod.toLowerCase().replace(/\s+/g, '');
-        router.push(`/payment/${methodName}?orderId=${orderId}&amount=${amount}`);
-    };
-
-    if (!isVisible) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <button
-                    onClick={() => setIsVisible(true)}
-                    className="bg-[#006747] text-white px-4 py-2 rounded-md shadow-md"
-                >
-                    Open Payment Gateway
-                </button>
-            </div>
-        );
-    }
-
-    return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 font-sans text-gray-900">
-            <div className="bg-white w-full max-w-md rounded-lg shadow-xl overflow-hidden border border-gray-200 animate-in fade-in zoom-in duration-300 relative">
-
-                {/* Header Section */}
-                <div className="p-4 border-b relative">
-                    <button
-                        onClick={() => setIsVisible(false)}
-                        className="absolute right-1 -top-1 text-gray-400 hover:text-red-500 transition-colors p-1"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M18 6 6 18" /><path d="m6 6 12 12" />
-                        </svg>
-                    </button>
-
-                    <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-inner">S</div>
-                        <div>
-                            <h1 className="text-xl font-bold text-gray-800 leading-tight uppercase">SubNex</h1>
-                            <p className="text-[10px] text-gray-400 font-medium">MID: EM255109371807F4D</p>
-                        </div>
-
-                        <div className="ml-auto flex border rounded-md overflow-hidden text-[10px] font-bold">
-                            <span onClick={() => setLang('en')} className={`px-2 py-1 cursor-pointer transition-colors ${lang === 'en' ? 'bg-[#006747] text-white' : 'bg-gray-100 text-gray-500'}`}>En</span>
-                            <span onClick={() => setLang('bn')} className={`px-2 py-1 cursor-pointer border-l transition-colors ${lang === 'bn' ? 'bg-[#006747] text-white' : 'bg-gray-100 text-gray-500'}`}>Bn</span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Support Row */}
-                <div className="grid grid-cols-4 py-3 border-b text-center text-[#006747]">
-                    {[
-                        { label: t.support, icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 18v-6a9 9 0 0 1 18 0v6" /><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z" /></svg> },
-                        { label: t.faq, icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg> },
-                        { label: t.offers, icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="8" width="18" height="12" rx="2" /><path d="M12 12V3" /><path d="M7 5a2.5 2.5 0 0 1 5 0 2.5 2.5 0 0 1 5 0" /></svg> },
-                        { label: t.login, icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg> }
-                    ].map((item, idx) => (
-                        <div key={idx} className="flex flex-col items-center cursor-pointer border-r last:border-r-0 border-gray-100 transition-colors hover:bg-gray-50">
-                            <div className="mb-1">{item.icon}</div>
-                            <span className="text-[10px] font-bold">{item.label}</span>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Fixed Green Header for MFS (Since tabs are removed) */}
-                <div className="w-full py-3 text-[10px] font-black tracking-wider text-center bg-[#006747] text-white shadow-inner uppercase">
-                    {t.mfs}
-                </div>
-
-                {/* Grid */}
-                <div className="p-6 grid grid-cols-3 gap-4 min-h-[250px] bg-white content-start">
-                    {mfsMethods.map((method) => (
-                        <div
-                            key={method.name}
-                            onClick={() => setSelectedMethod(method.name)}
-                            className={`relative flex items-center justify-center p-2 h-16 border-2 rounded-lg cursor-pointer transition-all duration-200 ${selectedMethod === method.name ? 'border-[#006747] bg-emerald-50/30' : 'border-gray-100 hover:border-gray-200'}`}
-                        >
-                            {selectedMethod === method.name && (
-                                <div className="absolute -top-2 -right-2 bg-white rounded-full text-green-600 shadow-sm">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" /></svg>
-                                </div>
-                            )}
-                            <img src={method.logo} alt={method.name} className={`max-w-full max-h-full object-contain ${selectedMethod === method.name ? 'grayscale-0' : 'grayscale opacity-60'}`} />
-                        </div>
-                    ))}
-                </div>
-
-                {/* Button */}
-                <div className="px-6 pb-6 bg-white">
-                    <button onClick={handlePay} className="w-full bg-[#006747] text-white py-3.5 rounded-md flex items-center justify-center gap-3 font-bold text-lg hover:bg-[#004d35] active:scale-[0.98] transition-all shadow-md">
-                        {t.pay}
-                    </button>
-                </div>
-
-                {/* Footer Labels */}
-                <div className="p-4 bg-gray-50 border-t flex justify-between px-8">
-                    <div className="flex items-center gap-1.5 opacity-80">
-                         <div className="w-5 h-5 bg-green-700 rounded-full flex items-center justify-center">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" /></svg>
-                        </div>
-                        <span className="text-[9px] font-bold text-gray-600 uppercase">PSO Licensed</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 opacity-80">
-                        <span className="text-[9px] font-bold text-gray-600 uppercase">PCI DSS Compliant</span>
-                    </div>
-                </div>
-            </div>
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="text-center">
+        {/* লোডার এনিমেশন */}
+        <div className="w-20 h-20 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+        
+        <h2 className="text-2xl font-black text-gray-900 uppercase italic tracking-tighter">
+          Pay ৳{amount}
+        </h2>
+        <p className="text-gray-500 mt-2 font-medium">
+          {couponCode ? `Coupon "${couponCode}" applied!` : "Securely redirecting to gateway..."}
+        </p>
+        
+        <div className="mt-8 flex items-center justify-center gap-2">
+          <span className="h-2 w-2 bg-emerald-500 rounded-full animate-bounce"></span>
+          <span className="h-2 w-2 bg-emerald-500 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+          <span className="h-2 w-2 bg-emerald-500 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
         </div>
-    );
-};
+      </div>
+    </div>
+  );
+}
 
 export default function PaymentPage() {
-    return (
-        <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
-            <PaymentContent />
-        </Suspense>
-    );
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center font-bold italic text-gray-400">
+        Loading Payment...
+      </div>
+    }>
+      <PaymentContent />
+    </Suspense>
+  );
 }

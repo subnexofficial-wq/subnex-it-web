@@ -11,13 +11,14 @@ export async function POST(req) {
     if (!orderItems || orderItems.length === 0 || !pricing.totalAmount) {
       return NextResponse.json({ error: "Missing order information" }, { status: 400 });
     }
-
+console.log("Incoming items:", orderItems);
     const { db } = await getDB();
-
+const digitalProduct = orderItems.find(item => item.category === "digital-product");
     const newOrder = {
       userEmail,
       customer,
       orderItems,
+      downloadLink: digitalProduct?.downloadLink || null, 
       pricing: {
         subtotal: Number(pricing.subtotal),
         shippingFee: Number(pricing.shippingFee),

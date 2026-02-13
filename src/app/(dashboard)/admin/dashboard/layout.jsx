@@ -3,9 +3,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { FiMenu, FiLogOut, FiLoader, FiGrid, FiUsers, FiBox, FiShoppingCart, FiCreditCard, FiSettings } from "react-icons/fi";
+import { FiMenu, FiLogOut, FiLoader, FiGrid, FiUsers, FiBox, FiShoppingCart, FiCreditCard, FiSettings, FiCode } from "react-icons/fi";
 import { useState } from "react";
 import Swal from "sweetalert2";
+import { FileSignatureIcon, Zap } from "lucide-react";
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
@@ -20,6 +21,9 @@ export default function AdminLayout({ children }) {
     { name: "Transactions", href: "/admin/dashboard/transactions", icon: <FiCreditCard /> },
     { name: "Pay Methods", href: "/admin/dashboard/payments-Methods", icon: <FiSettings /> },
     { name: " Add Sliders", href: "/admin/dashboard/sliders", icon: <FiSettings /> },
+    { name: "Coupons", href: "/admin/dashboard/coupons", icon: <FiCode /> },
+    { name: "Automation", href: "/admin/dashboard/automation", icon: <Zap /> },
+    { name: "Automation Orders", href: "/admin/dashboard/automation-orders", icon: <FileSignatureIcon size={18} /> },
   ];
 
   const handleLogout = async () => {

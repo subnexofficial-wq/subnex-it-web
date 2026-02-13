@@ -226,28 +226,54 @@ export default function AdminOrderDashboard() {
                 </div>
               </div>
 
-              {/* Footer / Pricing */}
-              <div className={`p-5 border-t ${isExpress ? "bg-emerald-50/20 border-emerald-100" : "bg-slate-50/30 border-slate-100"}`}>
-                <div className="mb-4">
-                  <div className="flex justify-between items-end">
-                    <div>
-                      <p className={`text-[9px] font-black uppercase tracking-widest ${isExpress ? "text-emerald-600" : "text-slate-400"}`}>
-                        Final Amount
-                      </p>
-                      <p className="text-2xl font-black text-slate-900 tracking-tighter">৳{order.pricing.totalAmount}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-[9px] font-black uppercase text-slate-400 mb-1 tracking-widest">Payment</p>
-                      <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase border ${
-                        order.paymentStatus === "unpaid" 
-                          ? "bg-red-50 text-red-600 border-red-100" 
-                          : "bg-emerald-50 text-emerald-600 border-emerald-100"
-                      }`}>
-                        {order.paymentStatus}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+          {/* Payment Information (নতুন যোগ করা হয়েছে) */}
+<div className="bg-blue-50/50 border border-blue-100 p-3 rounded-2xl mb-2">
+  <label className="text-[10px] font-black uppercase text-blue-500 tracking-widest mb-1 block">Payment Proof</label>
+  <div className="flex justify-between items-center">
+    <div>
+      <p className="text-[11px] font-bold text-slate-700">Sender: {order.customer?.sender || "N/A"}</p>
+      <p className="text-[9px] font-mono text-blue-600 uppercase">TrxID: {order.transactionId || "No ID"}</p>
+    </div>
+    {/* কুপন কোড এখানে দেখাবে */}
+    {order.pricing?.couponCode && order.pricing.couponCode !== "none" && (
+      <div className="text-right">
+        <span className="bg-indigo-600 text-white px-2 py-0.5 rounded text-[9px] font-black uppercase italic">
+          CODE: {order.pricing.couponCode}
+        </span>
+        <p className="text-[9px] font-bold text-red-500 mt-0.5">-৳{order.pricing.discount}</p>
+      </div>
+    )}
+  </div>
+</div>
+            {/* Footer / Pricing */}
+                    <div className={`p-5 border-t ${isExpress ? "bg-emerald-50/20 border-emerald-100" : "bg-slate-50/30 border-slate-100"}`}>
+                      <div className="mb-4">
+                        <div className="flex justify-between items-end">
+                          <div>
+                            <p className={`text-[9px] font-black uppercase tracking-widest ${isExpress ? "text-emerald-600" : "text-slate-400"}`}>
+                              Final Amount
+                            </p>
+                            <p className="text-2xl font-black text-slate-900 tracking-tighter">৳{order.pricing.totalAmount}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-[9px] font-black uppercase text-slate-400 mb-1 tracking-widest">Payment Status</p>
+                            <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase border transition-all ${
+                              order.paymentStatus === "paid" 
+                                ? "bg-emerald-50 text-emerald-600 border-emerald-200 ring-4 ring-emerald-50/50" 
+                                : "bg-red-50 text-red-600 border-red-100"
+                            }`}>
+                              {order.paymentStatus === "paid" ? "✅ Paid" : "❌ Unpaid"}
+                            </span>
+                            
+                            {/* যদি পেমেন্ট হয়ে থাকে, তবে ট্রানজ্যাকশন আইডি দেখাবে */}
+                            {order.transactionId && (
+                              <p className="text-[8px] font-mono text-slate-400 mt-1.5 uppercase tracking-tighter">
+                                TXID: {order.transactionId}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
 
                 {/* Action Buttons */}
                 {order.status === "pending" && (

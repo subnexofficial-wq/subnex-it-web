@@ -6,6 +6,8 @@ import FAQSection from "@/Components/FAQSection";
 import HeroSlider from "@/Components/HeroSlider";
 import { getAllProducts } from "@/actions/productActions";
 import { FaWhatsapp } from "react-icons/fa";
+
+
 export default async function Home() {
   const products = await getAllProducts();
 
@@ -70,7 +72,7 @@ export default async function Home() {
       <div className="container mx-auto my-5 relative">
         <SocialGallery />
         <FAQSection />
-       
+     
       </div>
 
       {/* Floating WhatsApp Support - Fixed Position corrected */}
