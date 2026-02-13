@@ -157,7 +157,8 @@ const [isCouponLoading, setIsCouponLoading] = useState(false);
         totalPrice: finalTotalPrice,
         category: product.category,
         isBuyNow: true,
-        appliedCoupon: appliedCoupon?.code || null,
+        appliedCoupon: appliedCoupon?.code || "none",
+        discountAmount: discountAmount * quantity,
       };
 
       pushToDataLayer("InitiateCheckout", {

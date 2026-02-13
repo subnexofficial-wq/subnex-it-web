@@ -78,8 +78,13 @@ const router = useRouter();
       if (savedData) {
         try {
           const item = JSON.parse(savedData);
-          
-          setCheckoutItems([item]);
+            setCheckoutItems([item]);
+       
+          if (item.appliedCoupon && item.appliedCoupon !== "none") {
+            setCouponCode(item.appliedCoupon); 
+            setDiscount(item.discountAmount || 0); 
+          }
+
         } catch (e) {
           router.push("/products");
         }

@@ -6,6 +6,7 @@ import { sendEmail } from "@/lib/mailer";
 
 export async function PATCH(req, { params }) {
   try {
+    // ১. অ্যাডমিন ভেরিফিকেশন (ইমপোর্ট ঠিক থাকলে এটি এখন কাজ করবে)
     const admin = await verifyAdminToken();
     if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -15,25 +16,28 @@ export async function PATCH(req, { params }) {
     const targetCollection = collection || "orders"; 
     const { db } = await getDB();
     
-    // ১. অর্ডার খুঁজে বের করা
+    // ২. ডাটাবেস থেকে অর্ডার খুঁজে বের করা
     const order = await db.collection(targetCollection).findOne({ _id: new ObjectId(id) });
     if (!order) return NextResponse.json({ error: "Order not found" }, { status: 404 });
 
-    // ২. স্ট্যাটাস আপডেট
+    // ৩. প্রাইসিং এবং কুপন ডাটা প্রিপেয়ার করা
+    const pricing = order.pricing || {};
+    const couponCode = pricing.couponCode ; 
+
+    // ৪. অর্ডারের স্ট্যাটাস আপডেট করা
     await db.collection(targetCollection).updateOne(
       { _id: new ObjectId(id) },
       { $set: { status: status, updatedAt: new Date() } }
     );
 
-    // ৩. যদি 'completed' হয়, তবে ইনভয়েস পাঠানো
+    // ৫. যদি 'completed' হয়, তবে ইনভয়েস মেইল পাঠানো
     if (status === "completed" && order.customer?.email) {
       
       const activeItems = order.items || order.orderItems || [];
       const isLanding = targetCollection === "automation_orders" || !!order.items;
       const brandName = isLanding ? "Subnex Automation" : "Subnex Store";
 
-      // প্রাইসিং ক্যালকুলেশন (Coupon এবং Tips হ্যান্ডলিং)
-      const pricing = order.pricing || {};
+      // প্রাইসিং ক্যালকুলেশন
       const subtotal = pricing.subtotal || pricing.totalAmount || 0;
       const discount = pricing.discount || 0;
       const tip = pricing.tip || 0;
@@ -60,6 +64,7 @@ export async function PATCH(req, { params }) {
       try {
         await sendEmail({
           to: order.customer.email,
+          type: "invoice", 
           subject: `Invoice - #${id.toString().slice(-6).toUpperCase()} from ${brandName}`,
           html: `
             <div style="font-family: 'Helvetica', sans-serif; max-width: 600px; margin: auto; background-color: #f8fafc; padding: 20px;">
@@ -95,7 +100,7 @@ export async function PATCH(req, { params }) {
 
                   ${discount > 0 ? `
                   <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px; color: #ef4444;">
-                    <span>Discount:</span>
+                    <span>Discount ${couponCode && couponCode !== "none" ? `(${couponCode})` : ''}:</span>
                     <span>-৳${discount}.00</span>
                   </div>` : ''}
 
