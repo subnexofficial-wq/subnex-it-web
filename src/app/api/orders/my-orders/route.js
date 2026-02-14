@@ -8,8 +8,8 @@ export async function GET(req) {
     const sort = searchParams.get("sort");
     const range = searchParams.get("range");
 
-    if (!email) {
-      return NextResponse.json({ ok: false, error: "User email is required" }, { status: 400 });
+if (!email || email === "undefined" || email === "") {
+      return NextResponse.json({ ok: true, orders: [] }); 
     }
 
     const { db } = await getDB();
@@ -21,7 +21,7 @@ export async function GET(req) {
     if (range && range !== "undefined") {
       const days = parseInt(range);
       const dateLimit = new Date();
-      dateLimit.setDate(dateLimit.getDate() - days);
+      dateLimit.setDate(dateLimit.getDate() - days)
       query.createdAt = { $gte: dateLimit };
     }
 
