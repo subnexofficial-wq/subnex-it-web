@@ -124,9 +124,7 @@ export default function OrdersPage() {
                 </div>
                 
                 <div className="flex items-center gap-2">
-                   <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-sm ${o.paymentStatus === 'unpaid' ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-blue-50 text-blue-600 border border-blue-100'}`}>
-                     <FiCreditCard size={12} /> {o.paymentStatus}
-                   </span>
+                   
                    <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-sm ${o.status === 'pending' ? 'bg-amber-50 text-amber-600 border border-amber-100' : 'bg-emerald-50 text-emerald-600 border border-emerald-100'}`}>
                      {o.status === 'pending' ? <FiClock size={12}/> : <FiCheckCircle size={12}/>} {o.status}
                    </span>
@@ -144,7 +142,7 @@ export default function OrdersPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="text-lg font-black text-slate-900 tracking-tight leading-tight truncate">{item.title}</h4>
-                        <p className="text-xs text-slate-400 font-bold uppercase mt-1 tracking-tighter">Product SKU: {item.productId?.slice(-6).toUpperCase()}</p>
+                        
                       </div>
                       <div className="text-right">
                         <p className="text-lg font-black text-slate-900 italic">৳ {o.pricing?.totalAmount?.toLocaleString()}</p>

@@ -9,17 +9,17 @@ function PaymentContent() {
 
   // URL থেকে সব ডাটা নেওয়া হচ্ছে
   const orderId = searchParams.get("orderId");
-  const amount = searchParams.get("amount"); // এটা আপনার ডিসকাউন্টেড প্রাইস হওয়া উচিত
+  const amount = searchParams.get("amount"); 
   const name = searchParams.get("name");
   const email = searchParams.get("email");
   const couponCode = searchParams.get("coupon");
 
   useEffect(() => {
     const startPayment = async () => {
-      // যদি অর্ডার আইডি বা অ্যামাউন্ট না থাকে তবে পেমেন্ট শুরু হবে না
+     
       if (!orderId || !amount) return;
 
-      // ১. পিক্সেল ইভেন্ট (Initiate Checkout) - কুপনসহ ডাটা লেয়ারে পুশ
+      // ১. 
       pushToDataLayer("InitiateCheckout", { 
         value: amount, 
         currency: "BDT",
@@ -32,17 +32,17 @@ function PaymentContent() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 
             orderId, 
-            amount, // ডিসকাউন্ট হওয়ার পর যে প্রাইস তা এখানে যাবে
+            amount, 
             customerName: name, 
             customerEmail: email,
-            coupon: couponCode || "" // কুপন কোডটি এপিআই-তে পাঠানো হচ্ছে
+            coupon: couponCode || "" 
           }),
         });
 
         const data = await res.json();
 
         if (data.payment_url) {
-          window.location.href = data.payment_url; // সরাসরি গেটওয়েতে রিডাইরেক্ট
+          window.location.href = data.payment_url; 
         } else {
           alert("পেমেন্ট লিঙ্ক তৈরি করা সম্ভব হয়নি। আবার চেষ্টা করুন।");
           router.push("/checkout");
@@ -54,7 +54,7 @@ function PaymentContent() {
     };
 
     startPayment();
-  }, [orderId, amount]); // ডিপেন্ডেন্সি লিস্টে অ্যামাউন্ট যোগ করা হয়েছে
+  }, [orderId, amount]); 
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white">

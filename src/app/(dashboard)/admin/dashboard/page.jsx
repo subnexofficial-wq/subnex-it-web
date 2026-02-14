@@ -26,9 +26,9 @@ export default function AdminDashboard() {
       .catch(() => setLoading(false));
   };
 
-  useEffect(() => {
-    if (timeFilter !== "custom") fetchStats();
-  }, [timeFilter]);
+   useEffect(() => {
+     if (timeFilter !== "custom") fetchStats();
+   }, [timeFilter]);
 
   useEffect(() => {
     if (timeFilter === "custom" && selectedDate) fetchStats();
