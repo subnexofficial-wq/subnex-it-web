@@ -104,19 +104,20 @@ const Navbar = () => {
             </div>
 
             {/* মাঝখান: লোগো */}
-            <div className="lg:pl-42 flex items-center justify-center">
-              <Link href="/" className="group flex items-center gap-0.5">
-                <div className="relative w-30 h-10 md:w-30 md:h-16 transition-transform duration-300 ease-in-out group-hover:rotate-12">
-                  <Image
-                    src="/logo2.png"
-                    alt="Logo"
-                    fill
-                    className="object-contain"
-                    priority
-                  />
-                </div>
-              </Link>
-            </div>
+         <div className="lg:pl-42 flex items-center justify-center">
+  <Link href="/" className="group flex items-center gap-0.5">
+ 
+    <div className="relative w-30 h-10 md:w-30 md:h-16 transition-all duration-300 ease-in-out group-hover:scale-115 active:scale-95">
+      <Image
+        src="/logo2.png"
+        alt="Logo"
+        fill
+        className="object-contain"
+        priority
+      />
+    </div>
+  </Link>
+</div>
 
             {/* ডান পাশ */}
             <div className="flex items-center gap-4 md:gap-6">

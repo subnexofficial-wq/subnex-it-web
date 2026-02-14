@@ -231,7 +231,7 @@ export default function AdminOrderDashboard() {
   <label className="text-[10px] font-black uppercase text-blue-500 tracking-widest mb-1 block">Payment Proof</label>
   <div className="flex justify-between items-center">
     <div>
-      <p className="text-[11px] font-bold text-slate-700">Sender: {order.customer?.sender || "N/A"}</p>
+      {/* <p className="text-[11px] font-bold text-slate-700">Sender: {order.customer?.sender || "N/A"}</p> */}
       <p className="text-[9px] font-mono text-blue-600 uppercase">TrxID: {order.transactionId || "No ID"}</p>
     </div>
     {/* কুপন কোড এখানে দেখাবে */}
@@ -256,14 +256,14 @@ export default function AdminOrderDashboard() {
                             <p className="text-2xl font-black text-slate-900 tracking-tighter">৳{order.pricing.totalAmount}</p>
                           </div>
                           <div className="text-right">
-                            <p className="text-[9px] font-black uppercase text-slate-400 mb-1 tracking-widest">Payment Status</p>
+                            {/* <p className="text-[9px] font-black uppercase text-slate-400 mb-1 tracking-widest">Payment Status</p>
                             <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase border transition-all ${
                               order.paymentStatus === "paid" 
                                 ? "bg-emerald-50 text-emerald-600 border-emerald-200 ring-4 ring-emerald-50/50" 
                                 : "bg-red-50 text-red-600 border-red-100"
                             }`}>
                               {order.paymentStatus === "paid" ? "✅ Paid" : "❌ Unpaid"}
-                            </span>
+                            </span> */}
                             
                             {/* যদি পেমেন্ট হয়ে থাকে, তবে ট্রানজ্যাকশন আইডি দেখাবে */}
                             {order.transactionId && (

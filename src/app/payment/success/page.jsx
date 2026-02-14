@@ -1,10 +1,18 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2, MessageSquare, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { useCart } from "@/hooks/CartContext"; 
 
 export default function PaymentSuccess() {
+  const { clearCart } = useCart(); 
+
+  useEffect(() => {
+    // পেজ লোড হওয়ার সাথে সাথেই কার্ট খালি করে দিবে
+    clearCart();
+  }, [clearCart]); 
+
   return (
     <div className="min-h-screen bg-[#010409] text-white flex items-center justify-center px-6">
       <motion.div 
@@ -19,11 +27,11 @@ export default function PaymentSuccess() {
         </div>
 
         <h1 className="text-3xl font-black italic uppercase mb-4 tracking-tight">
-          পেমেন্ট সফল হয়েছে!
+          অর্ডার সফল হয়েছে!
         </h1>
 
         <p className="text-gray-300 text-lg leading-relaxed mb-8">
-          শিগ্রই আপনার সঙ্গে একজন প্রতিনিধি যোগাযোগ করবেন, ধন্যবাদ।
+          অর্ডারটি গ্রহণ করা হয়েছে। শীঘ্রই আমাদের প্রতিনিধি আপনার সাথে যোগাযোগ করবেন।
         </p>
 
         <div className="space-y-4">
@@ -39,10 +47,10 @@ export default function PaymentSuccess() {
             target="_blank"
             className="flex items-center justify-center gap-2 w-full py-4 bg-green-500 hover:bg-green-600 text-black rounded-2xl transition font-bold"
           >
-            <MessageSquare size={18} /> সরাসরি হোয়াটস্যাপ করুন
+            <MessageSquare size={18} /> সরাসরি হোয়াটসঅ্যাপ করুন
           </a>
         </div>
       </motion.div>
     </div>
-  );
+  ); 
 }

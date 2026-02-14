@@ -1,5 +1,4 @@
 "use client";
-
 import { useCart } from "@/hooks/CartContext";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,9 +8,7 @@ import { FiCheckCircle, FiTrash2 } from "react-icons/fi";
 export default function CartPage() {
   const { cart, updateQuantity, removeFromCart } = useCart();
 const router = useRouter();
-  // সাবটোটাল ক্যালকুলেশন: কুপন সহ যে প্রাইসটা কার্টে এসেছে সেটার সাথে কোয়ান্টিটি গুণ হচ্ছে
   const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-
   if (cart.length === 0) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
@@ -100,7 +97,6 @@ const router = useRouter();
                 <FiTrash2 size={20} />
               </button>
             </div>
-
             {/* Line Total: Item price (including coupon discount) * quantity */}
             <div className="md:col-span-3 text-right font-black text-gray-900 text-lg">
               Tk {(item.price * item.quantity).toLocaleString()}.00
