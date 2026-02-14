@@ -226,7 +226,7 @@ const handleFinalCheckout = async () => {
               <motion.div
                 animate={{ y: [0, -8, 0] }}
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: i * 0.2 }}
-                className="w-24 h-24 md:w-32 md:h-32 rounded-[2rem] bg-[#0b121d] border border-cyan-400/20 flex items-center justify-center p-6 mb-6 shadow-[0_0_30px_rgba(34,211,238,0.05)] group-hover:border-cyan-400/50 transition-all duration-500"
+                className="w-32 h-32 md:w-48 md:h-48 rounded-[2rem] bg-[#0b121d] border flex items-center justify-center p-2 mb-6 shadow-[0_0_30px_rgba(34,211,238,0.05)] group-hover:border-cyan-400/50 transition-all duration-500"
               >
                 {step.image ? (
                   <img 
@@ -242,7 +242,7 @@ const handleFinalCheckout = async () => {
               {/* টেক্সট সেকশন */}
               <div className="text-center">
                 <h4 className="text-lg font-black text-white uppercase tracking-tight">{step.title}</h4>
-                <p className="text-xs text-gray-500 mt-1 font-medium">{step.desc}</p>
+                <p className="text-xl text-gray-500 mt-1 font-medium ">{step.desc}</p>
               </div>
             </div>
 
