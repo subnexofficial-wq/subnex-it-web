@@ -5,6 +5,7 @@ import { FiCamera, FiMapPin, FiMail, FiUser, FiX, FiTrash2, FiEdit3 } from "reac
 import { countries } from "../../../../data/Country";
 import { useAuth } from "@/hooks/useAuth";
 import Swal from "sweetalert2"; // SweetAlert ইম্পোর্ট করা হয়েছে
+import Image from "next/image";
 
 export default function UserProfilePage() {
   const { user, refreshUser } = useAuth();
@@ -170,7 +171,7 @@ export default function UserProfilePage() {
           <div className="relative group">
             <div className={`w-32 h-32 rounded-[40px] bg-slate-100 overflow-hidden border-4 border-white shadow-xl ring-1 ring-slate-100 flex items-center justify-center ${saving ? 'opacity-50' : ''}`}>
               {photo ? (
-                <img src={photo} className="w-full h-full object-cover transition-transform group-hover:scale-110" alt="Profile" />
+                <Image src={photo} width={128} height={128} className="w-full h-full object-cover transition-transform group-hover:scale-110" alt="Profile" />
               ) : (
                 <span className="text-3xl font-black text-slate-300 uppercase italic">
                   {firstName?.[0]}{lastName?.[0]}

@@ -17,6 +17,7 @@ import { FaStar } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { priceCalculation } from "@/actions/priceAction";
 import { pushToDataLayer } from "@/lib/gtm";
+import Swal from "sweetalert2";
 
 const SingleProductClient = ({ product, relatedProducts }) => {
   const { addToCart } = useCart();
@@ -75,7 +76,7 @@ const [isCouponLoading, setIsCouponLoading] = useState(false);
 
     if (!couponInput || appliedCoupon || isCouponLoading) return;
 
-    setIsCouponLoading(true); // লোডিং শুরু
+    setIsCouponLoading(true); 
 
     try {
       const res = await fetch(
@@ -85,9 +86,12 @@ const [isCouponLoading, setIsCouponLoading] = useState(false);
 
     
       if (!res.ok) {
-        alert(data.message || "Invalid Coupon code!");
-        setCouponInput(""); 
-        return;
+      Swal.fire({
+        icon: "error",
+        title: "Coupon Failed!",
+        text: data.message || "Invalid Coupon Code!",
+        confirmButtonColor: "#ef4444",
+      });
       }
 
       // ডিসকাউন্ট ক্যালকুলেশন
@@ -105,9 +109,14 @@ const [isCouponLoading, setIsCouponLoading] = useState(false);
 
     } catch (error) {
       console.error("Coupon Error:", error);
-      alert("সার্ভার এরর! দয়া করে আবার চেষ্টা করুন।");
+      Swal.fire({
+        icon: "error",
+        title: "Server Error!",
+        text: "দয়া করে আবার চেষ্টা করুন।",
+        confirmButtonColor: "#ef4444",
+      });
     } finally {
-      setIsCouponLoading(false); // লোডিং শেষ
+      setIsCouponLoading(false); 
     }
   };
 
@@ -115,11 +124,11 @@ const [isCouponLoading, setIsCouponLoading] = useState(false);
   const handleAddToCart = async () => {
     const finalUnitPrice = mainPrice - (discountAmount || 0);
 
-    // কার্ট কনটেক্সট যেন সঠিক প্রাইস পায় তার জন্য প্রোডাক্ট অবজেক্ট আপডেট
+    // কার্ট কনটেক্সট যেন 
     const productWithDiscount = {
       ...product,
       price: finalUnitPrice, 
-      discountPrice: 0 // কুপন অ্যাপ্লাইড প্রাইসটাই এখন মেইন প্রাইস
+      discountPrice: 0 
     };
 
     await addToCart(productWithDiscount, finalUnitPrice, parseInt(quantity), selectedVariant);

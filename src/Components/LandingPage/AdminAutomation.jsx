@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import Swal from "sweetalert2";
 import {
   FiSave,
@@ -288,9 +289,11 @@ export default function AdminAutomation() {
   {/* Step Image */}
   {step.image ? (
     <div className="relative">
-      <img
+      <Image
         src={step.image}
         alt="step"
+        width={500}
+        height={300}
         className="w-full rounded-xl border object-cover"
       />
       <button

@@ -9,7 +9,7 @@ export default function PaymentSuccess() {
   const { clearCart } = useCart(); 
 
   useEffect(() => {
-    // পেজ লোড হওয়ার সাথে সাথেই কার্ট খালি করে দিবে
+   
     clearCart();
   }, [clearCart]); 
 
@@ -43,7 +43,7 @@ export default function PaymentSuccess() {
           </Link>
           
           <a 
-            href="https://wa.me/8801979554344" 
+            href="https://wa.me/8801323019182" 
             target="_blank"
             className="flex items-center justify-center gap-2 w-full py-4 bg-green-500 hover:bg-green-600 text-black rounded-2xl transition font-bold"
           >

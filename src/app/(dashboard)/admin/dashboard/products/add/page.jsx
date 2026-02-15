@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Swal from "sweetalert2";
-import CouponManagement from "../../coupons/page";
+
 
 export default function AddProductPage() {
   const [loading, setLoading] = useState(false);

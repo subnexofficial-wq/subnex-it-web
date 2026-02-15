@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import {
   FiMail,
   FiPhone,
@@ -207,7 +208,13 @@ export default function AdminOrderDashboard() {
                   <div className="space-y-3">
                     {order.orderItems.map((item, idx) => (
                       <div key={idx} className="flex items-center gap-3">
-                        <img src={item.image} className="w-10 h-10 rounded-xl object-cover border-2 border-white shadow-sm" alt="" />
+                        <Image 
+        src={item.image || "/placeholder.png"} 
+        alt={item.title}
+        fill 
+        className="rounded-xl object-cover border-2 border-white shadow-sm"
+        sizes="40px"
+      />
                         <div className="flex-1 min-w-0">
                           <p className="text-[11px] font-bold text-slate-800 truncate uppercase tracking-tighter">{item.title}</p>
                           <p className="text-[10px] font-bold text-indigo-500 uppercase">{item.duration} <span className="text-slate-300 mx-1">|</span> Qty: {item.quantity} <span className="text-slate-300 mx-1">|</span> ৳{item.price}</p>

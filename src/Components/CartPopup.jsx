@@ -34,12 +34,14 @@ export default function CartPopup({ open, onClose }) {
             cart.map((product, index) => (
               <div key={index} className="flex gap-3 items-start border-b border-gray-300/50 pb-3 last:border-0">
                 <div className="relative w-16 h-16 overflow-hidden border border-gray-300 flex-shrink-0 bg-white rounded-md">
-                  <Image
-                    src={product.image}
-                    alt={product.title}
-                    fill
-                    className="object-contain"
-                  />
+                 <Image
+                  src={product.image}
+                  alt={product.title}
+                   width={64}
+                    height={64}
+                  className="object-contain"
+                  unoptimized
+                />
                 </div>
 
                 <div className="flex-1 min-w-0 text-left">
