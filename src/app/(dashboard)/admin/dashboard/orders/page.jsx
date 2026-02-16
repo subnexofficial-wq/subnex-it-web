@@ -195,19 +195,7 @@ export default function AdminOrderDashboard() {
                 </span>
               </div>
 
-              <div className="px-5 pt-3">
-                <span
-                  className={`px-3 py-1 rounded-full text-[10px] font-black tracking-wider uppercase ${
-                    paymentState === "paid"
-                      ? "bg-green-100 text-green-700"
-                      : paymentState === "submitted"
-                      ? "bg-blue-100 text-blue-700"
-                      : "bg-amber-100 text-amber-700"
-                  }`}
-                >
-                  Payment: {paymentState}
-                </span>
-              </div>
+             
 
               <div className="p-5 space-y-4 flex-grow">
                 {/* Customer Info */}
