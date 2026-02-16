@@ -234,14 +234,16 @@ const handleFinalCheckout = async () => {
               <motion.div
                 animate={{ y: [0, -8, 0] }}
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: i * 0.2 }}
-                className="w-32 h-32 md:w-48 md:h-48 rounded-[2rem] bg-[#0b121d] border flex items-center justify-center p-2 mb-6 shadow-[0_0_30px_rgba(34,211,238,0.05)] group-hover:border-cyan-400/50 transition-all duration-500"
+                className="relative overflow-hidden w-32 h-32 md:w-48 md:h-48 rounded-[2rem] bg-[#0b121d] border flex items-center justify-center p-2 mb-6 shadow-[0_0_30px_rgba(34,211,238,0.05)] group-hover:border-cyan-400/50 transition-all duration-500"
               >
                 {step.image ? (
                   <Image 
                     src={step.image} 
                     alt={step.title}
                     fill
-                    className="w-full h-full object-contain filter brightness-110 group-hover:scale-110 transition-transform duration-500" 
+                    sizes="(max-width: 768px) 128px, 192px"
+                    unoptimized
+                    className="object-contain filter brightness-110 group-hover:scale-110 transition-transform duration-500" 
                   />
                 ) : (
                   <Rocket className="text-cyan-400" size={40} />
