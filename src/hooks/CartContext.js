@@ -126,12 +126,22 @@ export const CartProvider = ({ children }) => {
     setCart((prevCart) => {
       const existingItem = prevCart.find((item) => item.uniqueId === uniqueId);
       if (existingItem) {
+        const newQty = existingItem.quantity + Number(quantity);
+        const perUnitDiscount = Number(existingItem.discountAmount || 0);
         return prevCart.map((item) =>
           item.uniqueId === uniqueId
-            ? { ...item, quantity: item.quantity + Number(quantity) }
+            ? {
+                ...item,
+                quantity: newQty,
+                totalDiscount: perUnitDiscount * newQty,
+              }
             : item
         );
       }
+
+      const perUnitDiscount = Number(product.discountAmount || 0);
+      const appliedCoupon = product.appliedCoupon || "none";
+
       return [
         ...prevCart,
         {
@@ -145,6 +155,10 @@ export const CartProvider = ({ children }) => {
           quantity: Number(quantity),
           category: product.category || "service",
           downloadLink: product.downloadLink || null,
+          originalPrice: Number(product.originalPrice || mainPrice),
+          appliedCoupon,
+          discountAmount: perUnitDiscount,
+          totalDiscount: perUnitDiscount * Number(quantity),
         },
       ];
     });

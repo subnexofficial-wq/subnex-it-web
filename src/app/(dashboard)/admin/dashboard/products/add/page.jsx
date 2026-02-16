@@ -280,34 +280,14 @@ export default function AddProductPage() {
               </div>
             </div>
 
-            {/* --- ৩. নতুন সিক্রেট কুপন সেকশন --- */}
-            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-4">
-              <h2 className="font-black text-gray-800 text-sm uppercase tracking-widest flex items-center gap-2">
-                <Percent size={14} className="text-orange-500" /> Secret Coupon
-              </h2>
-              <div>
-                <input 
-                  type="text" 
-                  placeholder="e.g. SPECIAL50" 
-                  className={inputStyle} 
-                  value={form.couponCode} 
-                  onChange={(e) => setForm({ ...form, couponCode: e.target.value.toUpperCase() })} 
-                />
-                <p className="text-[9px] text-gray-400 mt-2 font-medium leading-relaxed italic">* This code is for administrative reference.</p>
-              </div>
-            </div>
-
             {/* Category (আপনার আগের কোড) */}
             <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
               <label className={labelStyle}>Category *</label>
               <select required className={inputStyle} value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
                 <option value="">Select</option>
                 <option value="digital-product">Digital product</option>
-                <option value="service">Service</option>
                 <option value="subscription">Subscription</option>
-                <option value="course">Course</option>
                 <option value="automation">Automation</option>
-                <option value="custom-solution">Custom solution</option>
               </select>
             </div>
 

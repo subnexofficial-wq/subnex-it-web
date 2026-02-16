@@ -5,6 +5,13 @@ export async function POST(req) {
   try {
     const body = await req.json();
     const { amount, customerName, customerEmail, customerMobile, orderDetails, isAutomation } = body;
+    const originalPrice = Number(orderDetails?.originalPrice || amount || 0);
+    const finalAmount = Number(orderDetails?.finalPrice || amount || 0);
+    const discountAmount = Math.max(
+      0,
+      Number(orderDetails?.discountAmount ?? (originalPrice - finalAmount))
+    );
+    const couponCode = orderDetails?.coupon || "NONE";
 
     // ১. ডাটাবেস কানেকশন (সেফ লজিক)
     const dbRes = await getDB();
@@ -30,8 +37,16 @@ export async function POST(req) {
         email: customerEmail,
         phone: customerMobile,
       },
-      pricing: { totalAmount: Number(amount) },
+      orderDetails: orderDetails || null,
+      pricing: {
+        total: originalPrice,
+        subtotal: finalAmount,
+        discount: discountAmount,
+        couponCode,
+        totalAmount: Number(amount),
+      },
       items: orderDetails,
+      amount: Number(amount),
       status: "pending",
       paymentStatus: "unpaid",
       createdAt: new Date(),

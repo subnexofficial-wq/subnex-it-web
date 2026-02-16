@@ -57,7 +57,7 @@ export default function CartPopup({ open, onClose }) {
                   </div>
                   {/* PRICE FIX: সরাসরি price * quantity ব্যবহার করা হয়েছে */}
                   <p className="text-[14px] font-black text-red-600 mt-1">
-                    Tk {(product.price * product.quantity).toLocaleString()}.00
+                    Tk {(product.price * product.quantity).toLocaleString()}
                   </p>
                 </div>
               </div>

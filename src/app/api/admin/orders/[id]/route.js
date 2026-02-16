@@ -25,13 +25,23 @@ export async function PATCH(req, { params }) {
     );
 
     // ২. যদি 'completed' হয়, তবে মেইল পাঠানো
-    if (status === "completed" && order.customer?.email) {
-      const pricing = order.pricing || {};
-      const activeItems = order.items || order.orderItems || [];
-      const invoiceDate = new Date().toLocaleDateString('en-GB', {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-      });
-      const shortId = id.toString().slice(-6).toUpperCase();
+ if (status === "completed" && order.customer?.email) {
+  const pricing = order.pricing || {};
+  const activeItems = order.items || order.orderItems || [];
+  const shortId = id.toString().slice(-6).toUpperCase();
+  const invoiceDate = new Date().toLocaleDateString('en-GB', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  });
+    
+  const itemCouponCode = activeItems.find((item) => item.appliedCoupon && item.appliedCoupon !== "none")?.appliedCoupon;
+  const couponCode =
+    pricing.couponCode && pricing.couponCode !== "none"
+      ? pricing.couponCode
+      : itemCouponCode || null;
+  const discountVal = pricing.discount || 0;
+  const totalVal = pricing.total || ((pricing.subtotal || pricing.totalAmount || 0) + discountVal);
+  const subTotalVal = pricing.subtotal || Math.max(0, totalVal - discountVal);
+  const finalPayable = pricing.totalAmount || (subTotalVal + (pricing.shippingFee || 0) + (pricing.tip || 0));
 
       // ডিজিটাল ডাউনলোড লিঙ্ক
       let downloadLink = order.downloadLink || null;
@@ -43,14 +53,23 @@ export async function PATCH(req, { params }) {
       }
 
       // টেবিল রো জেনারেট
-      const itemRows = activeItems.map(item => `
+    const itemRows = activeItems.map(item => {
+      const qty = Number(item.quantity || 1);
+      const perUnitOriginal = Number(item.originalPrice || item.price || 0);
+      const perUnitDiscounted = Number(item.price || 0);
+      const lineOriginal = perUnitOriginal * qty;
+      const lineDiscount = Number(item.lineDiscount || Math.max(0, (perUnitOriginal - perUnitDiscounted) * qty));
+      const lineAmount = Math.max(0, lineOriginal - lineDiscount);
+
+      return `
         <tr>
-          <td style="padding: 14px; border-bottom: 1px solid #e5e7eb; color: #374151;">${item.title || "Digital Service"}</td>
-          <td style="padding: 14px; border-bottom: 1px solid #e5e7eb; text-align: center; color: #374151;">${item.quantity || 1}</td>
-          <td style="padding: 14px; border-bottom: 1px solid #e5e7eb; text-align: right; color: #374151;">BDT 0.00</td>
-          <td style="padding: 14px; border-bottom: 1px solid #e5e7eb; text-align: right; color: #374151; font-weight: bold;">BDT ${item.price || 0}.00</td>
+          <td style="padding: 14px; border-bottom: 1px solid #e5e7eb; color: #374151; font-size: 14px;">${item.title || "Digital Service"}</td>
+          <td style="padding: 14px; border-bottom: 1px solid #e5e7eb; text-align: center; color: #374151; font-size: 14px;">${qty}</td>
+          <td style="padding: 14px; border-bottom: 1px solid #e5e7eb; text-align: right; color: #10b981; font-weight: bold; font-size: 14px;">- ৳${lineDiscount.toLocaleString()}</td>
+          <td style="padding: 14px; border-bottom: 1px solid #e5e7eb; text-align: right; color: #111827; font-weight: bold; font-size: 14px;">৳${lineAmount.toLocaleString()}</td>
         </tr>
-      `).join("");
+      `;
+    }).join("");
 
       // ইমেইল টেমপ্লেট
       const emailHtml = `
@@ -114,10 +133,37 @@ export async function PATCH(req, { params }) {
           </div>
 
           <div class="summary">
-            <div><span>Sub Total</span><span>BDT ${pricing.subtotal || pricing.totalAmount}.00</span></div>
-            <div><span>Discount</span><span>BDT ${pricing.discount || 0}.00</span></div>
-            ${pricing.tip > 0 ? `<div><span>Tips</span><span>BDT ${pricing.tip}.00</span></div>` : ""}
-            <div class="total"><span>Total</span><span>BDT ${pricing.totalAmount}.00</span></div>
+            <div>
+               <span>Total (Before Coupon)</span>
+               <span>BDT ${Number(totalVal).toLocaleString()}.00</span>
+            </div>
+
+            <div>
+               <span>Subtotal (After Coupon)</span>
+               <span>BDT ${Number(subTotalVal).toLocaleString()}.00</span>
+            </div>
+            ${discountVal > 0 ? `
+            <div style="color: #10b981;">
+               <span>Discount ${couponCode ? `(${couponCode})` : ''}</span>
+               <span>- BDT ${Number(discountVal).toLocaleString()}.00</span>
+            </div>` : ""}
+
+            ${Number(pricing.shippingFee || 0) > 0 ? `
+            <div>
+               <span>Shipping</span>
+               <span>BDT ${Number(pricing.shippingFee).toLocaleString()}.00</span>
+            </div>` : ""}
+
+            ${Number(pricing.tip || 0) > 0 ? `
+            <div>
+               <span>Tips</span>
+               <span>BDT ${Number(pricing.tip).toLocaleString()}.00</span>
+            </div>` : ""}
+
+            <div class="total">
+               <span>Payable</span>
+               <span>BDT ${Number(finalPayable).toLocaleString()}.00</span>
+            </div>
           </div>
 
           ${downloadLink ? `
@@ -141,7 +187,33 @@ export async function PATCH(req, { params }) {
           subject: `Invoice #${shortId} - Subnex`,
           html: emailHtml
         });
-      } catch (err) { console.error("Email send fail:", err); }
+
+        await db.collection(targetCollection).updateOne(
+          { _id: new ObjectId(id) },
+          {
+            $set: {
+              invoiceSent: true,
+              invoiceSentAt: new Date(),
+              invoiceCouponCode: couponCode || "none",
+              invoiceDownloadable: false,
+              updatedAt: new Date(),
+            },
+          }
+        );
+      } catch (err) {
+        await db.collection(targetCollection).updateOne(
+          { _id: new ObjectId(id) },
+          {
+            $set: {
+              invoiceSent: false,
+              invoiceError: "send_failed",
+              invoiceDownloadable: false,
+              updatedAt: new Date(),
+            },
+          }
+        );
+        console.error("Email send fail:", err);
+      }
     }
 
     return NextResponse.json({ ok: true, message: `Status updated to ${status}` });

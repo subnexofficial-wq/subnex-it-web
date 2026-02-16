@@ -91,7 +91,9 @@ const handleFinalCheckout = async () => {
   }
 
   setIsProcessing(true);
+  const originalPrice = Number(selectedPlan.price) || 0;
   const finalAmount = calculateFinalPrice(selectedPlan.price, appliedCoupon);
+  const discountAmount = Math.max(0, originalPrice - finalAmount);
 
   // পে-লোড ভেরিয়েবলটি আগে তৈরি করে নিতে হবে
   const payload = {
@@ -103,7 +105,12 @@ const handleFinalCheckout = async () => {
     orderDetails: {
       planName: selectedPlan.name,
       category: activeTab,
-      coupon: appliedCoupon?.code || "NONE"
+      coupon: appliedCoupon?.code || "NONE",
+      originalPrice,
+      finalPrice: finalAmount,
+      discountAmount,
+      couponType: appliedCoupon?.type || null,
+      couponValue: appliedCoupon?.value || null,
     },
     isAutomation: true
   };

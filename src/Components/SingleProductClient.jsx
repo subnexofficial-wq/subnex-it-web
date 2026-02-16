@@ -75,12 +75,13 @@ const [isCouponLoading, setIsCouponLoading] = useState(false);
   const handleApplyCoupon = async () => {
 
     if (!couponInput || appliedCoupon || isCouponLoading) return;
+    const typedCouponCode = couponInput.toUpperCase().trim();
 
     setIsCouponLoading(true); 
 
     try {
       const res = await fetch(
-        `/api/coupons/validate?code=${couponInput.toUpperCase().trim()}&productId=${product._id}`
+        `/api/coupons/validate?code=${typedCouponCode}&productId=${product._id}`
       );
       const data = await res.json();
 
@@ -92,11 +93,12 @@ const [isCouponLoading, setIsCouponLoading] = useState(false);
         text: data.message || "Invalid Coupon Code!",
         confirmButtonColor: "#ef4444",
       });
+      return;
       }
 
       // ডিসকাউন্ট ক্যালকুলেশন
       let discount = 0;
-      if (data.type === "percentage") {
+      if (data.type === "percentage" || data.type === "percent") {
         discount = (mainPrice * data.value) / 100;
       } else {
         discount = data.value;
@@ -104,7 +106,7 @@ const [isCouponLoading, setIsCouponLoading] = useState(false);
 
       // স্টেট আপডেট
       setDiscountAmount(discount);
-      setAppliedCoupon(data);
+      setAppliedCoupon({ ...data, code: data.code || typedCouponCode });
  
 
     } catch (error) {
@@ -125,14 +127,17 @@ const [isCouponLoading, setIsCouponLoading] = useState(false);
     const finalUnitPrice = mainPrice - (discountAmount || 0);
 
     // কার্ট কনটেক্সট যেন 
-    const productWithDiscount = {
-      ...product,
-      price: finalUnitPrice, 
-      discountPrice: 0 
-    };
+const productWithDiscount = {
+    ...product,
+    price: finalUnitPrice, 
+    originalPrice: mainPrice, 
+    appliedCoupon: appliedCoupon?.code || "none",
+    discountAmount: discountAmount || 0,
+    totalDiscount: (discountAmount || 0) * quantity
+  };
 
-    await addToCart(productWithDiscount, finalUnitPrice, parseInt(quantity), selectedVariant);
-    setIsPopupOpen(true);
+   await addToCart(productWithDiscount, finalUnitPrice, parseInt(quantity), selectedVariant);
+  setIsPopupOpen(true);
     
     pushToDataLayer("AddToCart", {
       item_id: product._id,
@@ -144,45 +149,55 @@ const [isCouponLoading, setIsCouponLoading] = useState(false);
   };
 
   // Buy Now Logic (Price Fix)
-  const handleBuyNow = async () => {
-    try {
-      const baseTotalPrice = await priceCalculation(
-        product._id,
-        selectedVariant ? selectedVariant.duration : null,
-        quantity
-      );
+ const handleBuyNow = async () => {
+  try {
+    // ১. ক্যালকুলেশনগুলো ভেরিয়েবলে সেট করা (নিশ্চিত করা যেন সব Number হয়)
+    const baseTotalPrice = await priceCalculation(
+      product._id,
+      selectedVariant ? selectedVariant.duration : null,
+      quantity
+    );
 
-      const finalDiscountTotal = (discountAmount || 0) * quantity;
-      const finalTotalPrice = baseTotalPrice - finalDiscountTotal;
-      const finalUnitPrice = mainPrice - (discountAmount || 0);
+    const unitDiscount = Number(discountAmount) || 0;
+    const totalDiscount = unitDiscount * quantity;
+    const finalTotalPrice = baseTotalPrice - totalDiscount;
+    const finalUnitPrice = mainPrice - unitDiscount;
 
-      const buyNowData = {
-        productId: product._id,
-        title: product.title,
-        image: product.thumbnail,
-        price: finalUnitPrice,
-        quantity: parseInt(quantity),
-        duration: selectedVariant ? selectedVariant.duration : null,
-        totalPrice: finalTotalPrice,
-        category: product.category,
-        isBuyNow: true,
-        appliedCoupon: appliedCoupon?.code || "none",
-        discountAmount: discountAmount * quantity,
-      };
+    // ২. সুসংগঠিত অবজেক্ট তৈরি (ডুপ্লিকেট কী রিমুভ করা হয়েছে)
+    const buyNowData = {
+      productId: product._id,
+      title: product.title,
+      image: product.thumbnail,
+      price: finalUnitPrice, // ডিসকাউন্ট সহ ইউনিট প্রাইস
+      originalPrice: mainPrice,
+      quantity: parseInt(quantity),
+      duration: selectedVariant ? selectedVariant.duration : null,
+      totalPrice: finalTotalPrice, // ফাইনাল পে-অ্যাবল অ্যামাউন্ট
+      category: product.category,
+      isBuyNow: true,
+      appliedCoupon: appliedCoupon?.code || "none",
+      discountAmount: totalDiscount, 
+      subtotal: baseTotalPrice, 
+    };
 
-      pushToDataLayer("InitiateCheckout", {
-        item_id: product._id,
-        item_name: product.title,
-        value: finalTotalPrice,
-        currency: "BDT"
-      });
+    // ৩. ট্র্যাকিং ইভেন্ট
+    pushToDataLayer("InitiateCheckout", {
+      item_id: product._id,
+      item_name: product.title,
+      value: finalTotalPrice,
+      currency: "BDT",
+      coupon: appliedCoupon?.code || ""
+    });
 
-      sessionStorage.setItem("directCheckout", JSON.stringify(buyNowData));
-      router.push("/checkouts?buyNow=true");
-    } catch (error) {
-      console.error("Checkout Error:", error);
-    }
-  };
+   
+    sessionStorage.setItem("directCheckout", JSON.stringify(buyNowData));
+    router.push("/checkouts?buyNow=true");
+
+  } catch (error) {
+    console.error("Checkout Error:", error);
+ 
+  }
+};
 
   return (
     <div className="w-full min-h-screen bg-white pb-20 font-sans text-black">
@@ -212,7 +227,7 @@ const [isCouponLoading, setIsCouponLoading] = useState(false);
           {/* Pricing UI */}
           <div className="flex items-baseline gap-3 mb-4 flex-wrap">
             <span className="text-3xl font-black text-red-600">
-              Tk {Math.round((mainPrice - (discountAmount || 0)) * quantity)}.00
+              Tk {Math.round((mainPrice - (discountAmount || 0)) * quantity)}
             </span>
             {(oldPrice || discountAmount > 0) && (
               <span className="text-xl text-gray-400 line-through">
@@ -277,7 +292,6 @@ const [isCouponLoading, setIsCouponLoading] = useState(false);
             </button>
           </div>
 
-          {/* Coupon Section */}
           {/* Coupon Section */}
 <div className="mb-10 p-4 border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50 lg:w-2/3">
   <p className="text-xs font-black uppercase tracking-widest mb-2 text-gray-500">

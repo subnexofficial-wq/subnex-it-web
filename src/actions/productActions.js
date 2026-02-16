@@ -5,15 +5,20 @@ import { unstable_noStore as noStore } from 'next/cache';
 
 export async function getAllProducts() {
   noStore();
-  
-  const { db } = await getDB();
-  const data = await db
-    .collection("products")
-    .find({ active: true })
-    .sort({ createdAt: -1 })
-    .toArray();
-  
-  return data.map(p => ({ ...p, _id: p._id.toString() }));
+
+  try {
+    const { db } = await getDB();
+    const data = await db
+      .collection("products")
+      .find({ active: true })
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    return data.map((p) => ({ ...p, _id: p._id.toString() }));
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    return [];
+  }
 }
 
 export async function getProductById(id) {
