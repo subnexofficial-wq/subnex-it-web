@@ -2,6 +2,8 @@
 import { getAllProducts } from "@/actions/productActions";
 import ProductListClient from "@/Components/ProductListClient";
 
+export const dynamic = "force-dynamic";
+
 export default async function Page() {
   let products = [];
   try {

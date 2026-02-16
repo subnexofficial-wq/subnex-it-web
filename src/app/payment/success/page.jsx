@@ -1,13 +1,13 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { Suspense, useEffect } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2, MessageSquare, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useCart } from "@/hooks/CartContext"; 
 import { useSearchParams } from "next/navigation";
 
-export default function PaymentSuccess() {
-  const { clearCart } = useCart(); 
+function PaymentSuccessContent() {
+  const { clearCart } = useCart();
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -81,5 +81,21 @@ export default function PaymentSuccess() {
         </div>
       </motion.div>
     </div>
-  ); 
+  );
+}
+
+export default function PaymentSuccess() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#010409] text-white flex items-center justify-center px-6">
+          <div className="max-w-md w-full bg-[#0b121d] border border-white/10 p-10 rounded-[3rem] text-center shadow-2xl">
+            Loading payment status...
+          </div>
+        </div>
+      }
+    >
+      <PaymentSuccessContent />
+    </Suspense>
+  );
 }
