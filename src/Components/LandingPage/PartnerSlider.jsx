@@ -6,7 +6,7 @@ const PartnerSlider = ({ logos }) => {
     const duplicatedLogos = [...logos, ...logos];
 
     return (
-        <section className="py-20 bg-[#020617] overflow-hidden flex flex-col gap-12">
+        <section className="py-6 md:py-12 bg-[#020617] overflow-hidden flex flex-col gap-12">
             <div className="container mx-auto px-4 text-center">
                 <h2 className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 uppercase tracking-widest">
                     আমাদের পার্টনারসমূহ
@@ -25,7 +25,7 @@ const PartnerSlider = ({ logos }) => {
                         {duplicatedLogos.map((logo, index) => (
                             <motion.div
                                 key={`left-${index}`}
-                                className="mx-6 w-44 h-24 flex items-center justify-center  backdrop-blur-sm rounded-2xl p-4 cursor-pointer shadow-lg"
+                                className="mx-6 w-44 h-24 flex items-center justify-center  backdrop-blur-sm rounded-2xl p-2 cursor-pointer shadow-lg"
                                 // মাউস নিলে বড় হবে (scale: 1.15) এবং বর্ডার গ্লো করবে
                                 whileHover={{ 
                                     scale: 1.15, 
@@ -50,7 +50,7 @@ const PartnerSlider = ({ logos }) => {
                         {duplicatedLogos.map((logo, index) => (
                             <motion.div
                                 key={`right-${index}`}
-                                className="mx-6 w-44 h-24 flex items-center justify-center backdrop-blur-sm rounded-2xl p-4 cursor-pointer shadow-lg"
+                                className="mx-6 w-44 h-24 flex items-center justify-center backdrop-blur-sm rounded-2xl p-2 cursor-pointer shadow-lg"
                              
                                 whileHover={{ 
                                     scale: 1.15, 

@@ -20,10 +20,12 @@ const digitalProduct = orderItems.find(item => item.category === "digital-produc
       orderItems,
       downloadLink: digitalProduct?.downloadLink || null, 
       pricing: {
+        total: Number(pricing.total || (Number(pricing.subtotal || 0) + Number(pricing.discount || 0))),
         subtotal: Number(pricing.subtotal),
         shippingFee: Number(pricing.shippingFee),
         tip: Number(pricing.tip || 0),
         discount: Number(pricing.discount || 0),
+        couponCode: pricing.couponCode || "none",
         totalAmount: Number(pricing.totalAmount),
       },
       status: "pending",

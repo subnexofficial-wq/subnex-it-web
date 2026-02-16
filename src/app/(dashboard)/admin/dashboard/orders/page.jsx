@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import {
   FiMail,
   FiPhone,
@@ -45,7 +46,7 @@ export default function AdminOrderDashboard() {
     }
     if (searchTerm) {
       result = result.filter((order) =>
-        order.customer.phone?.toLowerCase().includes(searchTerm.toLowerCase())
+        order.customer?.phone?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
     if (searchDate) {
@@ -147,8 +148,21 @@ export default function AdminOrderDashboard() {
       {/* --- GRID --- */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
         {filteredOrders.map((order) => {
-          // Condition for Express Delivery
           const isExpress = order.pricing?.shippingFee === 100;
+          const paymentState = (order.paymentStatus || "unpaid").toLowerCase();
+          const isPaid = paymentState === "paid";
+          const itemCouponCode = (order.orderItems || [])
+            .map((item) => item.appliedCoupon)
+            .find((code) => code && code !== "none");
+          const visibleCouponCode =
+            order.pricing?.couponCode && order.pricing.couponCode !== "none"
+              ? order.pricing.couponCode
+              : itemCouponCode || null;
+          // Payment/invoice related fields
+          const invoiceSent = order.invoiceSent === true;
+          const invoiceDownloadable = order.invoiceDownloadable === true;
+          const currentTrxId =
+            order.transactionId || order.trxId || order.customer?.transactionId || "No ID";
 
           return (
             <div
@@ -158,7 +172,6 @@ export default function AdminOrderDashboard() {
                   ? "border-emerald-500 shadow-[0_10px_30px_-15px_rgba(16,185,129,0.3)] ring-4 ring-emerald-50" 
                   : "border-slate-100 shadow-sm hover:shadow-md"}`}
             >
-              {/* Express Badge */}
               {isExpress && (
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[9px] font-black uppercase px-4 py-1.5 rounded-b-2xl tracking-[0.2em] shadow-sm z-10 flex items-center gap-1">
                   <FiZap size={10} fill="white" /> Express
@@ -182,6 +195,20 @@ export default function AdminOrderDashboard() {
                 </span>
               </div>
 
+              <div className="px-5 pt-3">
+                <span
+                  className={`px-3 py-1 rounded-full text-[10px] font-black tracking-wider uppercase ${
+                    paymentState === "paid"
+                      ? "bg-green-100 text-green-700"
+                      : paymentState === "submitted"
+                      ? "bg-blue-100 text-blue-700"
+                      : "bg-amber-100 text-amber-700"
+                  }`}
+                >
+                  Payment: {paymentState}
+                </span>
+              </div>
+
               <div className="p-5 space-y-4 flex-grow">
                 {/* Customer Info */}
                 <div>
@@ -189,28 +216,41 @@ export default function AdminOrderDashboard() {
                     Customer Details
                   </label>
                   <h4 className="text-md font-bold text-slate-900 leading-tight">
-                    {order.customer.firstName} {order.customer.lastName}
+                    {order.customer?.firstName} {order.customer?.lastName}
                   </h4>
                   <div className="mt-2 space-y-1.5">
                     <div className="flex items-center gap-2 text-slate-600 text-[12px] font-medium">
-                      <FiMail className="text-slate-400" size={13} /> {order.customer.email}
+                      <FiMail className="text-slate-400" size={13} /> {order.customer?.email}
                     </div>
                     <div className="flex items-center gap-2 text-slate-600 text-[12px] font-medium">
-                      <FiPhone className="text-slate-400" size={13} /> {order.customer.phone || "N/A"}
+                      <FiPhone className="text-slate-400" size={13} /> {order.customer?.phone || "N/A"}
                     </div>
                   </div>
                 </div>
 
-                {/* Items Summary */}
+                {/* Items Summary - ইমেজ ফিক্স করা হয়েছে */}
                 <div className={`${isExpress ? "bg-emerald-50/30 border-emerald-100" : "bg-slate-50 border-slate-100"} p-3 rounded-2xl border`}>
                   <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2 block">Order Items</label>
                   <div className="space-y-3">
-                    {order.orderItems.map((item, idx) => (
+                    {(order.orderItems || []).map((item, idx) => (
                       <div key={idx} className="flex items-center gap-3">
-                        <img src={item.image} className="w-10 h-10 rounded-xl object-cover border-2 border-white shadow-sm" alt="" />
+                        <div className="relative w-12 h-12 flex-shrink-0">
+                          <Image 
+                            src={item.image || "https://placehold.co/100x100?text=No+Image"} 
+                            alt={item.title || "Product"}
+                            fill 
+                            unoptimized={true}
+                            className="rounded-xl object-cover border-2 border-white shadow-sm"
+                            sizes="48px"
+                          />
+                        </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-[11px] font-bold text-slate-800 truncate uppercase tracking-tighter">{item.title}</p>
-                          <p className="text-[10px] font-bold text-indigo-500 uppercase">{item.duration} <span className="text-slate-300 mx-1">|</span> Qty: {item.quantity} <span className="text-slate-300 mx-1">|</span> ৳{item.price}</p>
+                          <p className="text-[10px] font-bold text-indigo-500 uppercase">
+                            {item.duration} <span className="text-slate-300 mx-1">|</span> 
+                            Qty: {item.quantity} <span className="text-slate-300 mx-1">|</span> 
+                            ৳{item.price}
+                          </p>
                         </div>
                       </div>
                     ))}
@@ -221,59 +261,51 @@ export default function AdminOrderDashboard() {
                 <div>
                   <label className="text-[10px] font-black uppercase text-red-400 tracking-widest mb-1 block">Shipping Destination</label>
                   <p className="text-[11px] text-slate-600 font-bold leading-relaxed bg-orange-50/50 p-2 rounded-lg border border-orange-100/50">
-                    {order.customer.address}, <span className="text-blue-600">City: {order.customer.city}</span>, <span className="text-emerald-600">Zip: {order.customer.postal}</span>
+                    {order.customer?.address}, <span className="text-blue-600">City: {order.customer?.city}</span>, <span className="text-emerald-600">Zip: {order.customer?.postal}</span>
                   </p>
                 </div>
               </div>
 
-          {/* Payment Information (নতুন যোগ করা হয়েছে) */}
-<div className="bg-blue-50/50 border border-blue-100 p-3 rounded-2xl mb-2">
-  <label className="text-[10px] font-black uppercase text-blue-500 tracking-widest mb-1 block">Payment Proof</label>
-  <div className="flex justify-between items-center">
-    <div>
-      {/* <p className="text-[11px] font-bold text-slate-700">Sender: {order.customer?.sender || "N/A"}</p> */}
-      <p className="text-[9px] font-mono text-blue-600 uppercase">TrxID: {order.transactionId || "No ID"}</p>
-    </div>
-    {/* কুপন কোড এখানে দেখাবে */}
-    {order.pricing?.couponCode && order.pricing.couponCode !== "none" && (
-      <div className="text-right">
-        <span className="bg-indigo-600 text-white px-2 py-0.5 rounded text-[9px] font-black uppercase italic">
-          CODE: {order.pricing.couponCode}
-        </span>
-        <p className="text-[9px] font-bold text-red-500 mt-0.5">-৳{order.pricing.discount}</p>
-      </div>
-    )}
-  </div>
-</div>
-            {/* Footer / Pricing */}
-                    <div className={`p-5 border-t ${isExpress ? "bg-emerald-50/20 border-emerald-100" : "bg-slate-50/30 border-slate-100"}`}>
-                      <div className="mb-4">
-                        <div className="flex justify-between items-end">
-                          <div>
-                            <p className={`text-[9px] font-black uppercase tracking-widest ${isExpress ? "text-emerald-600" : "text-slate-400"}`}>
-                              Final Amount
-                            </p>
-                            <p className="text-2xl font-black text-slate-900 tracking-tighter">৳{order.pricing.totalAmount}</p>
-                          </div>
-                          <div className="text-right">
-                            {/* <p className="text-[9px] font-black uppercase text-slate-400 mb-1 tracking-widest">Payment Status</p>
-                            <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase border transition-all ${
-                              order.paymentStatus === "paid" 
-                                ? "bg-emerald-50 text-emerald-600 border-emerald-200 ring-4 ring-emerald-50/50" 
-                                : "bg-red-50 text-red-600 border-red-100"
-                            }`}>
-                              {order.paymentStatus === "paid" ? "✅ Paid" : "❌ Unpaid"}
-                            </span> */}
-                            
-                            {/* যদি পেমেন্ট হয়ে থাকে, তবে ট্রানজ্যাকশন আইডি দেখাবে */}
-                            {order.transactionId && (
-                              <p className="text-[8px] font-mono text-slate-400 mt-1.5 uppercase tracking-tighter">
-                                TXID: {order.transactionId}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </div>
+              {/* Payment Proof - ট্রানজ্যাকশন আইডি এখানে ঠিক করা হয়েছে */}
+              <div className="mx-5 mb-2 bg-blue-50/50 border border-blue-100 p-3 rounded-2xl">
+                <label className="text-[10px] font-black uppercase text-blue-500 tracking-widest mb-1 block">Payment Proof</label>
+                <div className="flex justify-between items-center">
+                  <div className="overflow-hidden">
+                    <p className="text-[10px] font-mono text-blue-600 uppercase break-all font-bold">
+                      TrxID: {currentTrxId}
+                    </p>
+                  </div>
+                  {visibleCouponCode && (
+                    <div className="text-right flex-shrink-0 ml-2">
+                      <span className="bg-indigo-600 text-white px-2 py-0.5 rounded text-[9px] font-black uppercase italic">
+                        CODE: {visibleCouponCode}
+                      </span>
+                      <p className="text-[9px] font-bold text-red-500 mt-0.5">-৳{Number(order.pricing?.discount || 0).toLocaleString()}</p>
+                    </div>
+                  )}
+                </div>
+                <div className="mt-2 flex gap-2 flex-wrap">
+                  <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded border ${invoiceSent ? "text-green-700 bg-green-50 border-green-100" : "text-gray-500 bg-gray-50 border-gray-200"}`}>
+                    Invoice: {invoiceSent ? "sent" : "not sent"}
+                  </span>
+                  <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded border ${invoiceDownloadable ? "text-blue-700 bg-blue-50 border-blue-100" : "text-gray-500 bg-gray-50 border-gray-200"}`}>
+                    Downloadable: {invoiceDownloadable ? "yes" : "no"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Footer / Pricing */}
+              <div className={`p-5 border-t ${isExpress ? "bg-emerald-50/20 border-emerald-100" : "bg-slate-50/30 border-slate-100"}`}>
+                <div className="mb-4">
+                  <div className="flex justify-between items-end">
+                    <div>
+                      <p className={`text-[9px] font-black uppercase tracking-widest ${isExpress ? "text-emerald-600" : "text-slate-400"}`}>
+                        Final Amount
+                      </p>
+                      <p className="text-2xl font-black text-slate-900 tracking-tighter">৳{order.pricing?.totalAmount}</p>
+                    </div>
+                  </div>
+                </div>
 
                 {/* Action Buttons */}
                 {order.status === "pending" && (
@@ -287,9 +319,7 @@ export default function AdminOrderDashboard() {
                     <button 
                       onClick={() => handleStatusUpdate(order._id, "completed")} 
                       className={`py-3 text-white rounded-2xl font-black uppercase text-[10px] flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-lg 
-                        ${isExpress 
-                          ? "bg-emerald-600 shadow-emerald-200 hover:bg-emerald-700" 
-                          : "bg-indigo-600 shadow-indigo-200 hover:bg-indigo-700"}`}
+                        ${isExpress ? "bg-emerald-600 shadow-emerald-200 hover:bg-emerald-700" : "bg-indigo-600 shadow-indigo-200 hover:bg-indigo-700"}`}
                     >
                       <FiCheck size={14} strokeWidth={3} /> Approve
                     </button>
@@ -310,3 +340,5 @@ export default function AdminOrderDashboard() {
     </div>
   );
 }
+
+

@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import Swal from "sweetalert2";
 import { FiTrash2, FiPlus, FiUploadCloud, FiLoader } from "react-icons/fi";
 
@@ -121,7 +122,7 @@ export default function SliderManager() {
         )}
         {sliders.map(s => (
           <div key={s._id} className="relative group overflow-hidden rounded-[2rem] border border-gray-100 shadow-md h-48">
-            <img src={s.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={s.alt} />
+            <Image src={s.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={s.alt} fill sizes="(max-width: 768px) 100vw, 50vw" />
             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <button 
                     onClick={() => deleteSlider(s._id)} 

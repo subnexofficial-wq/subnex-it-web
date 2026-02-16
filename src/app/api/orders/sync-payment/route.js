@@ -2,39 +2,22 @@ import { NextResponse } from "next/server";
 import getDB from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 
-async function verifyPayment({ invoiceId, transactionId, apiKey }) {
+async function verifyPayment({ invoiceId, transactionId }) {
   const payloads = [];
   if (invoiceId) payloads.push({ invoice_id: invoiceId });
   if (transactionId) payloads.push({ transaction_id: transactionId });
 
-  const urls = ["https://pay.subnexit.com/api/verify-payment"];
-  const envBase = process.env.UDDOKTAPAY_BASE_URL || "";
-  if (envBase) {
-    const normalized = envBase.replace(/\/+$/, "");
-    if (normalized.includes("/api/checkout")) {
-      urls.push(normalized.replace(/\/api\/checkout.*/, "/api/verify-payment"));
-    } else {
-      urls.push(`${normalized}/verify-payment`);
-    }
-  }
-
-  for (const url of urls) {
-    for (const body of payloads) {
-      try {
-        const res = await fetch(url, {
-          method: "POST",
-          headers: {
-            "RT-UDDOKTAPAY-API-KEY": apiKey,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(body),
-        });
-        const data = await res.json();
-        if (res.ok && data) return data;
-      } catch (err) {
-        // try next source
-      }
-    }
+  for (const body of payloads) {
+    const res = await fetch("https://pay.subnexit.com/api/verify-payment", {
+      method: "POST",
+      headers: {
+        "RT-UDDOKTAPAY-API-KEY": process.env.UDDOKTAPAY_API_KEY,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (res.ok && data) return data;
   }
 
   return null;
@@ -81,39 +64,25 @@ function extractPaymentState(verifyData) {
     verifyData?.result?.invoiceId
   );
 
-  return { isPaid, resolvedTrxId, resolvedInvoiceId };
+  return { rawStatus, isPaid, resolvedTrxId, resolvedInvoiceId };
 }
 
 export async function POST(req) {
   try {
-    const data = await req.json();
-    const { db } = await getDB();
-
-    const metadata = data?.metadata || {};
-    const orderId = metadata.orderId || metadata.order_id;
-    const invoiceId = pickFirst(data?.invoice_id, data?.invoiceId, metadata?.invoice_id);
-    const transactionId = pickFirst(
-      data?.transaction_id,
-      data?.transactionId,
-      data?.trx_id,
-      data?.txid,
-      metadata?.transaction_id
-    );
-    const collectionName = metadata.collection || "orders";
-
+    const { orderId, invoiceId, transactionId } = await req.json();
     if (!orderId) {
-      return NextResponse.json({ error: "Missing orderId in metadata" }, { status: 400 });
+      return NextResponse.json({ error: "orderId is required" }, { status: 400 });
     }
 
-    const verifyData = await verifyPayment({
-      invoiceId,
-      transactionId,
-      apiKey: process.env.UDDOKTAPAY_API_KEY,
-    });
+    const verifyData = await verifyPayment({ invoiceId, transactionId });
+    if (!verifyData) {
+      return NextResponse.json({ error: "Unable to verify payment" }, { status: 400 });
+    }
 
-    const { isPaid, resolvedTrxId, resolvedInvoiceId } = extractPaymentState(verifyData || {});
+    const { isPaid, resolvedTrxId, resolvedInvoiceId } = extractPaymentState(verifyData);
 
-    const result = await db.collection(collectionName).updateOne(
+    const { db } = await getDB();
+    await db.collection("orders").updateOne(
       { _id: new ObjectId(orderId) },
       {
         $set: {
@@ -121,16 +90,11 @@ export async function POST(req) {
           transactionId: resolvedTrxId || transactionId || null,
           gatewayInvoiceId: resolvedInvoiceId || invoiceId || null,
           paidAt: isPaid ? new Date() : null,
-          paymentWebhookPayload: data,
           paymentVerifyPayload: verifyData,
           updatedAt: new Date(),
         },
       }
     );
-
-    if (result.matchedCount === 0) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
-    }
 
     return NextResponse.json({
       ok: true,
@@ -139,7 +103,7 @@ export async function POST(req) {
       invoiceId: resolvedInvoiceId || invoiceId || null,
     });
   } catch (err) {
-    console.error("Webhook Error:", err);
+    console.error("Sync Payment Error:", err);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

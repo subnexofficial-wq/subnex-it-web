@@ -4,14 +4,43 @@ import { motion } from "framer-motion";
 import { CheckCircle2, MessageSquare, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useCart } from "@/hooks/CartContext"; 
+import { useSearchParams } from "next/navigation";
 
 export default function PaymentSuccess() {
   const { clearCart } = useCart(); 
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    // পেজ লোড হওয়ার সাথে সাথেই কার্ট খালি করে দিবে
     clearCart();
-  }, [clearCart]); 
+  }, [clearCart]);
+
+  useEffect(() => {
+    const syncPayment = async () => {
+      const orderId = searchParams.get("orderId");
+      const invoiceId =
+        searchParams.get("invoice_id") ||
+        searchParams.get("invoiceId") ||
+        searchParams.get("invoice");
+      const transactionId =
+        searchParams.get("transaction_id") ||
+        searchParams.get("transactionId") ||
+        searchParams.get("trx_id");
+
+      if (!orderId || (!invoiceId && !transactionId)) return;
+
+      try {
+        await fetch("/api/orders/sync-payment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderId, invoiceId, transactionId }),
+        });
+      } catch (err) {
+        console.error("Payment sync failed:", err);
+      }
+    };
+
+    syncPayment();
+  }, [searchParams]);
 
   return (
     <div className="min-h-screen bg-[#010409] text-white flex items-center justify-center px-6">
@@ -43,7 +72,7 @@ export default function PaymentSuccess() {
           </Link>
           
           <a 
-            href="https://wa.me/8801979554344" 
+            href="https://wa.me/8801323019182" 
             target="_blank"
             className="flex items-center justify-center gap-2 w-full py-4 bg-green-500 hover:bg-green-600 text-black rounded-2xl transition font-bold"
           >

@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import {
   FiFilter,
@@ -137,7 +138,7 @@ export default function OrdersPage() {
                   {o.orderItems?.map((item, idx) => (
                     <div key={idx} className="flex items-center gap-6 group/item">
                       <div className="w-20 h-20 bg-slate-50 rounded-[1.5rem] overflow-hidden border border-slate-100 flex-shrink-0 relative">
-                        <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-500" />
+                        <Image src={item.image} alt={item.title} fill className="object-cover group-hover/item:scale-110 transition-transform duration-500" />
                         <span className="absolute top-1 right-1 bg-slate-900 text-white text-[10px] font-black w-6 h-6 rounded-lg flex items-center justify-center shadow-lg">x{item.quantity}</span>
                       </div>
                       <div className="flex-1 min-w-0">

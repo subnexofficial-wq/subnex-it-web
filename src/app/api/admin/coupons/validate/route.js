@@ -38,6 +38,7 @@ export async function GET(req) {
     }
     return NextResponse.json({
       valid: true,
+      code: coupon.code,
       type: coupon.type, 
       value: Number(coupon.value), 
       message: "কুপন সফলভাবে অ্যাপ্লাই হয়েছে!"

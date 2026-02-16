@@ -45,22 +45,29 @@ const router = useRouter();
 
   /* ================= CALCULATIONS ================= */
   // ২. ক্যালকুলেশনগুলো useEffect-এর আগে রাখতে হবে
+  const total = useMemo(() => {
+    return checkoutItems.reduce(
+      (acc, item) => acc + (Number(item.originalPrice || item.price) * Number(item.quantity || 1)),
+      0
+    );
+  }, [checkoutItems]);
+
   const subtotal = useMemo(() => {
-  return checkoutItems.reduce(
-    (acc, item) => acc + (item.price * item.quantity),
-    0
-  );
-}, [checkoutItems]);
+    return checkoutItems.reduce(
+      (acc, item) => acc + (Number(item.price) * Number(item.quantity || 1)),
+      0
+    );
+  }, [checkoutItems]);
 
- const total = subtotal + shippingData.price + tipAmount;
-
+  const finalDiscount = Math.max(0, Number(total) - Number(subtotal));
+  const finalTotal = subtotal + Number(shippingData.price || 0) + Number(tipAmount || 0);
   /* ================= EFFECTS ================= */
-  // ৩. এখন এই useEffect টি 'total' এবং অন্যান্য ভ্যালু খুঁজে পাবে
+  // ৩. এখন এই useEffect 
   useEffect(() => {
     if (checkoutItems.length > 0) {
       pushToDataLayer("InitiateCheckout", {
         currency: "BDT",
-        value: total,
+        value: finalTotal,
         coupon: couponCode || "",
         items: checkoutItems.map((item) => ({
           item_id: item.productId || item._id,
@@ -70,7 +77,7 @@ const router = useRouter();
         })),
       });
     }
-  }, [checkoutItems.length, total, couponCode]);
+  }, [checkoutItems.length, finalTotal, couponCode]);
 
   useEffect(() => {
     if (isBuyNow) {
@@ -94,6 +101,9 @@ const router = useRouter();
     } else {
       if (cart.length > 0) {
         setCheckoutItems(cart);
+        const cartCoupon = cart.find((item) => item.appliedCoupon && item.appliedCoupon !== "none")?.appliedCoupon || "";
+        setDiscount(0);
+        setCouponCode(cartCoupon);
       } else {
         router.push("/products");
       }
@@ -107,13 +117,20 @@ const router = useRouter();
       return;
     }
 
-    const currentTotal = subtotal + shippingData.price + tipAmount - discount;
+    const currentTotal = finalTotal;
 
     const orderItemsForBackend = checkoutItems.map((item) => ({
       productId: item.productId || item._id,
       title: item.title,
+      image: item.image || item.thumbnail || null,
       price: Number(item.price),
+      originalPrice: Number(item.originalPrice || item.price),
       quantity: Number(item.quantity),
+      appliedCoupon: item.appliedCoupon || "none",
+      discountAmount: Number(item.discountAmount || 0),
+      lineDiscount:
+        Number(item.totalDiscount || 0) ||
+        Math.max(0, (Number(item.originalPrice || item.price) - Number(item.price)) * Number(item.quantity || 1)),
       category: item.category || "service",
       downloadLink: item.downloadLink || null,
     }));
@@ -123,12 +140,13 @@ const router = useRouter();
       userEmail: user?.email || "guest",
       customer: { ...contact, ...delivery },
       pricing: {
+        total,
         subtotal,
-        shippingFee: shippingData.price,
-        tip: tipAmount,
-        discount,
+        shippingFee: Number(shippingData.price || 0),
+        tip: Number(tipAmount || 0),
+        discount: finalDiscount, 
         couponCode: couponCode || "none",
-        totalAmount: currentTotal,
+        totalAmount: finalTotal,
       },
       status: "pending",
       paymentStatus: "unpaid",
@@ -209,7 +227,7 @@ const router = useRouter();
   disabled={checkoutItems.length === 0}
   className="w-full bg-black hover:bg-gray-800 disabled:bg-gray-400 text-white py-4 rounded-xl text-sm font-black uppercase tracking-widest shadow-2xl transition-all active:scale-95"
 >
-   Proceed to Payment • ৳{total.toLocaleString()}
+   Proceed to Payment • ৳{finalTotal.toLocaleString()}
 </button>
 
             <p className="text-[10px] text-center text-gray-400">

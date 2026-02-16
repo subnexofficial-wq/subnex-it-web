@@ -18,7 +18,7 @@ export default function AdminLayout({ children }) {
     { name: "Customers", href: "/admin/dashboard/users", icon: <FiUsers /> },
     { name: "Products", href: "/admin/dashboard/products", icon: <FiBox /> },
     { name: "Orders", href: "/admin/dashboard/orders", icon: <FiShoppingCart /> },
-    { name: "Transactions", href: "/admin/dashboard/transactions", icon: <FiCreditCard /> },
+    // { name: "Transactions", href: "/admin/dashboard/transactions", icon: <FiCreditCard /> },
     { name: "Pay Methods", href: "/admin/dashboard/payments-Methods", icon: <FiSettings /> },
     { name: " Add Sliders", href: "/admin/dashboard/sliders", icon: <FiSettings /> },
     { name: "Coupons", href: "/admin/dashboard/coupons", icon: <FiCode /> },

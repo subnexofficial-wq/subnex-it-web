@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { CheckCircle2, ArrowRight, Loader2, Cpu, Database, Send, CheckCircle, HelpCircle, Rocket } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -90,7 +91,9 @@ const handleFinalCheckout = async () => {
   }
 
   setIsProcessing(true);
+  const originalPrice = Number(selectedPlan.price) || 0;
   const finalAmount = calculateFinalPrice(selectedPlan.price, appliedCoupon);
+  const discountAmount = Math.max(0, originalPrice - finalAmount);
 
   // পে-লোড ভেরিয়েবলটি আগে তৈরি করে নিতে হবে
   const payload = {
@@ -102,7 +105,12 @@ const handleFinalCheckout = async () => {
     orderDetails: {
       planName: selectedPlan.name,
       category: activeTab,
-      coupon: appliedCoupon?.code || "NONE"
+      coupon: appliedCoupon?.code || "NONE",
+      originalPrice,
+      finalPrice: finalAmount,
+      discountAmount,
+      couponType: appliedCoupon?.type || null,
+      couponValue: appliedCoupon?.value || null,
     },
     isAutomation: true
   };
@@ -142,7 +150,7 @@ const handleFinalCheckout = async () => {
     <div className="min-h-screen bg-[#010409] text-white">
 
       {/* ================= HERO ================= */}
-      <section className="pt-28 pb-20 text-center px-4">
+      <section className="pt-5 md:pt-10 pb-4 md:pb-8 text-center px-4">
         <motion.h1
           key={activeTab}
           initial={{ opacity: 0, y: 20 }}
@@ -161,7 +169,7 @@ const handleFinalCheckout = async () => {
 <div className="sticky top-0 z-[999] bg-[#010409]/95 backdrop-blur border-y border-white/10">
   <div className="max-w-6xl mx-auto px-4 py-4">
  
-    <div className="grid grid-cols-6 md:flex md:justify-center gap-2 md:gap-3">
+    <div className="grid grid-cols-6 md:flex md:justify-center text-3xl gap-2 md:gap-3">
       {tabs.map((tab, index) => {
         const active = activeTab === tab.id;
         return (
@@ -174,7 +182,7 @@ const handleFinalCheckout = async () => {
               setAppliedCoupon(null);
             }}
             className={`
-              py-3 rounded-xl font-black text-[10px] md:text-xs uppercase transition-all border
+              py-5 rounded-xl font-black text-[10px] md:text-xs uppercase transition-all border
               ${active 
                 ? "bg-cyan-400 text-black shadow-[0_0_15px_rgba(34,211,238,0.4)] border-cyan-400" 
                 : "bg-white/5 text-gray-400 hover:text-white border-white/5"
@@ -195,7 +203,7 @@ const handleFinalCheckout = async () => {
 
       {/* ================= VIDEO ================= */}
       {current?.videoUrl && (
-        <section className="py-24 px-6">
+        <section className="py-6 md:py-12 px-6">
           <div className="max-w-5xl mx-auto">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -214,7 +222,7 @@ const handleFinalCheckout = async () => {
       )}
  {/* ================= WORKFLOW (UI AS PER SCREENSHOT) ================= */}
 {current?.workflow?.length > 0 && (
-  <section className="py-24 px-6">
+  <section className="py-4 md:py-12 px-6 md:px-12 ">
     <div className="max-w-6xl mx-auto">
       <h1 className="text-center text-4xl p-5">How it  works ?</h1>
       <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-0">
@@ -226,13 +234,16 @@ const handleFinalCheckout = async () => {
               <motion.div
                 animate={{ y: [0, -8, 0] }}
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: i * 0.2 }}
-                className="w-32 h-32 md:w-48 md:h-48 rounded-[2rem] bg-[#0b121d] border flex items-center justify-center p-2 mb-6 shadow-[0_0_30px_rgba(34,211,238,0.05)] group-hover:border-cyan-400/50 transition-all duration-500"
+                className="relative overflow-hidden w-32 h-32 md:w-48 md:h-48 rounded-[2rem] bg-[#0b121d] border flex items-center justify-center p-2 mb-6 shadow-[0_0_30px_rgba(34,211,238,0.05)] group-hover:border-cyan-400/50 transition-all duration-500"
               >
                 {step.image ? (
-                  <img 
+                  <Image 
                     src={step.image} 
-                    alt={step.title} 
-                    className="w-full h-full object-contain filter brightness-110 group-hover:scale-110 transition-transform duration-500" 
+                    alt={step.title}
+                    fill
+                    sizes="(max-width: 768px) 128px, 192px"
+                    unoptimized
+                    className="object-contain filter brightness-110 group-hover:scale-110 transition-transform duration-500" 
                   />
                 ) : (
                   <Rocket className="text-cyan-400" size={40} />
@@ -242,7 +253,7 @@ const handleFinalCheckout = async () => {
               {/* টেক্সট সেকশন */}
               <div className="text-center">
                 <h4 className="text-lg font-black text-white uppercase tracking-tight">{step.title}</h4>
-                <p className="text-xl text-gray-500 mt-1 font-medium ">{step.desc}</p>
+                <p className="text-sm text-gray-500 mt-1 font-medium ">{step.desc}</p>
               </div>
             </div>
 
@@ -264,7 +275,7 @@ const handleFinalCheckout = async () => {
 
  {/* ================= FEATURES ================= */}
       {current?.features?.length > 0 && (
-        <section className="py-24 px-6 bg-white/[0.02]">
+        <section className="py-5 md:py-12 px-3 md:px-6 bg-white/[0.02]">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-center text-4xl font-black italic mb-16 flex items-center justify-center gap-4">
               <Cpu className="text-cyan-400" /> Platform Features
@@ -287,7 +298,7 @@ const handleFinalCheckout = async () => {
         </section>
       )}
       {/* ==== PRICING SECTION ==== */}
-      <section className="py-28 px-6">
+      <section className="py-7 md:py-12 px-3 md:px-6">
         <div className="grid md:grid-cols-3 gap-10 max-w-6xl mx-auto">
           {current?.pricing?.map((plan, i) => {
             const isFeatured = i === 1; 
@@ -355,7 +366,7 @@ const handleFinalCheckout = async () => {
 
       {/* ========== CHECKOUT SECTION (FIXED) ============ */}
       {showCheckout && selectedPlan?.pricingType === "price" && (
-        <section className="py-24 px-6 border-t border-white/10">
+        <section className="py-6 md:py-12 px-3 md:px-6 border-t border-white/10">
           <div className="max-w-xl mx-auto bg-[#0b121d] border border-white/10 rounded-[2.5rem] p-8 md:p-12 shadow-2xl">
             <h3 className="text-2xl font-black mb-8 text-center italic uppercase tracking-widest">
               Checkout - <span className="text-cyan-400">{selectedPlan.name}</span>
@@ -428,7 +439,7 @@ const handleFinalCheckout = async () => {
 
       {/* ================= FAQ ================= */}
       {current?.faqs?.length > 0 && (
-        <section className="py-24 px-6">
+        <section className="py-6 md:py-12 px-3 md:px-6">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-center text-4xl font-black italic mb-16 flex items-center justify-center gap-4">
               <HelpCircle className="text-cyan-400" /> Frequently Asked
