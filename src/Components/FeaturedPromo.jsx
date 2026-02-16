@@ -69,7 +69,7 @@ export default function FeaturedPromo() {
                     src={promo.image}
                     alt={promo.title}
                     fill
-                    className=""
+              
                   />
                   <div className="absolute inset-0 bg-gradient-to-tr from-green-500/10 to-transparent pointer-events-none" />
                 </motion.div>

@@ -203,7 +203,7 @@ const handleFinalCheckout = async () => {
 
       {/* ================= VIDEO ================= */}
       {current?.videoUrl && (
-        <section className="py-24 px-6">
+        <section className="py-6 md:py-12 px-6">
           <div className="max-w-5xl mx-auto">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
