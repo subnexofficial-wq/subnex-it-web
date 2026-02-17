@@ -35,23 +35,12 @@ export default function sitemap() {
       priority: 0.5,
     },
     {
-      url: `${baseUrl}/cart`, 
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.4,
-    },
-    {
       url: `${baseUrl}/products`, 
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.6,
     },
-    {
-      url: `${baseUrl}/checkouts`, 
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
+   
 
   ];
 }

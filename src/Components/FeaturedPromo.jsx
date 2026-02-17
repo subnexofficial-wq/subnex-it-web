@@ -36,11 +36,11 @@ const promos = [
 
 export default function FeaturedPromo() {
   return (
-    <section className="w-full py-20 mt-20 bg-[#121212] border-t border-green-500/10 overflow-hidden">
+    <section className="w-full py-5 md:py-10 mt-20 bg-[#121212] border-t border-green-500/10 overflow-hidden">
       <div className="container mx-auto px-4 sm:px-7">
         <div className="flex flex-col gap-20">
           {" "}
-          {/* Gap বাড়িয়েছি সুন্দর দেখানোর জন্য */}
+          {/* Gap বাড়িয়েছি সুন্দর দেখানোর জন্য */}
           {promos.map((promo) => (
             <div
               key={promo.id}
@@ -49,31 +49,25 @@ export default function FeaturedPromo() {
               }`}
             >
               {/* ===== Image Section ===== */}
-              <motion.div
-                initial={{ opacity: 0, x: promo.reverse ? 40 : -40 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-                className="w-full md:w-1/2"
-              >
-                <motion.div
-                  whileHover={{
-                    scale: 1.02,
-                    rotateX: 2,
-                    rotateY: -2,
-                  }}
-                  transition={{ type: "spring", stiffness: 200, damping: 18 }}
-                  className="relative w-full h-[50vh] xl:h-[55vh]  rounded-xl overflow-hidden hover:shadow-[0_0_60px_rgba(34,197,94,0.2)]"
-                >
-                  <Image
-                    src={promo.image}
-                    alt={promo.title}
-                    fill
-              
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-tr from-green-500/10 to-transparent pointer-events-none" />
-                </motion.div>
-              </motion.div>
+             <motion.div
+  whileHover={{
+    scale: 1.02,
+    rotateX: 2,
+    rotateY: -2,
+  }}
+  transition={{ type: "spring", stiffness: 200, damping: 18 }}
+  className="py-3 md:py-5 relative w-full h-[300px] sm:h-[400px] md:h-[450px] lg:h-[500px] xl:h-[550px] rounded-xl overflow-hidden hover:shadow-[0_0_60px_rgba(34,197,94,0.2)]"
+>
+  <Image
+    src={promo.image}
+    alt={promo.title}
+    fill
+    sizes="(max-width: 768px) 100vw, 50vw"
+    className="object-cover"
+    priority={promo.id === 1}
+  />
+  <div className="absolute inset-0 bg-gradient-to-tr from-green-500/10 to-transparent pointer-events-none" />
+</motion.div>
 
               {/* ===== Text Section ===== */}
               <motion.div

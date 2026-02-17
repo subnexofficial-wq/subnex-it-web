@@ -166,10 +166,10 @@ const handleFinalCheckout = async () => {
 
    
     {/* STICKY TABS  */}
-<div className="sticky top-0 z-[999] bg-[#010409]/95 backdrop-blur border-y border-white/10">
-  <div className="max-w-6xl mx-auto px-4 py-4">
+<div className="sticky top-0 z-[1000] bg-[#010409]/95 backdrop-blur border-y border-white/10">
+  <div className="max-w-6xl mx-auto px-4 py-3 md:py-3 flex items-center justify-center">
  
-    <div className="grid grid-cols-6 md:flex md:justify-center text-3xl gap-2 md:gap-3">
+    <div className="grid grid-cols-6 md:flex md:justify-center text-4xl gap-2 md:gap-3">
       {tabs.map((tab, index) => {
         const active = activeTab === tab.id;
         return (
@@ -182,7 +182,7 @@ const handleFinalCheckout = async () => {
               setAppliedCoupon(null);
             }}
             className={`
-              py-5 rounded-xl font-black text-[10px] md:text-xs uppercase transition-all border
+              py-4 md:py-8 rounded-xl font-black text-[10px] md:text-[15px] uppercase transition-all border
               ${active 
                 ? "bg-cyan-400 text-black shadow-[0_0_15px_rgba(34,211,238,0.4)] border-cyan-400" 
                 : "bg-white/5 text-gray-400 hover:text-white border-white/5"
@@ -275,12 +275,12 @@ const handleFinalCheckout = async () => {
 
  {/* ================= FEATURES ================= */}
       {current?.features?.length > 0 && (
-        <section className="py-5 md:py-12 px-3 md:px-6 bg-white/[0.02]">
+        <section className="  py-5 md:py-12 px-3 md:px-6 bg-white/[0.02]">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-center text-4xl font-black italic mb-16 flex items-center justify-center gap-4">
               <Cpu className="text-cyan-400" /> Platform Features
             </h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {current.features.map((item, i) => (
                 <div key={i} className="p-8 rounded-3xl bg-[#0b121d] border border-white/5 hover:border-cyan-400/50 transition">
                   <div className="text-cyan-400 mb-4">

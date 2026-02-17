@@ -21,17 +21,17 @@ export default function Footer() {
           {/* Brand Info */}
           <div>
             <Link href="/" className="group flex items-center gap-0.5">
-              {/* Logo Image */}
-              <div className="relative w-36 h-10 transition-transform duration-300 ease-in-out group-hover:rotate-12">
-                <Image
-                  src="/logo2.png"
-                  alt="S Logo"
-                  fill
-                  className=""
-                  priority
-                />
-              </div>
-            </Link>
+ 
+    <div className="relative w-30 h-10 md:w-30 md:h-16 transition-all duration-300 ease-in-out group-hover:scale-115 active:scale-95">
+      <Image
+        src="/logo2.png"
+        alt="Logo"
+        fill
+        className="object-contain"
+        priority
+      />
+    </div>
+  </Link>
             <p className="text-sm leading-relaxed mb-6">
               Subnex is an independent digital service platform in Bangladesh,
               offering easy access to popular subscriptions using local payment
@@ -47,9 +47,9 @@ export default function Footer() {
               >
                 <FaFacebookF />
               </a>
-              <a href="/" target="blank" className="hover:text-white">
+              <Link href="/" className="hover:text-white">
                 <FaInstagram />
-              </a>
+              </Link>
               <a
                 href="https://www.youtube.com/@subnexit"
                 target="_blank"
@@ -57,12 +57,12 @@ export default function Footer() {
               >
                 <FaYoutube />
               </a>
-              <a href="/" target="blank" className="hover:text-white">
+              <Link href="/" className="hover:text-white">
                 <FaTiktok />
-              </a>
-              <a href="/" target="blank" className="hover:text-white">
+              </Link>
+              <Link href="/" className="hover:text-white">
                 <FaXTwitter />
-              </a>
+              </Link>
             </div>
           </div>
 

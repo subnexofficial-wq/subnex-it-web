@@ -1,5 +1,6 @@
 "use client";
 import React from 'react';
+import Image from 'next/image';
 import { motion } from "framer-motion";
 
 const PartnerSlider = ({ logos }) => {
@@ -34,7 +35,8 @@ const PartnerSlider = ({ logos }) => {
                                     transition: { duration: 0.3 } 
                                 }}
                             >
-                                <img src={logo} alt="Partner" className="max-w-full max-h-full object-contain" />
+                                 <Image src={logo} alt="Partner" width={176} height={96} className="max-w-full max-h-full object-contain" />
+                           
                             </motion.div>
                         ))}
                     </motion.div>
@@ -59,7 +61,7 @@ const PartnerSlider = ({ logos }) => {
                                     transition: { duration: 0.3 }
                                 }}
                             >
-                                <img src={logo} alt="Partner" className="max-w-full max-h-full object-contain" />
+                                <Image src={logo} alt="Partner" width={176} height={96} className="max-w-full max-h-full object-contain" />
                             </motion.div>
                         ))}
                     </motion.div>
