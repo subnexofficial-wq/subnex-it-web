@@ -372,7 +372,7 @@ const productWithDiscount = {
         </div>
       </div>
       <DynamicProductSection products={relatedProducts} sectionTitle="Related Products" />
-      <ReviewSection productId={product._id} />
+      {/* <ReviewSection productId={product._id} /> */}
     </div>
   );
 };

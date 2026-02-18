@@ -287,7 +287,7 @@ export default function AdminAutomation() {
   />
 
   {/* Step Image */}
-  {step.image ? (
+  {/* {step.image ? (
     <div className="relative">
       <Image
         src={step.image}
@@ -318,7 +318,7 @@ export default function AdminAutomation() {
         onChange={(e) => handleWorkflowImageUpload(e, i)}
       />
     </label>
-  )}
+  )} */}
 </div>
             ))}
           </div>

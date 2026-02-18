@@ -4,7 +4,35 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { CheckCircle2, ArrowRight, Loader2, Cpu, Database, Send, CheckCircle, HelpCircle, Rocket } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 
+const defaultWorkflowImages = {
+  combo:[
+   "/workflow/default.png",
+   "/workflow/default.png",
+   "/workflow/default.png",
+  ],
+  message: [
+    "/workflow/msg1.png",
+  "/workflow/msg2.png",
+     "/workflow/msg3.png",
+  ],
+  comment: [
+    "/workflow/cmnt1.png",
+    "/workflow/cmnt2.png",
+    "/workflow/cmnt3.png",
+  ],
+  image: [
+    "/workflow/img1.png",
+    "/workflow/img2.png",
+    "/workflow/img3.png",
+  ],
+  reel: [
+    "/workflow/reel1.png",
+    "/workflow/reel2.png",
+    "/workflow/reel3.png",
+  ],
+};
 /* ================= TABS ================= */
 const tabs = [
   { id: "combo", label: "কম্বো প্ল্যান" },
@@ -86,7 +114,11 @@ export default function LandingAutomation() {
   /* ================= CHECKOUT HANDLER (FIXED) ================= */
 const handleFinalCheckout = async () => {
   if (!customer.name || !customer.whatsapp || !customer.email) {
-    alert("দয়া করে সব তথ্য পূরণ করুন!");
+    Swal.fire({
+      title: "দয়া করে সব তথ্য পূরণ করুন!",
+      icon: "warning",
+      confirmButtonText: "ঠিক আছে",
+    });
     return;
   }
 
@@ -128,12 +160,22 @@ const handleFinalCheckout = async () => {
     if (data.payment_url) {
       window.location.href = data.payment_url;
     } else {
-      alert(data.error || "পেমেন্ট লিঙ্ক তৈরি করা যায়নি।");
+      Swal.fire({
+        title: "পেমেন্ট লিঙ্ক তৈরি করা যায়নি!",
+        text: data.error || "অপ্রত্যাশিত ত্রুটি।",
+        icon: "error",
+        confirmButtonText: "ঠিক আছে"
+      });
       setIsProcessing(false);
     }
   } catch (error) {
     console.error("Checkout Error:", error);
-    alert("সার্ভার এরর! সম্ভবত API কানেকশনে সমস্যা হচ্ছে।");
+    Swal.fire({
+      title: "সার্ভার এরর!",
+      text: "সম্ভবত API কানেকশনে সমস্যা হচ্ছে।",
+      icon: "error",
+      confirmButtonText: "ঠিক আছে"
+    });
     setIsProcessing(false);
   }
 };
@@ -166,10 +208,10 @@ const handleFinalCheckout = async () => {
 
    
     {/* STICKY TABS  */}
-<div className="sticky top-0 z-[999] bg-[#010409]/95 backdrop-blur border-y border-white/10">
-  <div className="max-w-6xl mx-auto px-4 py-4">
+<div className="sticky top-0 z-[1000] bg-[#010409]/95 backdrop-blur border-y border-white/10">
+  <div className="max-w-6xl mx-auto px-4 py-3 md:py-3 flex items-center justify-center">
  
-    <div className="grid grid-cols-6 md:flex md:justify-center text-3xl gap-2 md:gap-3">
+    <div className="grid grid-cols-6 md:flex md:justify-center text-4xl gap-2 md:gap-3">
       {tabs.map((tab, index) => {
         const active = activeTab === tab.id;
         return (
@@ -182,7 +224,7 @@ const handleFinalCheckout = async () => {
               setAppliedCoupon(null);
             }}
             className={`
-              py-5 rounded-xl font-black text-[10px] md:text-xs uppercase transition-all border
+              py-4 md:py-8  rounded-xl font-black text-[10px] md:text-[15px] uppercase transition-all border
               ${active 
                 ? "bg-cyan-400 text-black shadow-[0_0_15px_rgba(34,211,238,0.4)] border-cyan-400" 
                 : "bg-white/5 text-gray-400 hover:text-white border-white/5"
@@ -190,7 +232,7 @@ const handleFinalCheckout = async () => {
             
               ${index < 3 ? "col-span-2" : "col-span-3"}
              
-              md:px-6 md:col-auto
+              px-3  md:px-6 md:col-auto
             `}
           >
             {tab.label}
@@ -203,7 +245,7 @@ const handleFinalCheckout = async () => {
 
       {/* ================= VIDEO ================= */}
       {current?.videoUrl && (
-        <section className="py-6 md:py-12 px-6">
+        <section className="py-6 md:py-18 px-6">
           <div className="max-w-5xl mx-auto">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -222,7 +264,7 @@ const handleFinalCheckout = async () => {
       )}
  {/* ================= WORKFLOW (UI AS PER SCREENSHOT) ================= */}
 {current?.workflow?.length > 0 && (
-  <section className="py-4 md:py-12 px-6 md:px-12 ">
+  <section className="py-4 md:py-12 px-6 md:px-18 ">
     <div className="max-w-6xl mx-auto">
       <h1 className="text-center text-4xl p-5">How it  works ?</h1>
       <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-0">
@@ -236,19 +278,16 @@ const handleFinalCheckout = async () => {
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: i * 0.2 }}
                 className="relative overflow-hidden w-32 h-32 md:w-48 md:h-48 rounded-[2rem] bg-[#0b121d] border flex items-center justify-center p-2 mb-6 shadow-[0_0_30px_rgba(34,211,238,0.05)] group-hover:border-cyan-400/50 transition-all duration-500"
               >
-                {step.image ? (
-                  <Image 
-                    src={step.image} 
-                    alt={step.title}
-                    fill
-                    sizes="(max-width: 768px) 128px, 192px"
-                    unoptimized
-                    className="object-contain filter brightness-110 group-hover:scale-110 transition-transform duration-500" 
-                  />
-                ) : (
-                  <Rocket className="text-cyan-400" size={40} />
-                )}
-              </motion.div>
+              <Image
+                src={
+                  defaultWorkflowImages[activeTab]?.[i] || "/workflow/default.png"
+                }
+                alt={step.title}
+                fill
+                sizes="(max-width: 768px) 128px, 192px"
+                className="object-contain filter brightness-110 group-hover:scale-110 transition-transform duration-500"
+              />
+                            </motion.div>
 
               {/* টেক্সট সেকশন */}
               <div className="text-center">
@@ -275,12 +314,12 @@ const handleFinalCheckout = async () => {
 
  {/* ================= FEATURES ================= */}
       {current?.features?.length > 0 && (
-        <section className="py-5 md:py-12 px-3 md:px-6 bg-white/[0.02]">
+        <section className="  py-5 md:py-12 px-3 md:px-6 bg-white/[0.02]">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-center text-4xl font-black italic mb-16 flex items-center justify-center gap-4">
               <Cpu className="text-cyan-400" /> Platform Features
             </h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {current.features.map((item, i) => (
                 <div key={i} className="p-8 rounded-3xl bg-[#0b121d] border border-white/5 hover:border-cyan-400/50 transition">
                   <div className="text-cyan-400 mb-4">
@@ -434,8 +473,6 @@ const handleFinalCheckout = async () => {
           </div>
         </section>
       )}
-
-     
 
       {/* ================= FAQ ================= */}
       {current?.faqs?.length > 0 && (
