@@ -63,10 +63,7 @@ export default function AutomationOrders() {
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-2xl font-black uppercase tracking-tight text-gray-800">Automation Orders</h1>
-            <p className="text-xs text-gray-400 font-bold tracking-widest uppercase">Admin Control Panel</p>
-          </div>
+      
           <span className="bg-black text-white px-4 py-1 rounded-full text-xs font-bold">Total: {orders.length}</span>
         </div>
 
@@ -102,9 +99,9 @@ export default function AutomationOrders() {
                     return (
                       <tr key={order._id} className="hover:bg-gray-50/50 transition-colors">
                         <td className="px-6 py-5">
-                          <p className="font-bold text-gray-900 text-sm leading-none mb-1">{order.customerName || order.customer?.firstName || "Unknown"}</p>
+                          <p className="font-bold text-gray-900 text-[20px] leading-none mb-1">{order.customerName || order.customer?.firstName || "Unknown"}</p>
                           <p className="text-xs text-gray-500 font-medium mb-1">{order.customerMobile || order.customer?.phone}</p>
-                          <p className="text-[10px] text-blue-500 font-black uppercase">{order.customerEmail || order.customer?.email}</p>
+                          <p className="text-[12px]  font-black ">{order.customerEmail || order.customer?.email}</p>
                         </td>
 
                         <td className="px-6 py-5">

@@ -119,9 +119,11 @@ export default function Footer() {
                 placeholder="Email"
                 className="bg-transparent px-4 py-3 text-sm w-full outline-none"
               />
+              <Link href="/register" className="transition-colors duration-300">
               <button className="px-4 text-white hover:text-indigo-400">
                 <FiArrowRight size={18} />
               </button>
+              </Link>
             </div>
           </div>
         </div>
