@@ -8,9 +8,9 @@ import Swal from "sweetalert2";
 
 const defaultWorkflowImages = {
   combo:[
-   "/workflow/default.png",
-   "/workflow/default.png",
-   "/workflow/default.png",
+   "/workflow/13.png",
+   "/workflow/cmnt2.png",
+   "/workflow/14.png",
   ],
   message: [
     "/workflow/msg1.png",
@@ -208,10 +208,10 @@ const handleFinalCheckout = async () => {
 
    
     {/* STICKY TABS  */}
-<div className="sticky top-0 z-[1000] bg-[#010409]/95 backdrop-blur border-y border-white/10">
-  <div className="max-w-6xl mx-auto px-4 py-3 md:py-3 flex items-center justify-center">
+<div className="sticky  top-0 z-[1000] bg-[#010409]/95 backdrop-blur border-y border-white/10">
+  <div className="max-w-6xl mx-auto px-3 py-2   flex items-center justify-center">
  
-    <div className="grid grid-cols-6 md:flex md:justify-center text-4xl gap-2 md:gap-3">
+    <div className="grid grid-cols-6  md:flex md:justify-center text-4xl gap-2 md:gap-3">
       {tabs.map((tab, index) => {
         const active = activeTab === tab.id;
         return (
@@ -224,7 +224,7 @@ const handleFinalCheckout = async () => {
               setAppliedCoupon(null);
             }}
             className={`
-              py-4 md:py-8  rounded-xl font-black text-[10px] md:text-[15px] uppercase transition-all border
+              py-4 md:py-8 px-3 md:px-8 mx-2 rounded-xl font-black text-[10px] md:text-[15px] uppercase transition-all border
               ${active 
                 ? "bg-cyan-400 text-black shadow-[0_0_15px_rgba(34,211,238,0.4)] border-cyan-400" 
                 : "bg-white/5 text-gray-400 hover:text-white border-white/5"
@@ -266,13 +266,12 @@ const handleFinalCheckout = async () => {
 {current?.workflow?.length > 0 && (
   <section className="py-4 md:py-12 px-6 md:px-18 ">
     <div className="max-w-6xl mx-auto">
-      <h1 className="text-center text-4xl p-5">How it  works ?</h1>
       <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-0">
         {current.workflow.map((step, i) => (
           <React.Fragment key={i}>
             {/* আইকন কার্ড */}
             <div className="flex flex-col items-center group">
-              {/* আইকন বক্স উইথ অ্যানিমেশন */}
+           
               <motion.div
                 animate={{ y: [0, -8, 0] }}
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: i * 0.2 }}
@@ -321,7 +320,9 @@ const handleFinalCheckout = async () => {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {current.features.map((item, i) => (
-                <div key={i} className="p-8 rounded-3xl bg-[#0b121d] border border-white/5 hover:border-cyan-400/50 transition">
+                <div key={i}
+                  
+                 className="p-8 rounded-3xl bg-[#0b121d] border border-white/5 hover:border-cyan-400/50 transition">
                   <div className="text-cyan-400 mb-4">
                     {item.icon === "sheet" && <Database size={32} />}
                     {item.icon === "telegram" && <Send size={32} />}
@@ -358,7 +359,7 @@ const handleFinalCheckout = async () => {
                   <h3 className="text-2xl font-black italic mb-2">{plan.name}</h3>
 
                   {plan.pricingType === "price" ? (
-                    <div className="text-5xl font-black mb-8">৳{plan.price}</div>
+                    <div className="text-5xl font-black mb-8">৳{plan.price}<span>/mon</span></div>
                   ) : (
                     <div className="text-3xl font-black mb-8 text-green-400">Contact Us</div>
                   )}
@@ -374,7 +375,16 @@ const handleFinalCheckout = async () => {
 
                   {plan.pricingType === "contact" ? (
                     <button
-                      onClick={() => window.open(`https://wa.me/${plan.whatsapp}?text=I am interested in ${plan.name}`, "_blank")}
+                      onClick={() =>{
+    const currentTabLabel = tabs.find(t => t.id === activeTab)?.label || activeTab;
+
+    const message = `আমি আপনাদের ${currentTabLabel} টির জন্য custom প্ল্যান সম্পর্কে জানতে আগ্রহী। দয়া করে আমাকে বিস্তারিত তথ্য এবং মূল্য সম্পর্কে জানান। ধন্যবাদ!`;
+
+    window.open(
+      `https://wa.me/${plan.whatsapp}?text=${encodeURIComponent(message)}`,
+      "_blank"
+    );
+  }}
                       className="w-full py-5 rounded-2xl bg-green-500 text-black font-black uppercase text-xs hover:bg-green-400 transition"
                     >
                       Contact on WhatsApp
