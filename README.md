@@ -216,7 +216,7 @@ NEXT_PUBLIC_IMGBB_API_KEY=
 
 UDDOKTAPAY_API_KEY=
 UDDOKTAPAY_BASE_URL=https://pay.subnexit.com/api/checkout-v2
-NEXT_PUBLIC_BASE_URL=http://localhost:3000
+NEXT_PUBLIC_BASE_URL=https://subnexit.com/
 ```
 
 ### Variable Notes
@@ -249,7 +249,7 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Open `https://subnexit.com/`.
 
 ### Build & Start Production Mode
 
