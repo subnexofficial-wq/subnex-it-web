@@ -72,6 +72,15 @@ export default function LandingAutomation() {
       .catch(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    if (loading) return;
+    if (window.location.hash !== "#workflow") return;
+    const workflowSection = document.getElementById("workflow");
+    if (workflowSection) {
+      workflowSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [loading, activeTab]);
+
   const current = dbData?.[activeTab];
 
   /* ================= COUPON LOGIC ================= */
@@ -264,7 +273,7 @@ const handleFinalCheckout = async () => {
       )}
  {/* ================= WORKFLOW (UI AS PER SCREENSHOT) ================= */}
 {current?.workflow?.length > 0 && (
-  <section className="py-4 md:py-24 px-6 md:px-18 ">
+  <section id="workflow" className="py-4 md:py-24 px-6 md:px-18 ">
     <div className="max-w-6xl mx-auto">
       <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-0">
         {current.workflow.map((step, i) => (

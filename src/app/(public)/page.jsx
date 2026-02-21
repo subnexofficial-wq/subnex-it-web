@@ -6,6 +6,18 @@ import FAQSection from "@/Components/FAQSection";
 import HeroSlider from "@/Components/HeroSlider";
 import { getAllProducts } from "@/actions/productActions";
 import { FaWhatsapp } from "react-icons/fa";
+import { getSiteUrl } from "@/lib/site-url";
+
+const baseUrl = getSiteUrl();
+
+export const metadata = {
+  title: "Subnex | Main Page",
+  description:
+    "Subnex main page for digital products, subscriptions, automation services, and customer support.",
+  alternates: {
+    canonical: `${baseUrl}/`,
+  },
+};
 
 
 export default async function Home() {

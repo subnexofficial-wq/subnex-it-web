@@ -1,11 +1,16 @@
 import { Mail, MessageCircle, Clock, ShieldCheck, PhoneCall } from "lucide-react";
 import { LiaFacebookMessenger } from "react-icons/lia";
+import { getSiteUrl } from "@/lib/site-url";
 
+const baseUrl = getSiteUrl();
 
 export const metadata = {
-  title: "Contact Information | Subnex",
+  title: "Contact Us | Subnex",
   description:
     "Official contact information of Subnex. Reach us for support, queries, or service-related assistance.",
+  alternates: {
+    canonical: `${baseUrl}/contact`,
+  },
 };
 
 export default function ContactInformationPage() {

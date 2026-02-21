@@ -53,6 +53,8 @@ if (updateResult.modifiedCount === 0) {
   const totalVal = pricing.total || ((pricing.subtotal || pricing.totalAmount || 0) + discountVal);
   const subTotalVal = pricing.subtotal || Math.max(0, totalVal - discountVal);
   const finalPayable = pricing.totalAmount || (subTotalVal + (pricing.shippingFee || 0) + (pricing.tip || 0));
+  const transactionId = order.transactionId || order.gatewayTransactionId || order.trxId || order.customer?.transactionId || null;
+  const paymentRef = transactionId || order.gatewayInvoiceId || order.invoiceId || "PENDING";
 
       // ডিজিটাল ডাউনলোড লিঙ্ক
       // let downloadLink = order.downloadLink || null;
@@ -63,18 +65,25 @@ if (updateResult.modifiedCount === 0) {
       //   } catch (e) { console.log("Product fetch failed"); }
       // }
 let downloadLinks = [];
-if (order.downloadLink) {
-  downloadLinks.push({
-    title: "Main Download",
-    link: order.downloadLink,
-  });
-}
+const normalizeDownloadLink = (value) => {
+  if (!value || typeof value !== "string") return null;
+  const link = value.trim();
+  if (!link) return null;
+
+  const isAutomationLink = /(^|\/\/[^/]+)?\/automation([/?#]|$)/i.test(link);
+  if (isAutomationLink && !link.includes("#")) {
+    return `${link}#workflow`;
+  }
+
+  return link;
+};
   for (const item of activeItems) {
     try {
-      if (item.downloadLink) {
+      const normalizedLink = normalizeDownloadLink(item.downloadLink);
+      if (normalizedLink) {
         downloadLinks.push({
           title: item.title || "Digital Product",
-          link: item.downloadLink,
+          link: normalizedLink,
         });
       }
     } catch (e) {
@@ -119,6 +128,12 @@ if (order.downloadLink) {
           .summary { width: 300px; margin-left: auto; margin-top: 25px; background: #f8fafc; padding: 15px; border-radius: 10px; font-size: 14px; }
           .summary div { display: flex; justify-content: space-between; margin-bottom: 8px; }
           .total { font-weight: 700; border-top: 1px solid #e5e7eb; padding-top: 10px; color: #2563eb; font-size: 16px; }
+          .meta-box { margin-top: 16px; border: 1px solid #e5e7eb; border-radius: 10px; background: #f8fafc; padding: 12px; }
+          .meta-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+          .meta-row:last-child { margin-bottom: 0; }
+          .meta-label { color: #6b7280; }
+          .meta-value { font-weight: 800; color: #0f172a; }
+          .meta-coupon { color: #1d4ed8; font-weight: 800; }
           .download-box { margin-top: 30px; padding: 20px; background: #eff6ff; border: 2px dashed #bfdbfe; border-radius: 12px; text-align: center; }
           .btn { display: inline-block; background: #2563eb; color: #ffffff !important; padding: 10px 25px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 10px; }
           .note { margin-top: 30px; font-size: 12px; color: #6b7280; text-align: center; }
@@ -147,6 +162,17 @@ if (order.downloadLink) {
 
           <div style="margin-top: 15px; font-size: 14px;">
             <strong>Invoice Date:</strong> ${invoiceDate}
+          </div>
+
+          <div class="meta-box">
+            <div class="meta-row">
+              <span class="meta-label">Transaction ID</span>
+              <span class="meta-value">${paymentRef}</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label">Coupon Code</span>
+              <span class="${couponCode ? "meta-coupon" : "meta-value"}">${couponCode || "NONE"}</span>
+            </div>
           </div>
 
           <div class="table-wrapper">
