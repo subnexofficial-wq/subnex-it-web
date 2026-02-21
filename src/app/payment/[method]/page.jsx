@@ -6,6 +6,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Swal from "sweetalert2"; // ১. SweetAlert2 ইমপোর্ট করুন
 import { pushToDataLayer } from '@/lib/gtm';
 import { useAuth } from '@/hooks/useAuth';
+import { useCart } from '@/hooks/CartContext';
 
 const DetailsContent = () => {
     const params = useParams();
@@ -13,6 +14,7 @@ const DetailsContent = () => {
     const searchParams = useSearchParams();
 
     const { user } = useAuth();
+    const { clearCart } = useCart();
     
     const method = params.method ? params.method.toLowerCase() : ""; 
     const orderId = searchParams.get('orderId');
@@ -89,6 +91,7 @@ const DetailsContent = () => {
                     confirmButtonText: "Return Home"
                 }).then((result) => {
                     if (result.isConfirmed) {
+                        clearCart();
                         router.push('/'); 
                     }
                 });

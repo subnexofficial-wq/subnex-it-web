@@ -2,10 +2,16 @@
 import React from "react";
 import Link from "next/link";
 import LandingHome from "@/Components/LandingPage/LandingHome";
+import { getSiteUrl } from "@/lib/site-url";
+
+const baseUrl = getSiteUrl();
 
 export const metadata = {
-  title: "Automation - Subnex",
-  description: "Automate your business workflows with our advanced AI solutions.",
+  title: "AI Automation (Landing Page) | Subnex",
+  description: "AI automation landing page for Subnex workflows, plans, and onboarding.",
+  alternates: {
+    canonical: `${baseUrl}/automation`,
+  },
 };
 const StreamingPage = async () => {
 
