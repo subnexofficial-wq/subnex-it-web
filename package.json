@@ -6,7 +6,9 @@
     "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "slugs:backfill": "node scripts/backfill-product-slugs.cjs",
+    "slugs:backfill:apply": "node scripts/backfill-product-slugs.cjs --apply"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

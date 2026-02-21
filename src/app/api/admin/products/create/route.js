@@ -1,6 +1,21 @@
 import { NextResponse } from "next/server";
 import getDB from "@/lib/mongodb";
 import { verifyAdminToken } from "@/lib/auth";
+import { slugifyProductTitle } from "@/lib/product-url";
+
+async function generateUniqueSlug(db, title) {
+  const base = slugifyProductTitle(title) || "product";
+  let slug = base;
+  let attempt = 2;
+
+  // Keep slug unique among products.
+  while (await db.collection("products").findOne({ slug })) {
+    slug = `${base}-${attempt}`;
+    attempt += 1;
+  }
+
+  return slug;
+}
 
 export async function POST(req) {
   try {
@@ -38,6 +53,7 @@ export async function POST(req) {
     }
 
     const { db } = await getDB();
+    const slug = await generateUniqueSlug(db, title);
 
     const formattedVariants = variants.map((v) => ({
       duration: v.duration || "N/A",
@@ -46,6 +62,7 @@ export async function POST(req) {
 
     await db.collection("products").insertOne({
       title,
+      slug,
       category,
       thumbnail,
       fullDescription: fullDescription || "",

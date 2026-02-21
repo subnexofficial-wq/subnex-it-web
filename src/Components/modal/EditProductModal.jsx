@@ -123,11 +123,8 @@ export default function EditProductModal({ product, onClose, onUpdated }) {
               <label className={labelClass}><ListPlus size={16}/> Category</label>
               <select name="category" value={form.category} onChange={handleChange} className={inputClass}>
                  <option value="digital-product">Digital product</option>
-                <option value="service">Service</option>
                 <option value="subscription">Subscription</option>
-                <option value="course">Course</option>
                 <option value="automation">Automation</option>
-                <option value="custom-solution">Custom solution</option>
               </select>
             </div>
           </div>

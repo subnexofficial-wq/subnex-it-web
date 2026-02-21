@@ -48,17 +48,46 @@ export async function GET(req) {
     const dateQuery = { $gte: startDate, $lte: specificDate ? endDate : new Date() };
 
     // Fetch data for the period
-    const [allProducts, allUsers, allOrders, transactions, totalProductsCount, totalUsersCount, totalOrdersCount] = await Promise.all([
+    const [allProducts, allUsers, allOrders, transactions, approvedOrders, approvedAutomationOrders, totalProductsCount, totalUsersCount, totalOrdersCount] = await Promise.all([
       db.collection("products").find({ createdAt: dateQuery }).toArray(),
       db.collection("users").find({ createdAt: dateQuery }).toArray(),
       db.collection("orders").find({ createdAt: dateQuery }).toArray(),
       db.collection("transactions").find({ status: "approved", submittedAt: dateQuery }).toArray(),
+      db
+        .collection("orders")
+        .find({
+          status: "completed",
+          updatedAt: dateQuery,
+        })
+        .toArray(),
+      db
+        .collection("automation_orders")
+        .find({
+          status: "completed",
+          paymentStatus: "paid",
+          updatedAt: dateQuery,
+        })
+        .toArray(),
       db.collection("products").countDocuments(),
       db.collection("users").countDocuments(),
       db.collection("orders").countDocuments(),
     ]);
 
-    const totalRevenue = transactions.reduce((acc, curr) => acc + (Number(curr.amountPaid) || 0), 0);
+    const transactionRevenue = transactions.reduce((acc, curr) => acc + (Number(curr.amountPaid) || 0), 0);
+    const orderRevenue = approvedOrders.reduce(
+      (acc, curr) => acc + (Number(curr?.pricing?.totalAmount) || 0),
+      0
+    );
+    const automationRevenue = approvedAutomationOrders.reduce(
+      (acc, curr) =>
+        acc +
+        (Number(curr?.orderDetails?.finalPrice) ||
+          Number(curr?.pricing?.totalAmount) ||
+          Number(curr.amount) ||
+          0),
+      0
+    );
+    const totalRevenue = transactionRevenue + orderRevenue + automationRevenue;
 
     const chartData = chartDataArray.map(date => {
       let label;
@@ -78,9 +107,29 @@ export async function GET(req) {
         return itemDate.toDateString() === date.toDateString();
       };
 
+      const transactionIncome = transactions
+        .filter(t => filterByTime(t, 'submittedAt'))
+        .reduce((acc, curr) => acc + (Number(curr.amountPaid) || 0), 0);
+
+      const orderIncome = approvedOrders
+        .filter(o => filterByTime(o, 'updatedAt'))
+        .reduce((acc, curr) => acc + (Number(curr?.pricing?.totalAmount) || 0), 0);
+
+      const automationIncome = approvedAutomationOrders
+        .filter(a => filterByTime(a, 'updatedAt'))
+        .reduce(
+          (acc, curr) =>
+            acc +
+            (Number(curr?.orderDetails?.finalPrice) ||
+              Number(curr?.pricing?.totalAmount) ||
+              Number(curr.amount) ||
+              0),
+          0
+        );
+
       return {
         name: label,
-        income: transactions.filter(t => filterByTime(t, 'submittedAt')).reduce((acc, curr) => acc + (Number(curr.amountPaid) || 0), 0),
+        income: transactionIncome + orderIncome + automationIncome,
         orders: allOrders.filter(o => filterByTime(o, 'createdAt')).length,
         users: allUsers.filter(u => filterByTime(u, 'createdAt')).length,
         products: allProducts.filter(p => filterByTime(p, 'createdAt')).length,

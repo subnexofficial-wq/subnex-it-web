@@ -55,7 +55,7 @@ const router = useRouter();
               <div className="flex-1">
                 <p className="font-bold text-gray-900 text-lg uppercase leading-tight mb-1">{item.title}</p>
                 {/* প্রতি ইউনিটের ডিসকাউন্টেড দাম */}
-                <p className="text-sm font-semibold text-red-600">Tk {item.price.toLocaleString()}.00</p>
+                <p className="text-sm font-semibold text-red-600">Tk {item.price.toLocaleString()}</p>
                 <div className="flex flex-wrap gap-2 mt-2">
                   <span className="text-[10px] text-blue-700 font-bold bg-blue-50 px-2 py-1 rounded uppercase border border-blue-100">
                     {item.duration}
@@ -99,7 +99,7 @@ const router = useRouter();
             </div>
             {/* Line Total: Item price (including coupon discount) * quantity */}
             <div className="md:col-span-3 text-right font-black text-gray-900 text-lg">
-              Tk {(item.price * item.quantity).toLocaleString()}.00
+              Tk {(item.price * item.quantity).toLocaleString()}
             </div>
           </div>
         ))}
@@ -122,7 +122,7 @@ const router = useRouter();
               <div className="flex justify-between items-center mb-2">
                 <span className="text-gray-500 font-bold uppercase text-xs tracking-widest">Subtotal</span>
                 <span className="text-3xl font-black text-gray-900">
-                  Tk {subtotal.toLocaleString()}.00
+                  Tk {subtotal.toLocaleString()}
                 </span>
               </div>
               <p className="text-gray-400 text-[11px] font-medium">

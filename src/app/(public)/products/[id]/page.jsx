@@ -14,7 +14,7 @@ export default async function ProductDetails({ params }) {
     notFound(); 
   }
 
-  const relatedProducts = await getRelatedProducts(product.category, id);
+  const relatedProducts = await getRelatedProducts(product.category, product._id);
 
   return (
     <SingleProductClient 

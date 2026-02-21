@@ -15,6 +15,7 @@ import {
 } from "react-icons/fi";
 import { useCart } from "@/hooks/CartContext";
 import { useAuth } from "@/hooks/useAuth";
+import { getProductPath } from "@/lib/product-url";
 
 const countryList = [{ name: "Bangladesh", currency: "BDT " }];
 
@@ -82,7 +83,7 @@ const Navbar = () => {
   return (
     <>
       {/* --- আপনার আগের নেভবার (অপরিবর্তিত) --- */}
-      <nav className="w-full bg-white border-b py-0 border-gray-200 sticky top-0 z-1000 shadow-sm font-sans">
+      <nav className="w-full bg-white border-b py-0 border-gray-200 sticky top-0 z-[1000] shadow-sm font-sans">
         <div className=" max-w-[100vw] overflow-x-hidden px-2 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* বাম পাশ */}
@@ -107,7 +108,7 @@ const Navbar = () => {
          <div className="lg:pl-42 flex items-center justify-center">
   <Link href="/" className="group flex items-center gap-0.5">
  
-    <div className="relative w-30 h-10 md:w-30 md:h-16 transition-all duration-300 ease-in-out group-hover:scale-115 active:scale-95">
+    <div className="relative w-[120px] h-[40px] md:w-[140px] md:h-[60px] transition-all duration-300 ease-in-out group-hover:scale-115 active:scale-95">
       <Image
         src="/logo2.png"
         alt="Logo"
@@ -167,7 +168,7 @@ const Navbar = () => {
       >
         <div
           className="bg-white w-full max-h-[90vh] overflow-y-auto shadow-2xl transition-transform duration-300 transform"
-          onClick={(e) => e.stopPropagation()} // ড্রপডাউনে ক্লিক করলে যাতে বন্ধ না হয়
+          onClick={(e) => e.stopPropagation()} 
         >
           <div className="max-w-4xl mx-auto px-4 py-3">
             {/* সার্চ ইনপুট সেকশন */}
@@ -217,7 +218,7 @@ const Navbar = () => {
                     {searchResults.map((product) => (
                       <Link
                         key={product._id}
-                        href={`/products/${product._id}`}
+                        href={getProductPath(product)}
                         onClick={() => setIsSearchOpen(false)}
                         className="flex items-center gap-5 group"
                       >
@@ -250,7 +251,7 @@ const Navbar = () => {
                     onClick={() => setIsSearchOpen(false)}
                     className="flex items-center justify-between border-t mt-8 pt-4 text-gray-900 font-bold text-sm hover:text-red-600 transition group"
                   >
-                    <span>Search for "{searchQuery}"</span>
+                    <span>Search for &quot;{searchQuery}&quot;</span>
 
                   </div>
                  
@@ -259,7 +260,7 @@ const Navbar = () => {
                 searchQuery && (
                   <div className="py-20 text-center">
                     <p className="text-gray-400 italic">
-                      No products found matching "{searchQuery}"
+                      No products found matching &quot;{searchQuery}&quot;
                     </p>
                   </div>
                 )
@@ -318,3 +319,6 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
+
+

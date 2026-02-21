@@ -19,12 +19,23 @@ export async function PATCH(req, { params }) {
     if (!order) return NextResponse.json({ error: "Order not found" }, { status: 404 });
 
     // ১. স্ট্যাটাস আপডেট
-    await db.collection(targetCollection).updateOne(
-      { _id: new ObjectId(id) },
-      { $set: { status: status, updatedAt: new Date() } }
-    );
+    // await db.collection(targetCollection).updateOne(
+    //   { _id: new ObjectId(id) },
+    //   { $set: { status: status, updatedAt: new Date() } }
+    // );
+    const updateResult = await db.collection(targetCollection).updateOne(
+  { _id: new ObjectId(id) },
+  { $set: { status: status, updatedAt: new Date() } }
+);
 
-    // ২. যদি 'completed' হয়, তবে মেইল পাঠানো
+if (updateResult.modifiedCount === 0) {
+  return NextResponse.json(
+    { error: "Status update failed" },
+    { status: 400 }
+  );
+}
+
+    
  if (status === "completed" && order.customer?.email) {
   const pricing = order.pricing || {};
   const activeItems = order.items || order.orderItems || [];
@@ -44,13 +55,33 @@ export async function PATCH(req, { params }) {
   const finalPayable = pricing.totalAmount || (subTotalVal + (pricing.shippingFee || 0) + (pricing.tip || 0));
 
       // ডিজিটাল ডাউনলোড লিঙ্ক
-      let downloadLink = order.downloadLink || null;
-      if (!downloadLink && activeItems?.[0]?.productId) {
-        try {
-          const product = await db.collection("products").findOne({ _id: new ObjectId(activeItems[0].productId) });
-          if (product?.isDownloadable) downloadLink = product.downloadLink;
-        } catch (e) { console.log("Product fetch failed"); }
+      // let downloadLink = order.downloadLink || null;
+      // if (!downloadLink && activeItems?.[0]?.productId) {
+      //   try {
+      //     const product = await db.collection("products").findOne({ _id: new ObjectId(activeItems[0].productId) });
+      //     if (product?.isDownloadable) downloadLink = product.downloadLink;
+      //   } catch (e) { console.log("Product fetch failed"); }
+      // }
+let downloadLinks = [];
+if (order.downloadLink) {
+  downloadLinks.push({
+    title: "Main Download",
+    link: order.downloadLink,
+  });
+}
+  for (const item of activeItems) {
+    try {
+      if (item.downloadLink) {
+        downloadLinks.push({
+          title: item.title || "Digital Product",
+          link: item.downloadLink,
+        });
       }
+    } catch (e) {
+      console.log("Product fetch failed");
+    }
+  }
+
 
       // টেবিল রো জেনারেট
     const itemRows = activeItems.map(item => {
@@ -140,38 +171,46 @@ export async function PATCH(req, { params }) {
 
             <div>
                <span>Subtotal (After Coupon)</span>
-               <span>BDT ${Number(subTotalVal).toLocaleString()}.00</span>
+               <span>BDT ${Number(subTotalVal).toLocaleString()}</span>
             </div>
-            ${discountVal > 0 ? `
-            <div style="color: #10b981;">
-               <span>Discount ${couponCode ? `(${couponCode})` : ''}</span>
-               <span>- BDT ${Number(discountVal).toLocaleString()}.00</span>
-            </div>` : ""}
+          
 
             ${Number(pricing.shippingFee || 0) > 0 ? `
             <div>
                <span>Shipping</span>
-               <span>BDT ${Number(pricing.shippingFee).toLocaleString()}.00</span>
+               <span> BDT ${Number(pricing.shippingFee).toLocaleString()}</span>
             </div>` : ""}
 
             ${Number(pricing.tip || 0) > 0 ? `
             <div>
                <span>Tips</span>
-               <span>BDT ${Number(pricing.tip).toLocaleString()}.00</span>
+               <span>BDT ${Number(pricing.tip).toLocaleString()}</span>
             </div>` : ""}
 
             <div class="total">
                <span>Payable</span>
-               <span>BDT ${Number(finalPayable).toLocaleString()}.00</span>
+               <span> BDT ${Number(finalPayable).toLocaleString()}</span>
             </div>
           </div>
 
-          ${downloadLink ? `
-            <div class="download-box">
-              <p style="margin:0; color:#1e40af; font-weight:bold;">Your download is ready!</p>
-              <a href="${downloadLink}" class="btn">DOWNLOAD ASSETS</a>
-            </div>
-          ` : ""}
+${downloadLinks.length > 0 ? `
+  <div class="download-box">
+    <p style="margin:0 0 15px 0; color:#1e40af; font-weight:bold;">
+      Your Downloadable Products:
+    </p>
+
+    ${downloadLinks.map(product => `
+      <div style="margin-bottom:15px;">
+        <div style="font-weight:bold; margin-bottom:6px;">
+          ${product.title}
+        </div>
+        <a href="${product.link}" class="btn">
+          Download
+        </a>
+      </div>
+    `).join("")}
+  </div>
+` : ""}
 
           <div class="note">
             This is an auto-generated invoice from Subnex. No signature is required.

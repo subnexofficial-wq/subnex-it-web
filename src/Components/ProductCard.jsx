@@ -4,7 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react"; // useState ইমপোর্ট করা হয়েছে
 import { FaStar } from "react-icons/fa";
-import CartPopup from "./CartPopup"; // পপআপ ইমপোর্ট করুন
+import CartPopup from "./CartPopup";
+import { getProductPath } from "@/lib/product-url";
 
 export default function ProductCard({ product }) {
   const { addToCart } = useCart();
@@ -41,7 +42,7 @@ export default function ProductCard({ product }) {
       <CartPopup open={isPopupOpen} onClose={() => setIsPopupOpen(false)} />
 
       <Link 
-        href={`/products/${product._id}`} 
+        href={getProductPath(product)} 
         className="group flex flex-col items-center bg-[#111] border border-gray-800 rounded-xl overflow-hidden hover:border-gray-500 transition-colors duration-300"
       >
         {/* ইমেজ */}
@@ -96,3 +97,5 @@ export default function ProductCard({ product }) {
     </>
   );
 }
+
+

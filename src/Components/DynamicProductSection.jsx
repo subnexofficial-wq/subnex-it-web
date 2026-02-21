@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { FaStar } from "react-icons/fa";
 import { useCart } from "@/hooks/CartContext";
-import CartPopup from "@/Components/CartPopup"; 
-
+import CartPopup from "@/Components/CartPopup";
+import { getProductPath } from "@/lib/product-url";
 const DynamicProductSection = ({ products, sectionTitle }) => {
   const { addToCart } = useCart();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -47,7 +47,7 @@ const DynamicProductSection = ({ products, sectionTitle }) => {
 
             return (
               <Link 
-                href={`/products/${product._id}`} 
+                href={getProductPath(product)} 
                 key={product._id} 
                 className="group flex flex-col items-center bg-[#111] border border-gray-800 rounded-xl overflow-hidden hover:border-gray-500 transition-colors duration-300 shadow-sm"
               >
@@ -107,3 +107,5 @@ const DynamicProductSection = ({ products, sectionTitle }) => {
 };
 
 export default DynamicProductSection;
+
+

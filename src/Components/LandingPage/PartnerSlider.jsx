@@ -7,7 +7,7 @@ const PartnerSlider = ({ logos }) => {
     const duplicatedLogos = [...logos, ...logos];
 
     return (
-        <section className="py-6 md:py-12 bg-[#020617] overflow-hidden flex flex-col gap-12">
+        <section className="py-6 md:py-24 bg-[#020617] overflow-hidden flex flex-col gap-12">
             <div className="container mx-auto px-4 text-center">
                 <h2 className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 uppercase tracking-widest">
                     আমাদের পার্টনারসমূহ
