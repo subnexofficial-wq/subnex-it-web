@@ -3,6 +3,25 @@ import { NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import getDB from "@/lib/mongodb";
 import { verifyAdminToken } from "@/lib/auth";
+import { slugifyProductTitle } from "@/lib/product-url";
+
+async function generateUniqueSlug(db, title, currentId) {
+  const base = slugifyProductTitle(title) || "product";
+  let slug = base;
+  let attempt = 2;
+
+  while (
+    await db.collection("products").findOne({
+      slug,
+      _id: { $ne: new ObjectId(currentId) },
+    })
+  ) {
+    slug = `${base}-${attempt}`;
+    attempt += 1;
+  }
+
+  return slug;
+}
 
 
 /* ================= UPDATE PRODUCT ================= */
@@ -27,6 +46,10 @@ export async function PUT(req, { params }) {
         price: Number(v.price),
         discountPrice: v.discountPrice ? Number(v.discountPrice) : 0
       }));
+    }
+
+    if (typeof updateData.title === "string" && updateData.title.trim()) {
+      updateData.slug = await generateUniqueSlug(db, updateData.title, id);
     }
 
     const result = await db.collection("products").updateOne(

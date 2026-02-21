@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { FiCheck } from "react-icons/fi";
 import { FaWhatsapp } from "react-icons/fa";
+import Swal from "sweetalert2";
 
 export default function AutomationOrders() {
   const [orders, setOrders] = useState([]);
@@ -38,11 +39,19 @@ export default function AutomationOrders() {
       });
 
       if (res.ok) {
-        alert("Order approved successfully.");
+        Swal.fire({
+          title: "Success!",
+          text: "Order approved successfully.",
+          icon: "success",
+        });
         fetchOrders();
       }
     } catch (err) {
-      alert("Error approving order");
+      Swal.fire({
+        title: "Error!",
+        text: "Error approving order.",
+        icon: "error",
+      });
     }
   };
 

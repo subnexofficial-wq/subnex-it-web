@@ -76,7 +76,7 @@ export default function AdminDashboard() {
 
       {/* STATS CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-        <StatCard title="Total Revenue" value={`৳${stats.totalRevenue}`} icon={<FiDollarSign />} color="bg-emerald-500" loading={loading} />
+        <StatCard title="Total Revenue"   value={`৳${Number(stats.totalRevenue).toFixed(2)}`}  icon={<FiDollarSign />} color="bg-emerald-500" loading={loading} />
         <StatCard title="Total Products" value={stats.productsCount} icon={<FiBox />} color="bg-blue-600" loading={loading} />
         <StatCard title="Total Orders" value={stats.totalOrders} icon={<FiShoppingCart />} color="bg-orange-500" loading={loading} />
         <StatCard title="Total Users" value={stats.usersCount} icon={<FiUsers />} color="bg-violet-600" loading={loading} />
@@ -122,7 +122,7 @@ export default function AdminDashboard() {
             <div>
                 <h3 className="font-black uppercase text-[10px] tracking-[0.3em] text-black mb-6">Period Insights</h3>
                 <div className="space-y-6">
-                    <InsightRow label="Total Income" value={`৳${stats.totalRevenue}`} color="text-blue-500" />
+                    <InsightRow label="Total Income"   value={`৳${Number(stats.totalRevenue).toFixed(2)}`} color="text-blue-500" />
                     <InsightRow label="New Orders" value={stats.chartData.reduce((a, b) => a + b.orders, 0)} color="text-orange-500" />
                     <InsightRow label="New Users" value={stats.chartData.reduce((a, b) => a + b.users, 0)} color="text-violet-500" />
                     <InsightRow label="New Products" value={stats.chartData.reduce((a, b) => a + b.products, 0)} color="text-emerald-500" />

@@ -9,7 +9,7 @@ import Swal from "sweetalert2";
 const defaultWorkflowImages = {
   combo:[
    "/workflow/13.png",
-   "/workflow/cmnt2.png",
+  "/workflow/msg2.png",
    "/workflow/14.png",
   ],
   message: [
@@ -192,7 +192,7 @@ const handleFinalCheckout = async () => {
     <div className="min-h-screen bg-[#010409] text-white">
 
       {/* ================= HERO ================= */}
-      <section className="pt-5 md:pt-10 pb-4 md:pb-8 text-center px-4">
+      <section className="pt-5 md:pt-16 pb-4 md:pb-8 text-center px-4">
         <motion.h1
           key={activeTab}
           initial={{ opacity: 0, y: 20 }}
@@ -243,9 +243,9 @@ const handleFinalCheckout = async () => {
   </div>
 </div>
 
-      {/* ================= VIDEO ================= */}
+      {/* =========== VIDEO ============ */}
       {current?.videoUrl && (
-        <section className="py-6 md:py-18 px-6">
+        <section className="py-6 md:py-24 px-6">
           <div className="max-w-5xl mx-auto">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -264,7 +264,7 @@ const handleFinalCheckout = async () => {
       )}
  {/* ================= WORKFLOW (UI AS PER SCREENSHOT) ================= */}
 {current?.workflow?.length > 0 && (
-  <section className="py-4 md:py-12 px-6 md:px-18 ">
+  <section className="py-4 md:py-24 px-6 md:px-18 ">
     <div className="max-w-6xl mx-auto">
       <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-0">
         {current.workflow.map((step, i) => (
@@ -313,7 +313,7 @@ const handleFinalCheckout = async () => {
 
  {/* ================= FEATURES ================= */}
       {current?.features?.length > 0 && (
-        <section className="  py-5 md:py-12 px-3 md:px-6 bg-white/[0.02]">
+        <section className="  py-5 md:py-24 px-3 md:px-6 bg-white/[0.02]">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-center text-4xl font-black italic mb-16 flex items-center justify-center gap-4">
               <Cpu className="text-cyan-400" /> Platform Features
@@ -338,7 +338,7 @@ const handleFinalCheckout = async () => {
         </section>
       )}
       {/* ==== PRICING SECTION ==== */}
-      <section className="py-7 md:py-12 px-3 md:px-6">
+      <section className="py-7 md:py-24 px-3 md:px-6">
         <div className="grid md:grid-cols-3 gap-10 max-w-6xl mx-auto">
           {current?.pricing?.map((plan, i) => {
             const isFeatured = i === 1; 
@@ -359,7 +359,7 @@ const handleFinalCheckout = async () => {
                   <h3 className="text-2xl font-black italic mb-2">{plan.name}</h3>
 
                   {plan.pricingType === "price" ? (
-                    <div className="text-5xl font-black mb-8">৳{plan.price}<span>/mon</span></div>
+                    <div className="text-5xl font-black mb-8">৳{plan.price}<span className="text-xl">/মাস</span></div>
                   ) : (
                     <div className="text-3xl font-black mb-8 text-green-400">Contact Us</div>
                   )}
@@ -415,7 +415,7 @@ const handleFinalCheckout = async () => {
 
       {/* ========== CHECKOUT SECTION (FIXED) ============ */}
       {showCheckout && selectedPlan?.pricingType === "price" && (
-        <section className="py-6 md:py-12 px-3 md:px-6 border-t border-white/10">
+        <section className="py-6 md:py-24 px-3 md:px-6 border-t border-white/10">
           <div className="max-w-xl mx-auto bg-[#0b121d] border border-white/10 rounded-[2.5rem] p-8 md:p-12 shadow-2xl">
             <h3 className="text-2xl font-black mb-8 text-center italic uppercase tracking-widest">
               Checkout - <span className="text-cyan-400">{selectedPlan.name}</span>
@@ -486,7 +486,7 @@ const handleFinalCheckout = async () => {
 
       {/* ================= FAQ ================= */}
       {current?.faqs?.length > 0 && (
-        <section className="py-6 md:py-12 px-3 md:px-6">
+        <section className="py-6 md:py-24 px-3 md:px-6">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-center text-4xl font-black italic mb-16 flex items-center justify-center gap-4">
               <HelpCircle className="text-cyan-400" /> Frequently Asked
