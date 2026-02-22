@@ -233,7 +233,7 @@ const handleFinalCheckout = async () => {
               setAppliedCoupon(null);
             }}
             className={`
-              py-4 md:py-8 px-3 md:px-8 mx-2 rounded-xl font-black text-[10px] md:text-[15px] uppercase transition-all border
+              py-3 md:py-6 px-3 md:px-4 mx-2 rounded-xl font-black text-[10px] md:text-[15px] uppercase transition-all border
               ${active 
                 ? "bg-cyan-400 text-black shadow-[0_0_15px_rgba(34,211,238,0.4)] border-cyan-400" 
                 : "bg-white/5 text-gray-400 hover:text-white border-white/5"

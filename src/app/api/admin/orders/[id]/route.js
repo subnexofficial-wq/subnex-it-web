@@ -166,12 +166,12 @@ const normalizeDownloadLink = (value) => {
 
           <div class="meta-box">
             <div class="meta-row">
-              <span class="meta-label">Transaction ID</span>
-              <span class="meta-value">${paymentRef}</span>
+              <span class="meta-label">Transaction ID :</span>
+              <span class="meta-value">  ${paymentRef}</span>
             </div>
             <div class="meta-row">
-              <span class="meta-label">Coupon Code</span>
-              <span class="${couponCode ? "meta-coupon" : "meta-value"}">${couponCode || "NONE"}</span>
+              <span class="meta-label">Coupon Code :</span>
+              <span class="${couponCode ? "meta-coupon" : "meta-value"}"> ${couponCode || "NONE"}</span>
             </div>
           </div>
 
@@ -192,12 +192,12 @@ const normalizeDownloadLink = (value) => {
           <div class="summary">
             <div>
                <span>Total (Before Coupon)</span>
-               <span>BDT ${Number(totalVal).toLocaleString()}.00</span>
+               <span> BDT ${Number(totalVal).toLocaleString()}.00</span>
             </div>
 
             <div>
                <span>Subtotal (After Coupon)</span>
-               <span>BDT ${Number(subTotalVal).toLocaleString()}</span>
+               <span>  BDT ${Number(subTotalVal).toLocaleString()}</span>
             </div>
           
 
@@ -247,7 +247,10 @@ ${downloadLinks.length > 0 ? `
 
       try {
         await sendEmail({
-          to: order.customer.email,
+    to: [
+    order.customer.email,
+    process.env.ADMIN_EMAIL || "order@subnexit.com"
+  ],
           type: "invoice",
           subject: `Invoice #${shortId} - Subnex`,
           html: emailHtml
