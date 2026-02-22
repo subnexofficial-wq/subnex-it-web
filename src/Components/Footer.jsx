@@ -67,7 +67,7 @@ export default function Footer() {
           </div>
 
           {/* Policy Links */}
-          <div>
+          <div data-nosnippet>
             <ul className="space-y-3 text-sm">
               <li>
                 <Link href="/" className="hover:text-white">

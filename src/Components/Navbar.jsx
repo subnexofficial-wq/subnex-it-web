@@ -83,7 +83,10 @@ const Navbar = () => {
   return (
     <>
       {/* --- আপনার আগের নেভবার (অপরিবর্তিত) --- */}
-      <nav className="w-full bg-white border-b py-0 border-gray-200 sticky top-0 z-[1000] shadow-sm font-sans">
+      <nav
+        className="w-full bg-white border-b py-0 border-gray-200 sticky top-0 z-[1000] shadow-sm font-sans"
+        data-nosnippet
+      >
         <div className=" max-w-[100vw] overflow-x-hidden px-2 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* বাম পাশ */}
@@ -281,6 +284,7 @@ const Navbar = () => {
         className={`fixed top-0 left-0 h-full w-[300px] sm:w-[350px] bg-white z-[1100] shadow-2xl transform transition-transform duration-300 ${
           isMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
+        data-nosnippet
       >
         <div className="flex flex-col h-full font-sans">
           <div className="flex items-center gap-6 p-6 pt-8">
