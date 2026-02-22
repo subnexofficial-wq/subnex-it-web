@@ -11,7 +11,7 @@ import { getSiteUrl } from "@/lib/site-url";
 const baseUrl = getSiteUrl();
 
 export const metadata = {
-  title: "Subnex | Main Page",
+  title: " Main Page",
   description:
     "Subnex main page for digital products, subscriptions, automation services, and customer support.",
   alternates: {
