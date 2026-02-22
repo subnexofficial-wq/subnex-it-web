@@ -38,7 +38,7 @@ export const metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
     default: "Subnex",
-    template: "%s | Subnex",
+    template: "%s ",
   },
   description: "Subnex digital products, subscriptions, AI automation, and customer support.",
   icons: {
