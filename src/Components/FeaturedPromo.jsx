@@ -49,25 +49,27 @@ export default function FeaturedPromo() {
               }`}
             >
               {/* ===== Image Section ===== */}
-           <motion.div
-                whileHover={{
-                  scale: 1.02,
-                  rotateX: 2,
-                  rotateY: -2,
-                }}
-                transition={{ type: "spring", stiffness: 200, damping: 18 }}
-                className="relative w-full h-[300px] sm:h-[400px] md:h-[450px] lg:h-[500px] xl:h-[550px] rounded-xl overflow-hidden hover:shadow-[0_0_60px_rgba(34,197,94,0.2)] bg-[#0f0f0f]"
-              >
-                <Image
-                  src={promo.image}
-                  alt={promo.title}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-contain"
-                  priority={promo.id === 1}
-                />
-                <div className="absolute inset-0 bg-gradient-to-tr from-green-500/10 to-transparent pointer-events-none" />
-              </motion.div>
+          <motion.div
+  whileHover={{
+    scale: 1.02,
+    rotateX: 2,
+    rotateY: -2,
+  }}
+  transition={{ type: "spring", stiffness: 200, damping: 18 }}
+  className="relative w-full h-[350px] sm:h-[450px] md:h-[500px] lg:h-[550px] xl:h-[600px] rounded-2xl overflow-hidden bg-[#0f0f0f] group cursor-pointer"
+>
+  <Image
+    src={promo.image}
+    alt={promo.title}
+    fill
+    sizes="(max-width: 768px) 100vw, 50vw"
+    className="object-cover transition-transform duration-700 group-hover:scale-105"
+    priority={promo.id === 1}
+  />
+
+  {/* Gradient Overlay */}
+  <div className="absolute inset-0 bg-gradient-to-tr from-black/40 via-transparent to-green-500/20 pointer-events-none" />
+</motion.div>
                             {/* ===== Text Section ===== */}
               <motion.div
                 initial={{ opacity: 0, x: promo.reverse ? -40 : 40 }}
@@ -75,7 +77,7 @@ export default function FeaturedPromo() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: 0.1 }}
            
-                className={`w-full md:w-1/2 space-y-6 flex flex-col ${
+                className={`w-full md:w-1/2 lg:w-[45%] space-y-7 flex flex-col ${
                   promo.reverse
                     ? "md:items-end md:text-right"
                     : "md:items-start"
@@ -85,7 +87,7 @@ export default function FeaturedPromo() {
                   {promo.category}
                 </span>
 
-                <h3 className="text-3xl md:text-5xl font-black uppercase text-green-500 leading-tight">
+                <h3 className="text-4xl md:text-6xl font-black uppercase text-green-500 leading-tight">
                   {promo.title}
                 </h3>
 
