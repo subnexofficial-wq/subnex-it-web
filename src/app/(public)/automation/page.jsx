@@ -7,7 +7,7 @@ import { getSiteUrl } from "@/lib/site-url";
 const baseUrl = getSiteUrl();
 
 export const metadata = {
-  title: "AI Automation",
+  title: "AI Automation | Subnex ",
   description: "AI automation landing page for Subnex workflows, plans, and onboarding.",
   alternates: {
     canonical: `${baseUrl}/automation`,
