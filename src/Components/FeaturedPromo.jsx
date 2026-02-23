@@ -48,7 +48,7 @@ export default function FeaturedPromo() {
                 promo.reverse ? "md:flex-row-reverse" : ""
               }`}
             >
-           {/* ===== Image Section  ===== */}
+           {/* ===== Image Section                      ===== */}
               <motion.div
                 whileHover={{
                   scale: 1.03,
