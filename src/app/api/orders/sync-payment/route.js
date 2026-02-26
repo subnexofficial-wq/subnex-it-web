@@ -69,7 +69,7 @@ function extractPaymentState(verifyData) {
 
 export async function POST(req) {
   try {
-    const { orderId, invoiceId, transactionId } = await req.json();
+    const { orderId, invoiceId, transactionId, collection } = await req.json();
     if (!orderId) {
       return NextResponse.json({ error: "orderId is required" }, { status: 400 });
     }
@@ -82,23 +82,41 @@ export async function POST(req) {
     const { isPaid, resolvedTrxId, resolvedInvoiceId } = extractPaymentState(verifyData);
 
     const { db } = await getDB();
-    await db.collection("orders").updateOne(
-      { _id: new ObjectId(orderId) },
-      {
-        $set: {
-          paymentStatus: isPaid ? "paid" : "unpaid",
-          transactionId: resolvedTrxId || transactionId || null,
-          gatewayInvoiceId: resolvedInvoiceId || invoiceId || null,
-          paidAt: isPaid ? new Date() : null,
-          paymentVerifyPayload: verifyData,
-          updatedAt: new Date(),
-        },
+    const allowedCollections = ["orders", "automation_orders"];
+    const collectionPriority = collection && allowedCollections.includes(collection)
+      ? [collection, ...allowedCollections.filter((name) => name !== collection)]
+      : allowedCollections;
+
+    let updatedCollection = null;
+    for (const collectionName of collectionPriority) {
+      const updateResult = await db.collection(collectionName).updateOne(
+        { _id: new ObjectId(orderId) },
+        {
+          $set: {
+            paymentStatus: isPaid ? "paid" : "unpaid",
+            transactionId: resolvedTrxId || transactionId || null,
+            gatewayInvoiceId: resolvedInvoiceId || invoiceId || null,
+            paidAt: isPaid ? new Date() : null,
+            paymentVerifyPayload: verifyData,
+            updatedAt: new Date(),
+          },
+        }
+      );
+
+      if (updateResult.matchedCount > 0) {
+        updatedCollection = collectionName;
+        break;
       }
-    );
+    }
+
+    if (!updatedCollection) {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
 
     return NextResponse.json({
       ok: true,
       paid: isPaid,
+      collection: updatedCollection,
       transactionId: resolvedTrxId || transactionId || null,
       invoiceId: resolvedInvoiceId || invoiceId || null,
     });

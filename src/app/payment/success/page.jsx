@@ -3,7 +3,7 @@ import React, { Suspense, useEffect } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2, MessageSquare, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { useCart } from "@/hooks/CartContext"; 
+import { useCart } from "@/hooks/CartContext";
 import { useSearchParams } from "next/navigation";
 import { pushToDataLayer } from "@/lib/gtm";
 
@@ -18,6 +18,7 @@ function PaymentSuccessContent() {
   useEffect(() => {
     const syncPayment = async () => {
       const orderId = searchParams.get("orderId");
+      const collection = searchParams.get("collection");
       const invoiceId =
         searchParams.get("invoice_id") ||
         searchParams.get("invoiceId") ||
@@ -26,20 +27,22 @@ function PaymentSuccessContent() {
         searchParams.get("transaction_id") ||
         searchParams.get("transactionId") ||
         searchParams.get("trx_id");
+      const amount = Number(searchParams.get("amount") || 0);
 
       if (!orderId || (!invoiceId && !transactionId)) return;
- // ✅ META PIXEL PURCHASE EVENT
-    pushToDataLayer("Purchase", {
-      transaction_id: orderId,
-      value: amount,
-      currency: "BDT",
-      page_type: "automation_success",
-    });
+
+      pushToDataLayer("Purchase", {
+        transaction_id: orderId,
+        value: amount,
+        currency: "BDT",
+        page_type: "automation_success",
+      });
+
       try {
         await fetch("/api/orders/sync-payment", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ orderId, invoiceId, transactionId }),
+          body: JSON.stringify({ orderId, invoiceId, transactionId, collection }),
         });
       } catch (err) {
         console.error("Payment sync failed:", err);
@@ -51,7 +54,7 @@ function PaymentSuccessContent() {
 
   return (
     <div className="min-h-screen bg-[#010409] text-white flex items-center justify-center px-6">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         className="max-w-md w-full bg-[#0b121d] border border-white/10 p-10 rounded-[3rem] text-center shadow-2xl"
@@ -71,19 +74,19 @@ function PaymentSuccessContent() {
         </p>
 
         <div className="space-y-4">
-          <Link 
+          <Link
             href="/"
             className="flex items-center justify-center gap-2 w-full py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition font-bold"
           >
             <ArrowLeft size={18} /> ব্যাক টু হোম
           </Link>
-          
-          <a 
-            href="https://wa.me/8801323019182" 
+
+          <a
+            href="https://wa.me/8801323019182"
             target="_blank"
             className="flex items-center justify-center gap-2 w-full py-4 bg-green-500 hover:bg-green-600 text-black rounded-2xl transition font-bold"
           >
-            <MessageSquare size={18} /> সরাসরি হোয়াটসঅ্যাপ করুন
+            <MessageSquare size={18} /> সরাসরি হোয়াটসঅ্যাপ করুন
           </a>
         </div>
       </motion.div>
