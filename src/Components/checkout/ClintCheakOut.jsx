@@ -21,7 +21,7 @@ const router = useRouter();
   const { cart } = useCart();
   const isBuyNow = searchParams.get("buyNow") === "true";
 
-  /* ================= STATE MANAGEMENT ================= */
+  /* ========= STATE MANAGEMENT ========== */
   // ১. সব স্টেটগুলো আগে ডিক্লেয়ার করতে হবে
   const [couponCode, setCouponCode] = useState("");
   const [checkoutItems, setCheckoutItems] = useState([]);
