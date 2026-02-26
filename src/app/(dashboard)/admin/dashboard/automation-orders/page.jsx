@@ -84,6 +84,7 @@ export default function AutomationOrders() {
                   <th className="px-6 py-5 text-[10px] font-black uppercase text-gray-400 italic">Customer</th>
                   <th className="px-6 py-5 text-[10px] font-black uppercase text-gray-400 italic">Plan</th>
                   <th className="px-6 py-5 text-[10px] font-black uppercase text-gray-400 italic">Pricing</th>
+                  <th className="px-6 py-5 text-[10px] font-black uppercase text-gray-400 italic">Transaction</th>
                   <th className="px-6 py-5 text-[10px] font-black uppercase text-gray-400 italic">Status</th>
                   <th className="px-6 py-5 text-[10px] font-black uppercase text-gray-400 italic text-right">Actions</th>
                 </tr>
@@ -91,7 +92,7 @@ export default function AutomationOrders() {
               <tbody className="divide-y divide-gray-50">
                 {orders.length === 0 ? (
                   <tr>
-                    <td colSpan="5" className="text-center py-10 text-gray-400 font-bold uppercase text-xs">No orders found</td>
+                    <td colSpan="6" className="text-center py-10 text-gray-400 font-bold uppercase text-xs">No orders found</td>
                   </tr>
                 ) : (
                   orders.map((order) => {
@@ -102,8 +103,13 @@ export default function AutomationOrders() {
                     const originalPrice = Number(details.originalPrice || order.pricing?.total || order.amount || 0);
                     const finalPrice = Number(details.finalPrice || order.pricing?.totalAmount || order.amount || 0);
                     const discountAmount = Number(details.discountAmount || order.pricing?.discount || Math.max(0, originalPrice - finalPrice));
-                    const invoiceSent = order.invoiceSent === true;
-                    const invoiceDownloadable = order.invoiceDownloadable === true;
+                    const transactionRef =
+                      order.transactionId ||
+                      order.gatewayTransactionId ||
+                      order.paymentVerifyPayload?.transaction_id ||
+                      order.paymentVerifyPayload?.transactionId ||
+                      order.gatewayInvoiceId ||
+                      "N/A";
 
                     return (
                       <tr key={order._id} className="hover:bg-gray-50/50 transition-colors">
@@ -134,6 +140,10 @@ export default function AutomationOrders() {
                             )}
                           </div>
                         
+                        </td>
+
+                        <td className="px-6 py-5">
+                          <p className="text-[11px] font-bold text-gray-800 break-all">{transactionRef}</p>
                         </td>
 
                         <td className="px-6 py-5">

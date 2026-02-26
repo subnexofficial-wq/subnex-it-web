@@ -51,6 +51,7 @@ export async function POST(req) {
       paymentStatus: "unpaid",
       createdAt: new Date(),
     });
+    const orderId = order.insertedId.toString();
 
     // ৫. পেমেন্ট গেটওয়ে রিকোয়েস্ট (Uddoktapay)
     const response = await fetch(baseUrl, {
@@ -64,11 +65,11 @@ export async function POST(req) {
         email: customerEmail,
         amount: Number(amount),
         metadata: { 
-          order_id: order.insertedId.toString(),
+          order_id: orderId,
           collection: collectionName 
         },
-        redirect_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/success`,
-        return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/success`,
+        redirect_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/success?orderId=${orderId}&collection=${collectionName}`,
+        return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/success?orderId=${orderId}&collection=${collectionName}`,
         cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/cancel`,
         webhook_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/webhook/uddoktapay`,
       }),
@@ -79,6 +80,20 @@ export async function POST(req) {
     if (!response.ok || !data?.payment_url) {
       return NextResponse.json({ error: data?.message || "Gateway Error" }, { status: 400 });
     }
+
+    await db.collection(collectionName).updateOne(
+      { _id: order.insertedId },
+      {
+        $set: {
+          gatewayTransactionId: data?.transaction_id || data?.transactionId || null,
+          gatewayInvoiceId: data?.invoice_id || data?.invoiceId || null,
+          paymentInitStatus: "initiated",
+          paymentInitPayload: data,
+          paymentInitAt: new Date(),
+          updatedAt: new Date(),
+        },
+      }
+    );
 
     return NextResponse.json({ payment_url: data.payment_url });
 
