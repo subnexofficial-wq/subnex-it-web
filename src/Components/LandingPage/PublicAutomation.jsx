@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { CheckCircle2, ArrowRight, Loader2, Cpu, Database, Send, CheckCircle, HelpCircle, Rocket } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
+import { pushToDataLayer } from "@/lib/gtm";
 
 const defaultWorkflowImages = {
   combo:[
@@ -89,7 +90,15 @@ export default function LandingAutomation() {
   }, [loading, activeTab]);
 
   const current = dbData?.[activeTab];
-
+// checkout এ যাওয়ার পর স্বয়ংক্রিয়ভাবে স্ক্রল করার জন্য
+  useEffect(() => {
+  if (showCheckout) {
+    const el = document.getElementById("checkout");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
+  }
+}, [showCheckout]);
   /* ================= COUPON LOGIC ================= */
   const handleApplyCoupon = () => {
     if (!selectedPlan) {
@@ -129,7 +138,7 @@ export default function LandingAutomation() {
 
   /* ================= CHECKOUT HANDLER (FIXED) ================= */
 const handleFinalCheckout = async () => {
- // META PIXEL EVENT ADD
+    // META PIXEL EVENT ADD
   pushToDataLayer("InitiateCheckout", {
     event_source: "automation_checkout_button",
     content_name: selectedPlan?.name,
@@ -416,14 +425,15 @@ const handleFinalCheckout = async () => {
                       Contact on WhatsApp
                     </button>
                   ) : (
-                    <button
+                   <button
   onClick={() => {
     setSelectedPlan(plan);
     setShowCheckout(true);
     setAppliedCoupon(null);
     setCouponInput("");
 
-     pushToDataLayer("ViewContent", {
+
+  pushToDataLayer("ViewContent", {
     content_name: plan.name,
     content_category: activeTab,
     value: Number(plan.price),
@@ -460,7 +470,7 @@ const handleFinalCheckout = async () => {
       {/* ========== CHECKOUT SECTION (FIXED) ============ */}
       {showCheckout && selectedPlan?.pricingType === "price" && (
         <section id="checkout"
-          className="py-6 md:py-24 px-3 md:px-6 border-t border-white/10">
+         className="py-6 md:py-24 px-3 md:px-6 border-t border-white/10">
           <div className="max-w-xl mx-auto bg-[#0b121d] border border-white/10 rounded-[2.5rem] p-8 md:p-12 shadow-2xl">
             <h3 className="text-2xl font-black mb-8 text-center italic uppercase tracking-widest">
               Checkout - <span className="text-cyan-400">{selectedPlan.name}</span>
