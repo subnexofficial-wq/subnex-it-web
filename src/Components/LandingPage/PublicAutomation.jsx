@@ -400,20 +400,31 @@ const handleFinalCheckout = async () => {
                     </button>
                   ) : (
                     <button
-                      onClick={() => {
-                        setSelectedPlan(plan);
-                        setShowCheckout(true);
-                        setAppliedCoupon(null);
-                        setCouponInput("");
-                      }}
-                      className={`w-full py-5 rounded-2xl font-black uppercase text-xs transition ${
-                        isFeatured
-                          ? "bg-cyan-400 text-black shadow-lg shadow-cyan-400/20"
-                          : "bg-white/10 hover:bg-white/20"
-                      }`}
-                    >
-                      Order Now <ArrowRight size={14} className="inline ml-2" />
-                    </button>
+  onClick={() => {
+    setSelectedPlan(plan);
+    setShowCheckout(true);
+    setAppliedCoupon(null);
+    setCouponInput("");
+
+    // scroll after render
+    setTimeout(() => {
+      const el = document.getElementById("checkout");
+      if (el) {
+        el.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+    }, 100);
+  }}
+  className={`w-full py-5 rounded-2xl font-black uppercase text-xs transition ${
+    isFeatured
+      ? "bg-cyan-400 text-black shadow-lg shadow-cyan-400/20"
+      : "bg-white/10 hover:bg-white/20"
+  }`}
+>
+  Order Now <ArrowRight size={14} className="inline ml-2" />
+</button>
                   )}
                 </div>
               </motion.div>
@@ -424,7 +435,8 @@ const handleFinalCheckout = async () => {
 
       {/* ========== CHECKOUT SECTION (FIXED) ============ */}
       {showCheckout && selectedPlan?.pricingType === "price" && (
-        <section className="py-6 md:py-24 px-3 md:px-6 border-t border-white/10">
+        <section id="checkout"
+          className="py-6 md:py-24 px-3 md:px-6 border-t border-white/10">
           <div className="max-w-xl mx-auto bg-[#0b121d] border border-white/10 rounded-[2.5rem] p-8 md:p-12 shadow-2xl">
             <h3 className="text-2xl font-black mb-8 text-center italic uppercase tracking-widest">
               Checkout - <span className="text-cyan-400">{selectedPlan.name}</span>
