@@ -72,6 +72,13 @@ export default function LandingAutomation() {
       .catch(() => setLoading(false));
   }, []);
 
+  // pixel data
+  useEffect(() => {
+  pushToDataLayer("PageView", {
+    page_type: "automation",
+    page_path: window.location.pathname,
+  });
+}, []);
   useEffect(() => {
     if (loading) return;
     if (window.location.hash !== "#workflow") return;
@@ -122,6 +129,16 @@ export default function LandingAutomation() {
 
   /* ================= CHECKOUT HANDLER (FIXED) ================= */
 const handleFinalCheckout = async () => {
+ // META PIXEL EVENT ADD
+  pushToDataLayer("InitiateCheckout", {
+    event_source: "automation_checkout_button",
+    content_name: selectedPlan?.name,
+    content_category: activeTab,
+    value: calculateFinalPrice(selectedPlan?.price, appliedCoupon),
+    currency: "BDT",
+    coupon: appliedCoupon?.code || "",
+  });
+  
   if (!customer.name || !customer.whatsapp || !customer.email) {
     Swal.fire({
       title: "দয়া করে সব তথ্য পূরণ করুন!",
@@ -406,6 +423,13 @@ const handleFinalCheckout = async () => {
     setAppliedCoupon(null);
     setCouponInput("");
 
+     pushToDataLayer("ViewContent", {
+    content_name: plan.name,
+    content_category: activeTab,
+    value: Number(plan.price),
+    currency: "BDT",
+    page_type: "automation",
+  });
     // scroll after render
     setTimeout(() => {
       const el = document.getElementById("checkout");

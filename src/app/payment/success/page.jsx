@@ -27,7 +27,13 @@ function PaymentSuccessContent() {
         searchParams.get("trx_id");
 
       if (!orderId || (!invoiceId && !transactionId)) return;
-
+// ✅ META PIXEL PURCHASE EVENT
+    pushToDataLayer("Purchase", {
+      transaction_id: orderId,
+      value: amount,
+      currency: "BDT",
+      page_type: "automation_success",
+    });
       try {
         await fetch("/api/orders/sync-payment", {
           method: "POST",
