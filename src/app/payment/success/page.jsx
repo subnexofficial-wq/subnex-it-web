@@ -5,6 +5,7 @@ import { CheckCircle2, MessageSquare, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useCart } from "@/hooks/CartContext"; 
 import { useSearchParams } from "next/navigation";
+import { pushToDataLayer } from "@/lib/gtm";
 
 function PaymentSuccessContent() {
   const { clearCart } = useCart();

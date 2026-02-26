@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { CheckCircle2, ArrowRight, Loader2, Cpu, Database, Send, CheckCircle, HelpCircle, Rocket } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
+import { pushToDataLayer } from "@/lib/gtm";
 
 const defaultWorkflowImages = {
   combo:[
