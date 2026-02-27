@@ -18,10 +18,11 @@ function PaymentContent() {
     const startPayment = async () => {
      
       if (!orderId || !amount) return;
+      const numericAmount = Number(String(amount).replace(/[^\d.]/g, "")) || 0;
 
       // ১. 
       pushToDataLayer("InitiateCheckout", { 
-        value: amount, 
+        value: numericAmount, 
         currency: "BDT",
         coupon: couponCode || "" 
       });

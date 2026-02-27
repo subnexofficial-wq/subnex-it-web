@@ -6,6 +6,7 @@ import { useState } from "react"; // useState ইমপোর্ট করা �
 import { FaStar } from "react-icons/fa";
 import CartPopup from "./CartPopup";
 import { getProductPath } from "@/lib/product-url";
+import { pushToDataLayer } from "@/lib/gtm";
 
 export default function ProductCard({ product }) {
   const { addToCart } = useCart();
@@ -33,6 +34,13 @@ export default function ProductCard({ product }) {
 
     // addToCart(product, mainPrice, quantity, variant)
     await addToCart(product, displayPrice, 1, defaultVariant);
+    pushToDataLayer("AddToCart", {
+      item_id: product._id,
+      item_name: product.title,
+      value: Number(displayPrice) || 0,
+      currency: "BDT",
+      quantity: 1,
+    });
     setIsPopupOpen(true); 
   };
 

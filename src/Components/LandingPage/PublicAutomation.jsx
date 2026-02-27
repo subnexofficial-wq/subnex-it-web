@@ -78,6 +78,8 @@ export default function LandingAutomation() {
   pushToDataLayer("PageView", {
     page_type: "automation",
     page_path: window.location.pathname,
+    value: 0,
+    currency: "BDT",
   });
 }, []);
   useEffect(() => {
@@ -138,16 +140,6 @@ export default function LandingAutomation() {
 
   /* ================= CHECKOUT HANDLER (FIXED) ================= */
 const handleFinalCheckout = async () => {
-    // META PIXEL EVENT ADD
-  pushToDataLayer("InitiateCheckout", {
-    event_source: "automation_checkout_button",
-    content_name: selectedPlan?.name,
-    content_category: activeTab,
-    value: calculateFinalPrice(selectedPlan?.price, appliedCoupon),
-    currency: "BDT",
-    coupon: appliedCoupon?.code || "",
-  });
-  
   if (!customer.name || !customer.whatsapp || !customer.email) {
     Swal.fire({
       title: "দয়া করে সব তথ্য পূরণ করুন!",
@@ -161,6 +153,20 @@ const handleFinalCheckout = async () => {
   const originalPrice = Number(selectedPlan.price) || 0;
   const finalAmount = calculateFinalPrice(selectedPlan.price, appliedCoupon);
   const discountAmount = Math.max(0, originalPrice - finalAmount);
+  const planEventId = String(selectedPlan?._id || selectedPlan?.id || selectedPlan?.name || "automation-plan");
+
+  // META PIXEL EVENT
+  pushToDataLayer("InitiateCheckout", {
+    event_source: "automation_checkout_button",
+    content_name: selectedPlan?.name,
+    content_category: activeTab,
+    content_ids: [planEventId],
+    content_type: "product",
+    num_items: 1,
+    value: Number(finalAmount) || 0,
+    currency: "BDT",
+    coupon: appliedCoupon?.code || "",
+  });
 
   // পে-লোড ভেরিয়েবলটি আগে তৈরি করে নিতে হবে
   const payload = {
@@ -434,6 +440,9 @@ const handleFinalCheckout = async () => {
 
 
   pushToDataLayer("ViewContent", {
+    content_ids: [String(plan._id || plan.id || plan.name || "automation-plan")],
+    content_type: "product",
+    num_items: 1,
     content_name: plan.name,
     content_category: activeTab,
     value: Number(plan.price),
