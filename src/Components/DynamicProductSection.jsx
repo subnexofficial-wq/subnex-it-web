@@ -6,6 +6,7 @@ import { FaStar } from "react-icons/fa";
 import { useCart } from "@/hooks/CartContext";
 import CartPopup from "@/Components/CartPopup";
 import { getProductPath } from "@/lib/product-url";
+import { pushToDataLayer } from "@/lib/gtm";
 const DynamicProductSection = ({ products, sectionTitle }) => {
   const { addToCart } = useCart();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -17,6 +18,13 @@ const DynamicProductSection = ({ products, sectionTitle }) => {
     e.preventDefault();
     e.stopPropagation(); 
     await addToCart(product, price, 1, variant);
+    pushToDataLayer("AddToCart", {
+      item_id: product._id,
+      item_name: product.title,
+      value: Number(price) || 0,
+      currency: "BDT",
+      quantity: 1,
+    });
     setIsPopupOpen(true);
   };
 

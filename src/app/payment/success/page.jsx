@@ -27,15 +27,21 @@ function PaymentSuccessContent() {
         searchParams.get("transaction_id") ||
         searchParams.get("transactionId") ||
         searchParams.get("trx_id");
-      const amount = Number(searchParams.get("amount") || 0);
+      const amountRaw = searchParams.get("amount") || "0";
+      const amount = Number(String(amountRaw).replace(/[^\d.]/g, "")) || 0;
 
-      if (!orderId || (!invoiceId && !transactionId)) return;
+      if (!orderId) return;
+      const purchaseEventId = transactionId || invoiceId || orderId;
 
       pushToDataLayer("Purchase", {
-        transaction_id: orderId,
+        transaction_id: purchaseEventId,
+        content_ids: [orderId],
+        content_type: "product",
+        num_items: 1,
         value: amount,
         currency: "BDT",
         page_type: "automation_success",
+        order_id: orderId,
       });
 
       try {
