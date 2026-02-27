@@ -73,15 +73,15 @@ export default function LandingAutomation() {
       .catch(() => setLoading(false));
   }, []);
 
-  // pixel data
+  // Pixel: keep pageview payload isolated from commerce value events
   useEffect(() => {
-  pushToDataLayer("PageView", {
-    page_type: "automation",
-    page_path: window.location.pathname,
-    value: 0,
-    currency: "BDT",
-  });
-}, []);
+    pushToDataLayer("AutomationPageView", {
+      page_type: "automation",
+      page_path: window.location.pathname,
+      page_value: 0,
+      page_currency: "BDT",
+    });
+  }, []);
   useEffect(() => {
     if (loading) return;
     if (window.location.hash !== "#workflow") return;
@@ -152,6 +152,9 @@ const handleFinalCheckout = async () => {
   setIsProcessing(true);
   const originalPrice = Number(selectedPlan.price) || 0;
   const finalAmount = calculateFinalPrice(selectedPlan.price, appliedCoupon);
+  const checkoutValue = Number.isFinite(Number(finalAmount))
+    ? Number(finalAmount)
+    : 0;
   const discountAmount = Math.max(0, originalPrice - finalAmount);
   const planEventId = String(selectedPlan?._id || selectedPlan?.id || selectedPlan?.name || "automation-plan");
 
@@ -163,7 +166,9 @@ const handleFinalCheckout = async () => {
     content_ids: [planEventId],
     content_type: "product",
     num_items: 1,
-    value: Number(finalAmount) || 0,
+    value: checkoutValue,
+    amount: checkoutValue,
+    checkout_value: checkoutValue,
     currency: "BDT",
     coupon: appliedCoupon?.code || "",
   });
