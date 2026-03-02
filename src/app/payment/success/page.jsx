@@ -15,49 +15,97 @@ function PaymentSuccessContent() {
     clearCart();
   }, [clearCart]);
 
-  useEffect(() => {
-    const syncPayment = async () => {
-      const orderId = searchParams.get("orderId");
-      const collection = searchParams.get("collection");
-      const invoiceId =
-        searchParams.get("invoice_id") ||
-        searchParams.get("invoiceId") ||
-        searchParams.get("invoice");
-      const transactionId =
-        searchParams.get("transaction_id") ||
-        searchParams.get("transactionId") ||
-        searchParams.get("trx_id");
-      const amountRaw = searchParams.get("amount") || "0";
-      const amount = Number(String(amountRaw).replace(/[^\d.]/g, "")) || 0;
+  // useEffect(() => {
+  //   const syncPayment = async () => {
+  //     const orderId = searchParams.get("orderId");
+  //     const collection = searchParams.get("collection");
+  //     const invoiceId =
+  //       searchParams.get("invoice_id") ||
+  //       searchParams.get("invoiceId") ||
+  //       searchParams.get("invoice");
+  //     const transactionId =
+  //       searchParams.get("transaction_id") ||
+  //       searchParams.get("transactionId") ||
+  //       searchParams.get("trx_id");
+  //     const amountRaw = searchParams.get("amount") || "0";
+  //     const amount = Number(String(amountRaw).replace(/[^\d.]/g, "")) || 0;
 
-      if (!orderId) return;
-      const purchaseEventId = transactionId || invoiceId || orderId;
+  //     if (!orderId) return;
+  //     const purchaseEventId = transactionId || invoiceId || orderId;
 
-      pushToDataLayer("Purchase", {
-        transaction_id: purchaseEventId,
-        content_ids: [orderId],
-        content_type: "product",
-        num_items: 1,
-        value: amount,
-        currency: "BDT",
-        page_type: "automation_success",
-        order_id: orderId,
+  //     pushToDataLayer("Purchase", {
+  //       transaction_id: purchaseEventId,
+  //       content_ids: [orderId],
+  //       content_type: "product",
+  //       num_items: 1,
+  //       value: amount,
+  //       currency: "BDT",
+  //       page_type: "automation_success",
+  //       order_id: orderId,
+  //     });
+
+  //     try {
+  //       await fetch("/api/orders/sync-payment", {
+  //         method: "POST",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify({ orderId, invoiceId, transactionId, collection }),
+  //       });
+  //     } catch (err) {
+  //       console.error("Payment sync failed:", err);
+  //     }
+  //   };
+
+  //   syncPayment();
+  // }, [searchParams]);
+ // PaymentSuccessContent এর ভেতরে আপডেট করুন
+useEffect(() => {
+  const syncPayment = async () => {
+    const orderId = searchParams.get("orderId");
+    if (!orderId) return;
+
+    // ১. ডুপ্লিকেট ট্র্যাকিং রোধ (SessionStorage)
+    const firedOrders = JSON.parse(sessionStorage.getItem("fired_purchases") || "[]");
+    if (firedOrders.includes(orderId)) return; 
+
+    const amountRaw = searchParams.get("amount") || "0";
+    const amount = Number(String(amountRaw).replace(/[^\d.]/g, "")) || 0;
+    const transactionId = searchParams.get("transaction_id") || searchParams.get("trx_id") || orderId;
+    
+    
+    const isAutomation = searchParams.get("isAutomation") === "true";
+
+    // ৩. মেটা পিক্সেল পারচেজ ইভেন্ট
+    pushToDataLayer("Purchase", {
+      transaction_id: transactionId,
+      content_ids: [orderId],
+      content_type: "product",
+      content_category: isAutomation ? "Automation" : "General_Ecom",
+      value: amount,
+      currency: "BDT",
+      order_id: orderId,
+    });
+
+    firedOrders.push(orderId);
+    sessionStorage.setItem("fired_purchases", JSON.stringify(firedOrders));
+
+    
+    try {
+      await fetch("/api/orders/sync-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          orderId, 
+          transactionId, 
+          collection: isAutomation ? "automation" : "orders" 
+        }),
       });
+    } catch (err) {
+      console.error("Sync error:", err);
+    }
+  };
 
-      try {
-        await fetch("/api/orders/sync-payment", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ orderId, invoiceId, transactionId, collection }),
-        });
-      } catch (err) {
-        console.error("Payment sync failed:", err);
-      }
-    };
-
-    syncPayment();
-  }, [searchParams]);
-
+  syncPayment();
+}, [searchParams]);
   return (
     <div className="min-h-screen bg-[#010409] text-white flex items-center justify-center px-6">
       <motion.div
