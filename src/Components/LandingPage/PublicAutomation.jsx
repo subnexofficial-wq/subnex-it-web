@@ -140,25 +140,26 @@ export default function LandingAutomation() {
 
   /* ================= CHECKOUT HANDLER (FIXED) ================= */
 const handleFinalCheckout = async () => {
+  // ১. ভ্যালিডেশন চেক - সব তথ্য আছে কিনা
   if (!customer.name || !customer.whatsapp || !customer.email) {
     Swal.fire({
       title: "দয়া করে সব তথ্য পূরণ করুন!",
       icon: "warning",
       confirmButtonText: "ঠিক আছে",
     });
-    return;
+    return; 
   }
 
+  // ২. প্রসেসিং স্টেট সেট করা (একাধিকবার ক্লিক প্রতিরোধ করতে)
   setIsProcessing(true);
+
   const originalPrice = Number(selectedPlan.price) || 0;
   const finalAmount = calculateFinalPrice(selectedPlan.price, appliedCoupon);
-  const checkoutValue = Number.isFinite(Number(finalAmount))
-    ? Number(finalAmount)
-    : 0;
+  const checkoutValue = Number.isFinite(Number(finalAmount)) ? Number(finalAmount) : 0;
   const discountAmount = Math.max(0, originalPrice - finalAmount);
   const planEventId = String(selectedPlan?._id || selectedPlan?.id || selectedPlan?.name || "automation-plan");
 
-  // META PIXEL EVENT
+  // ৩. ট্র্যাকিং ইভেন্ট (শুধুমাত্র ভ্যালিডেশন সফল হলে ফায়ার হবে)
   pushToDataLayer("InitiateCheckout", {
     event_source: "automation_checkout_button",
     content_name: selectedPlan?.name,
@@ -167,13 +168,10 @@ const handleFinalCheckout = async () => {
     content_type: "product",
     num_items: 1,
     value: checkoutValue,
-    amount: checkoutValue,
-    checkout_value: checkoutValue,
     currency: "BDT",
     coupon: appliedCoupon?.code || "",
   });
 
-  // পে-লোড ভেরিয়েবলটি আগে তৈরি করে নিতে হবে
   const payload = {
     amount: finalAmount,
     customerName: customer.name,
@@ -193,8 +191,6 @@ const handleFinalCheckout = async () => {
     isAutomation: true
   };
 
-  console.log("Sending to Backend:", payload); 
-
   try {
     const response = await fetch("/api/checkout", {
       method: "POST",
@@ -203,18 +199,21 @@ const handleFinalCheckout = async () => {
     });
 
     const data = await response.json();
+
     if (data.payment_url) {
+      // সফল হলে গেটওয়েতে পাঠিয়ে দিন
       window.location.href = data.payment_url;
     } else {
+      setIsProcessing(false); 
       Swal.fire({
         title: "পেমেন্ট লিঙ্ক তৈরি করা যায়নি!",
         text: data.error || "অপ্রত্যাশিত ত্রুটি।",
         icon: "error",
         confirmButtonText: "ঠিক আছে"
       });
-      setIsProcessing(false);
     }
   } catch (error) {
+    setIsProcessing(false);
     console.error("Checkout Error:", error);
     Swal.fire({
       title: "সার্ভার এরর!",
@@ -222,7 +221,6 @@ const handleFinalCheckout = async () => {
       icon: "error",
       confirmButtonText: "ঠিক আছে"
     });
-    setIsProcessing(false);
   }
 };
 
