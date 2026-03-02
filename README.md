@@ -310,7 +310,6 @@ Configured in `next.config.mjs`:
 
 - Add automated tests (unit/integration/e2e).
 - Add API request validation schema layer.
-- Standardize error response contracts.
 - Add rate limiting for auth/payment endpoints.
 - Add `.env.example` (recommended for onboarding).
 

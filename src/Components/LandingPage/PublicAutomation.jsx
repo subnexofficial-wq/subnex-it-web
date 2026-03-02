@@ -74,14 +74,22 @@ export default function LandingAutomation() {
   }, []);
 
   // Pixel: keep pageview payload isolated from commerce value events
-  useEffect(() => {
-    pushToDataLayer("AutomationPageView", {
-      page_type: "automation",
-      page_path: window.location.pathname,
-      page_value: 0,
-      page_currency: "BDT",
-    });
-  }, []);
+   useEffect(() => {
+  pushToDataLayer("page_view", {
+    page_title: "Automation Landing Page",
+    page_location: window.location.href,
+    page_path: window.location.pathname,
+    content_category: "Automation",
+  });
+}, []);
+  // useEffect(() => {
+  //   pushToDataLayer("AutomationPageView", {
+  //     page_type: "automation",
+  //     page_path: window.location.pathname,
+  //     page_value: 0,
+  //     page_currency: "BDT",
+  //   });
+  // }, []);
   useEffect(() => {
     if (loading) return;
     if (window.location.hash !== "#workflow") return;
@@ -216,7 +224,7 @@ const handleFinalCheckout = async () => {
     setIsProcessing(false);
     console.error("Checkout Error:", error);
     Swal.fire({
-      title: "সার্ভার এরর!",
+      title: "Server error",
       text: "সম্ভবত API কানেকশনে সমস্যা হচ্ছে।",
       icon: "error",
       confirmButtonText: "ঠিক আছে"
