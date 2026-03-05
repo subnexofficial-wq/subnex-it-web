@@ -149,6 +149,7 @@ export default function LandingAutomation() {
   /* ================= CHECKOUT HANDLER (FIXED) ================= */
 const handleFinalCheckout = async () => {
   // ১. ভ্যালিডেশন চেক - সব তথ্য আছে কিনা
+  if (isProcessing) return;
   if (!customer.name || !customer.whatsapp || !customer.email) {
     Swal.fire({
       title: "দয়া করে সব তথ্য পূরণ করুন!",
@@ -544,7 +545,7 @@ const handleFinalCheckout = async () => {
               </div>
 
              <button 
-  onClick={ handleFinalCheckout}
+onClick={() => handleFinalCheckout()}
   disabled={isProcessing}
   className="w-full py-6 bg-cyan-400 hover:bg-cyan-300 text-black font-black rounded-2xl uppercase text-sm shadow-[0_10px_30px_rgba(34,211,238,0.3)] transition-all flex items-center justify-center gap-2"
 >
